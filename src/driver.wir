@@ -251,6 +251,17 @@
         (output_path ptr))
       (returns i32)
       (body
+        (return
+          (call_i32 weave_compile_file
+            (param_get input_path)
+            (param_get output_path)))))
+
+    (fn compile_file_self_hosted
+      (params
+        (input_path ptr)
+        (output_path ptr))
+      (returns i32)
+      (body
         (if
           (or_bool
             (eq_ptr

@@ -16,6 +16,7 @@ SRC_DIR="$WEAVEC1_DIR/src"
 TEST_DIR="$WEAVEC1_DIR/tests"
 BUILD_DIR="$WEAVEC1_DIR/build"
 SRC_LL_DIR="$BUILD_DIR/src-ll"
+LINK_LL_DIR="$BUILD_DIR/link-ll"
 TEST_LL_DIR="$BUILD_DIR/test-ll"
 TEST_EXE_DIR="$BUILD_DIR/test-bin"
 BOOTSTRAP_BC_DIR="$BOOTSTRAP_DIR/build/bootstrap-tests/bc"
@@ -24,7 +25,15 @@ WEAVEC0="$BOOTSTRAP_DIR/weavec0"
 WEAVEC1="$BUILD_DIR/weavec1"
 
 MODULES=(
-  stage0_bridge
+  runtime_bindings
+  strings
+  tokens
+  ast
+  lexer
+  parser
+  emit_llvm
+  driver
+  main
 )
 
 BOOTSTRAP_MODULES=(
@@ -71,13 +80,75 @@ compile_module() {
 build_weavec1() {
   log "building weavec1"
 
-  mkdir -p "$SRC_LL_DIR" "$TEST_LL_DIR" "$TEST_EXE_DIR"
+  mkdir -p "$SRC_LL_DIR" "$LINK_LL_DIR" "$TEST_LL_DIR" "$TEST_EXE_DIR"
+  rm -f "$SRC_LL_DIR"/*.ll "$LINK_LL_DIR"/*.ll
 
   local llvm_modules=()
   local module
   for module in "${MODULES[@]}"; do
     compile_module "$module"
-    llvm_modules+=("$SRC_LL_DIR/${module}.ll")
+  done
+
+  local all_decls="$BUILD_DIR/weavec1.decls.ll"
+  {
+    printf 'declare ptr @realloc(ptr, i64)\n'
+    printf 'declare ptr @memcpy(ptr, ptr, i64)\n'
+    printf 'declare i64 @strlen(ptr)\n'
+    printf 'declare i32 @strcmp(ptr, ptr)\n'
+    printf 'declare i32 @strncmp(ptr, ptr, i64)\n'
+    printf 'declare i32 @atoi(ptr)\n'
+    printf 'declare i32 @putchar(i32)\n'
+    printf 'declare ptr @weave_rt_read_file(ptr, ptr)\n'
+    printf 'declare i32 @weave_rt_write_file(ptr, ptr, i64)\n'
+    printf 'declare void @weave_rt_fatal(ptr)\n'
+
+    for module in "${MODULES[@]}"; do
+      awk '
+        /^define / {
+          signature = $0
+          gsub(/\{[[:space:]]*$/, "", signature)
+          sub(/^define /, "declare ", signature)
+          print signature
+        }
+      ' "$SRC_LL_DIR/${module}.ll"
+    done
+  } > "$all_decls"
+
+  for module in "${MODULES[@]}"; do
+    local src_ll="$SRC_LL_DIR/${module}.ll"
+    local link_ll="$LINK_LL_DIR/${module}.ll"
+    local names="$BUILD_DIR/${module}.names"
+    local decls="$BUILD_DIR/${module}.decls.ll"
+
+    awk '/^(define|declare) / {
+      if (match($0, /@[A-Za-z0-9_.$-]+/)) {
+        print substr($0, RSTART, RLENGTH)
+      }
+    }' "$src_ll" > "$names"
+
+    awk 'NR == FNR {
+      skip[$1] = 1
+      next
+    }
+    {
+      if (match($0, /@[A-Za-z0-9_.$-]+/)) {
+        name = substr($0, RSTART, RLENGTH)
+        if (name in skip) {
+          next
+        }
+      }
+      print
+    }' "$names" "$all_decls" > "$decls"
+
+    {
+      sed -n '1,/^$/p' "$src_ll"
+      printf '; ---- generated cross-module declarations ----\n'
+      cat "$decls"
+      printf '\n'
+      sed '1,/^$/d' "$src_ll"
+    } > "$link_ll"
+
+    llvm_modules+=("$link_ll")
   done
 
   local bootstrap_bitcode=()
@@ -151,6 +222,14 @@ run_tests() {
   run_case "23_mod_i32" 2
   run_case "24_buffer_like_smoke" 42
   run_case "25_ptr_params_call_i32" 42
+  run_case "26_bool_return" 42
+  run_case "27_three_arg_function" 42
+  run_case "28_i32_memory_and_cast" 42
+  run_case "29_const_string_ptr" 42
+  run_case "30_i64_sub_eq" 42
+  run_case "31_not_bool" 42
+  run_case "32_codegen_join_and_i64_arg" 42
+  run_case "33_store_i8_temp" 42
 
   log "all weavec1 tests passed"
 }

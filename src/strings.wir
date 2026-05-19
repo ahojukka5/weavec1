@@ -671,7 +671,7 @@
               (param_get a)
               (param_get b)
               (param_get a_len))
-            (const_i32 0))))
+            (const_i32 0)))))
 
     ; -------------------------------------------------------------------------
     ; Write buffer to file

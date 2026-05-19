@@ -536,11 +536,11 @@
 
           (then
             (block
-              (let start i64
+              (let string_start i64
                 (call_i64 parser_current_start
                   (param_get parser)))
 
-              (let length i64
+              (let string_length i64
                 (call_i64 parser_current_length
                   (param_get parser)))
 
@@ -551,8 +551,8 @@
                 (call_i64 ast_make_const_string
                   (call_ptr parser_ast
                     (param_get parser))
-                  (local_get start)
-                  (local_get length)))))
+                  (local_get string_start)
+                  (local_get string_length)))))
 
           (else
             (block)))
@@ -579,11 +579,11 @@
 
           (then
             (block
-              (let start i64
+              (let ident_start i64
                 (call_i64 parser_ident_start
                   (param_get parser)))
 
-              (let length i64
+              (let ident_length i64
                 (call_i64 parser_ident_length
                   (param_get parser)))
 
@@ -595,8 +595,8 @@
                   (call_ptr parser_ast
                     (param_get parser))
                   (call_i32 ast_local_get)
-                  (local_get start)
-                  (local_get length)))))
+                  (local_get ident_start)
+                  (local_get ident_length)))))
 
           (else
             (block)))
