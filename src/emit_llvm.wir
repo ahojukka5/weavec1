@@ -125,14 +125,14 @@
               (return (const_null))))
           (else (block)))
 
-        (let params ptr
+        (let param_bindings ptr
           (call_ptr malloc
             (mul_i64
               (call_i64 emit_max_bindings)
               (call_i64 emit_binding_size))))
 
         (if
-          (eq_ptr (local_get params) (const_null))
+          (eq_ptr (local_get param_bindings) (const_null))
           (then
             (block
               (call_void free (local_get locals))
@@ -148,7 +148,7 @@
         (call_void ctx_set_string_counter (local_get ctx) (const_i64 0))
         (call_void ctx_set_locals (local_get ctx) (local_get locals))
         (call_void ctx_set_local_count (local_get ctx) (const_i64 0))
-        (call_void ctx_set_params (local_get ctx) (local_get params))
+        (call_void ctx_set_params (local_get ctx) (local_get param_bindings))
         (call_void ctx_set_param_count (local_get ctx) (const_i64 0))
 
         (return
@@ -168,7 +168,7 @@
           (call_ptr ctx_locals
             (param_get ctx)))
 
-        (let params ptr
+        (let param_bindings ptr
           (call_ptr ctx_params
             (param_get ctx)))
 
@@ -176,8 +176,8 @@
           (then (call_void free (local_get locals)))
           (else (block)))
 
-        (if (ne_ptr (local_get params) (const_null))
-          (then (call_void free (local_get params)))
+        (if (ne_ptr (local_get param_bindings) (const_null))
+          (then (call_void free (local_get param_bindings)))
           (else (block)))
 
         (call_void free (param_get ctx))
@@ -344,7 +344,7 @@
 
         (if (eq_i32 (param_get type_id) (call_i32 type_ptr))
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr "ptr"))))
-          (else (return (const_i32 1)))))
+          (else (return (const_i32 1))))))
 
     ; -------------------------------------------------------------------------
     ; Value emission model
@@ -450,7 +450,7 @@
 
         (if (eq_i32 (param_get op) (call_i32 op_lt_i32))
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp slt i32 "))))
-          (else (return (const_i32 1)))))
+          (else (return (const_i32 1))))))
 
     (fn emit_binary_expr
       (params
