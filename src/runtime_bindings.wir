@@ -1,0 +1,195 @@
+; =============================================================================
+; Weave Bootstrap Compiler
+; runtime_bindings.wir
+;
+; Runtime declarations for the first WIR-written compiler.
+;
+; This file is deliberately written in WIR/TIR, not surface Weave.
+;
+; Purpose:
+;
+;   Define the external runtime and libc functions that later WIR files may call.
+;
+; This file should not contain compiler logic.
+; =============================================================================
+
+(core-module
+  (core-version 1)
+
+  (decls
+
+    ; -------------------------------------------------------------------------
+    ; Memory allocation
+    ; -------------------------------------------------------------------------
+    ;
+    ; These are external declarations. They are lowered directly to LLVM
+    ; `declare` statements.
+
+    (extern malloc
+      (params
+        (size i64))
+      (returns ptr))
+
+    (extern realloc
+      (params
+        (old ptr)
+        (size i64))
+      (returns ptr))
+
+    (extern free
+      (params
+        (p ptr))
+      (returns void))
+
+    (extern memcpy
+      (params
+        (dst ptr)
+        (src ptr)
+        (count i64))
+      (returns ptr))
+
+    ; -------------------------------------------------------------------------
+    ; String helpers from libc
+    ; -------------------------------------------------------------------------
+
+    (extern strlen
+      (params
+        (text ptr))
+      (returns i64))
+
+    (extern strcmp
+      (params
+        (a ptr)
+        (b ptr))
+      (returns i32))
+
+    (extern strncmp
+      (params
+        (a ptr)
+        (b ptr)
+        (count i64))
+      (returns i32))
+
+    (extern atoi
+      (params
+        (text ptr))
+      (returns i32))
+
+    ; -------------------------------------------------------------------------
+    ; Output
+    ; -------------------------------------------------------------------------
+
+    (extern puts
+      (params
+        (text ptr))
+      (returns i32))
+
+    (extern putchar
+      (params
+        (ch i32))
+      (returns i32))
+
+    ; -------------------------------------------------------------------------
+    ; Tiny bootstrap runtime
+    ; -------------------------------------------------------------------------
+    ;
+    ; These functions are implemented in bootstrap/runtime.c.
+    ;
+    ; They are intentionally boring platform helpers:
+    ;
+    ;   read file
+    ;   write file
+    ;   fatal error
+
+    (extern weave_rt_read_file
+      (params
+        (path ptr)
+        (out_len ptr))
+      (returns ptr))
+
+    (extern weave_rt_write_file
+      (params
+        (path ptr)
+        (data ptr)
+        (length i64))
+      (returns i32))
+
+    (extern weave_rt_fatal
+      (params
+        (message ptr))
+      (returns void))
+
+    ; -------------------------------------------------------------------------
+    ; Small runtime wrapper functions
+    ; -------------------------------------------------------------------------
+    ;
+    ; These wrappers give the rest of the WIR compiler stable names.
+    ; They are still WIR functions, but they lower almost one-to-one to calls.
+
+    (fn read_file
+      (params
+        (path ptr)
+        (out_len ptr))
+      (returns ptr)
+
+      (body
+        (return
+          (call_ptr weave_rt_read_file
+            (param_get path)
+            (param_get out_len)))))
+
+    (fn write_file
+      (params
+        (path ptr)
+        (data ptr)
+        (length i64))
+      (returns i32)
+
+      (body
+        (return
+          (call_i32 weave_rt_write_file
+            (param_get path)
+            (param_get data)
+            (param_get length)))))
+
+    (fn fatal
+      (params
+        (message ptr))
+      (returns i32)
+
+      (body
+        (call_void weave_rt_fatal
+          (param_get message))
+
+        ; This return is unreachable in practice, but keeps the function shape
+        ; simple for the bootstrap compiler.
+        (return
+          (const_i32 1))))
+
+    ; -------------------------------------------------------------------------
+    ; Null helpers
+    ; -------------------------------------------------------------------------
+    ;
+    ; bool is the TIR boolean type. The LLVM emitter lowers it to i1.
+
+    (fn is_null
+      (params
+        (p ptr))
+      (returns bool)
+
+      (body
+        (return
+          (eq_ptr
+            (param_get p)
+            (const_null)))))
+
+    (fn not_null
+      (params
+        (p ptr))
+      (returns bool)
+
+      (body
+        (return
+          (ne_ptr
+            (param_get p)
+            (const_null)))))))

@@ -1,0 +1,903 @@
+; =============================================================================
+; Weave Bootstrap Compiler
+; lexer.wir
+;
+; Lexer for the first WIR-written compiler.
+;
+; Responsibility:
+;
+;     source bytes -> token stream
+;
+; This lexer recognizes the S-expression based WIR/TIR syntax used by weavec1.
+; =============================================================================
+
+(core-module
+  (core-version 1)
+
+  (decls
+
+    ; -------------------------------------------------------------------------
+    ; Source layout
+    ; -------------------------------------------------------------------------
+    ;
+    ; Source is a raw memory object, 16 bytes:
+    ;
+    ;   offset 0: data   ptr
+    ;   offset 8: length i64
+
+    (fn source_size
+      (params)
+      (returns i64)
+      (body
+        (return
+          (const_i64 16))))
+
+    (fn source_new
+      (params
+        (data ptr)
+        (length i64))
+      (returns ptr)
+      (body
+        (let source ptr
+          (call_ptr malloc
+            (call_i64 source_size)))
+
+        (if
+          (eq_ptr
+            (local_get source)
+            (const_null))
+          (then
+            (return
+              (const_null)))
+          (else
+            (block)))
+
+        (store_ptr
+          (local_get source)
+          (param_get data))
+
+        (store_i64
+          (ptr_add
+            (local_get source)
+            (const_i64 8))
+          (param_get length))
+
+        (return
+          (local_get source))))
+
+    (fn source_free
+      (params
+        (source ptr))
+      (returns void)
+      (body
+        (if
+          (ne_ptr
+            (param_get source)
+            (const_null))
+          (then
+            (call_void free
+              (param_get source)))
+          (else
+            (block)))
+
+        (return_void)))
+
+    (fn source_data
+      (params
+        (source ptr))
+      (returns ptr)
+      (body
+        (return
+          (load_ptr
+            (param_get source)))))
+
+    (fn source_length
+      (params
+        (source ptr))
+      (returns i64)
+      (body
+        (return
+          (load_i64
+            (ptr_add
+              (param_get source)
+              (const_i64 8))))))
+
+    (fn source_byte_at
+      (params
+        (source ptr)
+        (index i64))
+      (returns i32)
+      (body
+        (return
+          (load_u8
+            (ptr_add
+              (call_ptr source_data
+                (param_get source))
+              (param_get index))))))
+
+    ; -------------------------------------------------------------------------
+    ; Character classes
+    ; -------------------------------------------------------------------------
+
+    (fn is_whitespace
+      (params
+        (ch i32))
+      (returns bool)
+      (body
+        (return
+          (or_bool
+            (or_bool
+              (eq_i32 (param_get ch) (const_i32 32))
+              (eq_i32 (param_get ch) (const_i32 9)))
+            (or_bool
+              (eq_i32 (param_get ch) (const_i32 10))
+              (eq_i32 (param_get ch) (const_i32 13)))))))
+
+    (fn is_digit
+      (params
+        (ch i32))
+      (returns bool)
+      (body
+        (return
+          (and_bool
+            (ge_i32
+              (param_get ch)
+              (const_i32 48))
+            (le_i32
+              (param_get ch)
+              (const_i32 57))))))
+
+    (fn is_alpha
+      (params
+        (ch i32))
+      (returns bool)
+      (body
+        (return
+          (or_bool
+            (and_bool
+              (ge_i32 (param_get ch) (const_i32 97))
+              (le_i32 (param_get ch) (const_i32 122)))
+            (and_bool
+              (ge_i32 (param_get ch) (const_i32 65))
+              (le_i32 (param_get ch) (const_i32 90)))))))
+
+    (fn is_ident_start
+      (params
+        (ch i32))
+      (returns bool)
+      (body
+        (return
+          (or_bool
+            (call_bool is_alpha
+              (param_get ch))
+            (eq_i32
+              (param_get ch)
+              (const_i32 95))))))
+
+    (fn is_ident_continue
+      (params
+        (ch i32))
+      (returns bool)
+      (body
+        (return
+          (or_bool
+            (or_bool
+              (call_bool is_ident_start
+                (param_get ch))
+              (call_bool is_digit
+                (param_get ch)))
+            (eq_i32
+              (param_get ch)
+              (const_i32 45))))))
+
+    ; -------------------------------------------------------------------------
+    ; Keyword recognition
+    ; -------------------------------------------------------------------------
+    ;
+    ; WIR is S-expression based. Most operator names are left as TOKEN_IDENT and
+    ; interpreted by the parser. Only structural keywords need dedicated token
+    ; kinds.
+
+    (fn keyword_kind
+      (params
+        (text ptr)
+        (length i64))
+      (returns i32)
+      (body
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "fn")
+            (const_i64 2))
+          (then
+            (return
+              (call_i32 token_fn)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "return")
+            (const_i64 6))
+          (then
+            (return
+              (call_i32 token_return)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "if")
+            (const_i64 2))
+          (then
+            (return
+              (call_i32 token_if)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "while")
+            (const_i64 5))
+          (then
+            (return
+              (call_i32 token_while)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "let")
+            (const_i64 3))
+          (then
+            (return
+              (call_i32 token_let)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "set")
+            (const_i64 3))
+          (then
+            (return
+              (call_i32 token_set)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "core-module")
+            (const_i64 11))
+          (then
+            (return
+              (call_i32 token_core_module)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "core-version")
+            (const_i64 12))
+          (then
+            (return
+              (call_i32 token_core_version)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "decls")
+            (const_i64 5))
+          (then
+            (return
+              (call_i32 token_decls)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "extern")
+            (const_i64 6))
+          (then
+            (return
+              (call_i32 token_extern)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "params")
+            (const_i64 6))
+          (then
+            (return
+              (call_i32 token_params)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "returns")
+            (const_i64 7))
+          (then
+            (return
+              (call_i32 token_returns)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "body")
+            (const_i64 4))
+          (then
+            (return
+              (call_i32 token_body)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "then")
+            (const_i64 4))
+          (then
+            (return
+              (call_i32 token_then)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
+            (const_string_ptr "block")
+            (const_i64 5))
+          (then
+            (return
+              (call_i32 token_block)))
+          (else
+            (block)))
+
+        (return
+          (call_i32 token_ident))))
+
+    ; -------------------------------------------------------------------------
+    ; Lex integer
+    ; -------------------------------------------------------------------------
+
+    (fn lex_integer
+      (params
+        (source ptr)
+        (tokens ptr)
+        (start i64))
+      (returns i64)
+      (body
+        (let length i64
+          (call_i64 source_length
+            (param_get source)))
+
+        (let index i64
+          (param_get start))
+
+        (while
+          (and_bool
+            (lt_i64
+              (local_get index)
+              (local_get length))
+            (call_bool is_digit
+              (call_i32 source_byte_at
+                (param_get source)
+                (local_get index))))
+
+          (body
+            (block
+              (set index
+                (add_i64
+                  (local_get index)
+                  (const_i64 1))))))
+
+        (let token_length i64
+          (sub_i64
+            (local_get index)
+            (param_get start)))
+
+        (if
+          (eq_i64
+            (local_get token_length)
+            (const_i64 0))
+          (then
+            (return
+              (const_i64 -1)))
+          (else
+            (block)))
+
+        (let text ptr
+          (ptr_add
+            (call_ptr source_data
+              (param_get source))
+            (param_get start)))
+
+        (let value i32
+          (call_i32 atoi
+            (local_get text)))
+
+        (if
+          (ne_i32
+            (call_i32 tokens_push
+              (param_get tokens)
+              (call_i32 token_int)
+              (param_get start)
+              (local_get token_length)
+              (local_get value))
+            (const_i32 0))
+          (then
+            (return
+              (const_i64 -1)))
+          (else
+            (block)))
+
+        (return
+          (local_get index))))
+
+    ; -------------------------------------------------------------------------
+    ; Lex identifier or keyword
+    ; -------------------------------------------------------------------------
+
+    (fn lex_identifier
+      (params
+        (source ptr)
+        (tokens ptr)
+        (start i64))
+      (returns i64)
+      (body
+        (let length i64
+          (call_i64 source_length
+            (param_get source)))
+
+        (let index i64
+          (param_get start))
+
+        (while
+          (and_bool
+            (lt_i64
+              (local_get index)
+              (local_get length))
+            (call_bool is_ident_continue
+              (call_i32 source_byte_at
+                (param_get source)
+                (local_get index))))
+
+          (body
+            (block
+              (set index
+                (add_i64
+                  (local_get index)
+                  (const_i64 1))))))
+
+        (let token_length i64
+          (sub_i64
+            (local_get index)
+            (param_get start)))
+
+        (let text ptr
+          (ptr_add
+            (call_ptr source_data
+              (param_get source))
+            (param_get start)))
+
+        (let kind i32
+          (call_i32 keyword_kind
+            (local_get text)
+            (local_get token_length)))
+
+        (if
+          (ne_i32
+            (call_i32 tokens_push
+              (param_get tokens)
+              (local_get kind)
+              (param_get start)
+              (local_get token_length)
+              (const_i32 0))
+            (const_i32 0))
+          (then
+            (return
+              (const_i64 -1)))
+          (else
+            (block)))
+
+        (return
+          (local_get index))))
+
+    ; -------------------------------------------------------------------------
+    ; Lex string literal
+    ; -------------------------------------------------------------------------
+    ;
+    ; String token stores source slice excluding quotes.
+
+    (fn lex_string
+      (params
+        (source ptr)
+        (tokens ptr)
+        (start i64))
+      (returns i64)
+      (body
+        (let length i64
+          (call_i64 source_length
+            (param_get source)))
+
+        (let content_start i64
+          (add_i64
+            (param_get start)
+            (const_i64 1)))
+
+        (let index i64
+          (local_get content_start))
+
+        (let escaped i32
+          (const_i32 0))
+
+        (while
+          (lt_i64
+            (local_get index)
+            (local_get length))
+
+          (body
+            (block
+              (let ch i32
+                (call_i32 source_byte_at
+                  (param_get source)
+                  (local_get index)))
+
+              (if
+                (ne_i32
+                  (local_get escaped)
+                  (const_i32 0))
+
+                (then
+                  (block
+                    (set escaped
+                      (const_i32 0))
+                    (set index
+                      (add_i64
+                        (local_get index)
+                        (const_i64 1)))))
+
+                (else
+                  (block
+                    (if
+                      (eq_i32
+                        (local_get ch)
+                        (const_i32 34))
+
+                      (then
+                        (block
+                          (let content_length i64
+                            (sub_i64
+                              (local_get index)
+                              (local_get content_start)))
+
+                          (if
+                            (ne_i32
+                              (call_i32 tokens_push
+                                (param_get tokens)
+                                (call_i32 token_string)
+                                (local_get content_start)
+                                (local_get content_length)
+                                (const_i32 0))
+                              (const_i32 0))
+                            (then
+                              (return
+                                (const_i64 -1)))
+                            (else
+                              (block)))
+
+                          (return
+                            (add_i64
+                              (local_get index)
+                              (const_i64 1)))))
+
+                      (else
+                        (block)))
+
+                    (if
+                      (eq_i32
+                        (local_get ch)
+                        (const_i32 92))
+                      (then
+                        (set escaped
+                          (const_i32 1)))
+                      (else
+                        (block)))
+
+                    (set index
+                      (add_i64
+                        (local_get index)
+                        (const_i64 1))))))))))
+
+        (return
+          (const_i64 -1))))
+
+    ; -------------------------------------------------------------------------
+    ; Skip semicolon comment
+    ; -------------------------------------------------------------------------
+
+    (fn skip_comment
+      (params
+        (source ptr)
+        (start i64))
+      (returns i64)
+      (body
+        (let length i64
+          (call_i64 source_length
+            (param_get source)))
+
+        (let index i64
+          (param_get start))
+
+        (while
+          (lt_i64
+            (local_get index)
+            (local_get length))
+
+          (body
+            (block
+              (let ch i32
+                (call_i32 source_byte_at
+                  (param_get source)
+                  (local_get index)))
+
+              (if
+                (eq_i32
+                  (local_get ch)
+                  (const_i32 10))
+                (then
+                  (return
+                    (local_get index)))
+                (else
+                  (block)))
+
+              (set index
+                (add_i64
+                  (local_get index)
+                  (const_i64 1))))))
+
+        (return
+          (local_get index))))
+
+    ; -------------------------------------------------------------------------
+    ; Lex punctuation
+    ; -------------------------------------------------------------------------
+
+    (fn lex_punctuation
+      (params
+        (source ptr)
+        (tokens ptr)
+        (index i64)
+        (ch i32))
+      (returns i64)
+      (body
+        ; WIR syntax only needs parentheses at the lexer level.
+        ; Operators such as add_i32 and lt_i64 are identifiers.
+
+        (if
+          (eq_i32
+            (param_get ch)
+            (const_i32 40))
+          (then
+            (block
+              (if
+                (ne_i32
+                  (call_i32 tokens_push
+                    (param_get tokens)
+                    (call_i32 token_lparen)
+                    (param_get index)
+                    (const_i64 1)
+                    (const_i32 0))
+                  (const_i32 0))
+                (then
+                  (return
+                    (const_i64 -1)))
+                (else
+                  (block)))
+              (return
+                (add_i64
+                  (param_get index)
+                  (const_i64 1)))))
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (param_get ch)
+            (const_i32 41))
+          (then
+            (block
+              (if
+                (ne_i32
+                  (call_i32 tokens_push
+                    (param_get tokens)
+                    (call_i32 token_rparen)
+                    (param_get index)
+                    (const_i64 1)
+                    (const_i32 0))
+                  (const_i32 0))
+                (then
+                  (return
+                    (const_i64 -1)))
+                (else
+                  (block)))
+              (return
+                (add_i64
+                  (param_get index)
+                  (const_i64 1)))))
+          (else
+            (block)))
+
+        (return
+          (const_i64 -1))))
+
+    ; -------------------------------------------------------------------------
+    ; Public lexer entry point
+    ; -------------------------------------------------------------------------
+
+    (fn lex
+      (params
+        (source ptr)
+        (tokens ptr))
+      (returns i32)
+      (body
+        (if
+          (or_bool
+            (eq_ptr
+              (param_get source)
+              (const_null))
+            (eq_ptr
+              (param_get tokens)
+              (const_null)))
+          (then
+            (return
+              (const_i32 1)))
+          (else
+            (block)))
+
+        (let length i64
+          (call_i64 source_length
+            (param_get source)))
+
+        (let index i64
+          (const_i64 0))
+
+        (while
+          (lt_i64
+            (local_get index)
+            (local_get length))
+
+          (body
+            (block
+              (let ch i32
+                (call_i32 source_byte_at
+                  (param_get source)
+                  (local_get index)))
+
+              (if
+                (call_bool is_whitespace
+                  (local_get ch))
+
+                (then
+                  (set index
+                    (add_i64
+                      (local_get index)
+                      (const_i64 1))))
+
+                (else
+                  (block
+                    (if
+                      (eq_i32
+                        (local_get ch)
+                        (const_i32 59))
+
+                      (then
+                        (set index
+                          (call_i64 skip_comment
+                            (param_get source)
+                            (local_get index))))
+
+                      (else
+                        (block
+                          (if
+                            (call_bool is_ident_start
+                              (local_get ch))
+
+                            (then
+                              (set index
+                                (call_i64 lex_identifier
+                                  (param_get source)
+                                  (param_get tokens)
+                                  (local_get index))))
+
+                            (else
+                              (block
+                                (if
+                                  (call_bool is_digit
+                                    (local_get ch))
+
+                                  (then
+                                    (set index
+                                      (call_i64 lex_integer
+                                        (param_get source)
+                                        (param_get tokens)
+                                        (local_get index))))
+
+                                  (else
+                                    (block
+                                      (if
+                                        (eq_i32
+                                          (local_get ch)
+                                          (const_i32 34))
+
+                                        (then
+                                          (set index
+                                            (call_i64 lex_string
+                                              (param_get source)
+                                              (param_get tokens)
+                                              (local_get index))))
+
+                                        (else
+                                          (set index
+                                            (call_i64 lex_punctuation
+                                              (param_get source)
+                                              (param_get tokens)
+                                              (local_get index)
+                                              (local_get ch))))))))))))))))
+
+              (if
+                (lt_i64
+                  (local_get index)
+                  (const_i64 0))
+                (then
+                  (return
+                    (const_i32 1)))
+                (else
+                  (block))))))
+
+        (if
+          (ne_i32
+            (call_i32 tokens_push
+              (param_get tokens)
+              (call_i32 token_eof)
+              (local_get length)
+              (const_i64 0)
+              (const_i32 0))
+            (const_i32 0))
+          (then
+            (return
+              (const_i32 1)))
+          (else
+            (return
+              (const_i32 0)))))))

@@ -1,0 +1,721 @@
+; =============================================================================
+; Weave Bootstrap Compiler
+; emit_llvm.wir
+;
+; LLVM IR emitter for the first WIR-written compiler.
+;
+; Responsibility:
+;
+;     AST -> LLVM IR text buffer
+;
+; This is intentionally mechanical and small. It is not an optimizer.
+; =============================================================================
+
+(core-module
+  (core-version 1)
+
+  (decls
+
+    ; -------------------------------------------------------------------------
+    ; EmitContext layout
+    ; -------------------------------------------------------------------------
+    ;
+    ; Raw object, 80 bytes:
+    ;
+    ;   offset 0:  source ptr
+    ;   offset 8:  ast ptr
+    ;   offset 16: output buffer ptr
+    ;   offset 24: temp_counter i64
+    ;   offset 32: label_counter i64
+    ;   offset 40: string_counter i64
+    ;   offset 48: locals ptr
+    ;   offset 56: local_count i64
+    ;   offset 64: params ptr
+    ;   offset 72: param_count i64
+
+    (fn emit_context_size
+      (params)
+      (returns i64)
+      (body
+        (return
+          (const_i64 80))))
+
+    (fn emit_binding_size
+      (params)
+      (returns i64)
+      (body
+        (return
+          (const_i64 24))))
+
+    (fn emit_max_bindings
+      (params)
+      (returns i64)
+      (body
+        (return
+          (const_i64 256))))
+
+    ; -------------------------------------------------------------------------
+    ; Field accessors
+    ; -------------------------------------------------------------------------
+
+    (fn ctx_source_field (params (ctx ptr)) (returns ptr) (body (return (param_get ctx))))
+    (fn ctx_ast_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 8)))))
+    (fn ctx_output_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 16)))))
+    (fn ctx_temp_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 24)))))
+    (fn ctx_label_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 32)))))
+    (fn ctx_string_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 40)))))
+    (fn ctx_locals_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 48)))))
+    (fn ctx_local_count_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 56)))))
+    (fn ctx_params_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 64)))))
+    (fn ctx_param_count_field (params (ctx ptr)) (returns ptr) (body (return (ptr_add (param_get ctx) (const_i64 72)))))
+
+    (fn ctx_source (params (ctx ptr)) (returns ptr) (body (return (load_ptr (call_ptr ctx_source_field (param_get ctx))))))
+    (fn ctx_ast (params (ctx ptr)) (returns ptr) (body (return (load_ptr (call_ptr ctx_ast_field (param_get ctx))))))
+    (fn ctx_output (params (ctx ptr)) (returns ptr) (body (return (load_ptr (call_ptr ctx_output_field (param_get ctx))))))
+    (fn ctx_temp_counter (params (ctx ptr)) (returns i64) (body (return (load_i64 (call_ptr ctx_temp_field (param_get ctx))))))
+    (fn ctx_label_counter (params (ctx ptr)) (returns i64) (body (return (load_i64 (call_ptr ctx_label_field (param_get ctx))))))
+    (fn ctx_string_counter (params (ctx ptr)) (returns i64) (body (return (load_i64 (call_ptr ctx_string_field (param_get ctx))))))
+    (fn ctx_locals (params (ctx ptr)) (returns ptr) (body (return (load_ptr (call_ptr ctx_locals_field (param_get ctx))))))
+    (fn ctx_local_count (params (ctx ptr)) (returns i64) (body (return (load_i64 (call_ptr ctx_local_count_field (param_get ctx))))))
+    (fn ctx_params (params (ctx ptr)) (returns ptr) (body (return (load_ptr (call_ptr ctx_params_field (param_get ctx))))))
+    (fn ctx_param_count (params (ctx ptr)) (returns i64) (body (return (load_i64 (call_ptr ctx_param_count_field (param_get ctx))))))
+
+    (fn ctx_set_source (params (ctx ptr) (v ptr)) (returns void) (body (store_ptr (call_ptr ctx_source_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_ast (params (ctx ptr) (v ptr)) (returns void) (body (store_ptr (call_ptr ctx_ast_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_output (params (ctx ptr) (v ptr)) (returns void) (body (store_ptr (call_ptr ctx_output_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_temp_counter (params (ctx ptr) (v i64)) (returns void) (body (store_i64 (call_ptr ctx_temp_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_label_counter (params (ctx ptr) (v i64)) (returns void) (body (store_i64 (call_ptr ctx_label_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_string_counter (params (ctx ptr) (v i64)) (returns void) (body (store_i64 (call_ptr ctx_string_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_locals (params (ctx ptr) (v ptr)) (returns void) (body (store_ptr (call_ptr ctx_locals_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_local_count (params (ctx ptr) (v i64)) (returns void) (body (store_i64 (call_ptr ctx_local_count_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_params (params (ctx ptr) (v ptr)) (returns void) (body (store_ptr (call_ptr ctx_params_field (param_get ctx)) (param_get v)) (return_void)))
+    (fn ctx_set_param_count (params (ctx ptr) (v i64)) (returns void) (body (store_i64 (call_ptr ctx_param_count_field (param_get ctx)) (param_get v)) (return_void)))
+
+    ; -------------------------------------------------------------------------
+    ; Context lifecycle
+    ; -------------------------------------------------------------------------
+
+    (fn emit_context_new
+      (params
+        (source ptr)
+        (ast ptr)
+        (output ptr))
+      (returns ptr)
+      (body
+        (let ctx ptr
+          (call_ptr malloc
+            (call_i64 emit_context_size)))
+
+        (if
+          (eq_ptr (local_get ctx) (const_null))
+          (then (return (const_null)))
+          (else (block)))
+
+        (let locals ptr
+          (call_ptr malloc
+            (mul_i64
+              (call_i64 emit_max_bindings)
+              (call_i64 emit_binding_size))))
+
+        (if
+          (eq_ptr (local_get locals) (const_null))
+          (then
+            (block
+              (call_void free (local_get ctx))
+              (return (const_null))))
+          (else (block)))
+
+        (let params ptr
+          (call_ptr malloc
+            (mul_i64
+              (call_i64 emit_max_bindings)
+              (call_i64 emit_binding_size))))
+
+        (if
+          (eq_ptr (local_get params) (const_null))
+          (then
+            (block
+              (call_void free (local_get locals))
+              (call_void free (local_get ctx))
+              (return (const_null))))
+          (else (block)))
+
+        (call_void ctx_set_source (local_get ctx) (param_get source))
+        (call_void ctx_set_ast (local_get ctx) (param_get ast))
+        (call_void ctx_set_output (local_get ctx) (param_get output))
+        (call_void ctx_set_temp_counter (local_get ctx) (const_i64 0))
+        (call_void ctx_set_label_counter (local_get ctx) (const_i64 0))
+        (call_void ctx_set_string_counter (local_get ctx) (const_i64 0))
+        (call_void ctx_set_locals (local_get ctx) (local_get locals))
+        (call_void ctx_set_local_count (local_get ctx) (const_i64 0))
+        (call_void ctx_set_params (local_get ctx) (local_get params))
+        (call_void ctx_set_param_count (local_get ctx) (const_i64 0))
+
+        (return
+          (local_get ctx))))
+
+    (fn emit_context_free
+      (params
+        (ctx ptr))
+      (returns void)
+      (body
+        (if
+          (eq_ptr (param_get ctx) (const_null))
+          (then (return_void))
+          (else (block)))
+
+        (let locals ptr
+          (call_ptr ctx_locals
+            (param_get ctx)))
+
+        (let params ptr
+          (call_ptr ctx_params
+            (param_get ctx)))
+
+        (if (ne_ptr (local_get locals) (const_null))
+          (then (call_void free (local_get locals)))
+          (else (block)))
+
+        (if (ne_ptr (local_get params) (const_null))
+          (then (call_void free (local_get params)))
+          (else (block)))
+
+        (call_void free (param_get ctx))
+        (return_void)))
+
+    ; -------------------------------------------------------------------------
+    ; Output helpers
+    ; -------------------------------------------------------------------------
+
+    (fn emit_cstr
+      (params
+        (ctx ptr)
+        (text ptr))
+      (returns i32)
+      (body
+        (return
+          (call_i32 buffer_append_cstr
+            (call_ptr ctx_output (param_get ctx))
+            (param_get text)))))
+
+    (fn emit_byte
+      (params
+        (ctx ptr)
+        (byte i32))
+      (returns i32)
+      (body
+        (return
+          (call_i32 buffer_append_byte
+            (call_ptr ctx_output (param_get ctx))
+            (param_get byte)))))
+
+    (fn emit_i32
+      (params
+        (ctx ptr)
+        (value i32))
+      (returns i32)
+      (body
+        (return
+          (call_i32 buffer_append_i32
+            (call_ptr ctx_output (param_get ctx))
+            (param_get value)))))
+
+    (fn emit_i64_as_i32
+      (params
+        (ctx ptr)
+        (value i64))
+      (returns i32)
+      (body
+        (return
+          (call_i32 emit_i32
+            (param_get ctx)
+            (cast_i64_to_i32
+              (param_get value))))))
+
+    (fn emit_source_slice
+      (params
+        (ctx ptr)
+        (start i64)
+        (length i64))
+      (returns i32)
+      (body
+        (return
+          (call_i32 buffer_append_bytes
+            (call_ptr ctx_output (param_get ctx))
+            (ptr_add
+              (call_ptr source_data
+                (call_ptr ctx_source (param_get ctx)))
+              (param_get start))
+            (param_get length)))))
+
+    (fn emit_newline
+      (params
+        (ctx ptr))
+      (returns i32)
+      (body
+        (return
+          (call_i32 emit_byte
+            (param_get ctx)
+            (const_i32 10)))))
+
+    (fn emit_temp_name
+      (params
+        (ctx ptr)
+        (id i64))
+      (returns i32)
+      (body
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr "%t"))
+        (return
+          (call_i32 emit_i64_as_i32
+            (param_get ctx)
+            (param_get id)))))
+
+    (fn next_temp
+      (params
+        (ctx ptr))
+      (returns i64)
+      (body
+        (let old i64
+          (call_i64 ctx_temp_counter
+            (param_get ctx)))
+        (call_void ctx_set_temp_counter
+          (param_get ctx)
+          (add_i64 (local_get old) (const_i64 1)))
+        (return (local_get old))))
+
+    (fn next_label
+      (params
+        (ctx ptr))
+      (returns i64)
+      (body
+        (let old i64
+          (call_i64 ctx_label_counter
+            (param_get ctx)))
+        (call_void ctx_set_label_counter
+          (param_get ctx)
+          (add_i64 (local_get old) (const_i64 1)))
+        (return (local_get old))))
+
+    ; -------------------------------------------------------------------------
+    ; Module header and declarations
+    ; -------------------------------------------------------------------------
+
+    (fn emit_module_header
+      (params
+        (ctx ptr))
+      (returns i32)
+      (body
+        (call_i32 emit_cstr
+          (param_get ctx)
+          (const_string_ptr "; generated by weavec1 from WIR\n\n"))
+
+        (call_i32 emit_cstr
+          (param_get ctx)
+          (const_string_ptr "declare i32 @puts(ptr)\n\n"))
+
+        (return
+          (const_i32 0))))
+
+    ; -------------------------------------------------------------------------
+    ; LLVM type emission
+    ; -------------------------------------------------------------------------
+
+    (fn emit_type
+      (params
+        (ctx ptr)
+        (type_id i32))
+      (returns i32)
+      (body
+        (if (eq_i32 (param_get type_id) (call_i32 type_void))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr "void"))))
+          (else (block)))
+
+        (if (eq_i32 (param_get type_id) (call_i32 type_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i32"))))
+          (else (block)))
+
+        (if (eq_i32 (param_get type_id) (call_i32 type_i64))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i64"))))
+          (else (block)))
+
+        (if (eq_i32 (param_get type_id) (call_i32 type_bool))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i1"))))
+          (else (block)))
+
+        (if (eq_i32 (param_get type_id) (call_i32 type_ptr))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr "ptr"))))
+          (else (return (const_i32 1)))))
+
+    ; -------------------------------------------------------------------------
+    ; Value emission model
+    ; -------------------------------------------------------------------------
+    ;
+    ; For now expressions emit into temporaries. Constants may be emitted as
+    ; immediate text by helper functions where possible.
+    ;
+    ; Return value is temp id, or -1 on failure.
+
+    (fn emit_expr
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i64)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let kind i32
+          (call_i32 ast_kind_at
+            (local_get ast)
+            (param_get node)))
+
+        (if
+          (eq_i32 (local_get kind) (call_i32 ast_const_i32))
+          (then
+            (return
+              (call_i64 emit_const_i32_expr
+                (param_get ctx)
+                (param_get node))))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get kind) (call_i32 ast_binary))
+          (then
+            (return
+              (call_i64 emit_binary_expr
+                (param_get ctx)
+                (param_get node))))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get kind) (call_i32 ast_call))
+          (then
+            (return
+              (call_i64 emit_call_expr
+                (param_get ctx)
+                (param_get node))))
+          (else (block)))
+
+        (return
+          (const_i64 -1))))
+
+    (fn emit_const_i32_expr
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i64)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let temp i64
+          (call_i64 next_temp
+            (param_get ctx)))
+
+        (call_i32 emit_temp_name (param_get ctx) (local_get temp))
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = add i32 0, "))
+        (call_i32 emit_i64_as_i32
+          (param_get ctx)
+          (call_i64 ast_a_at
+            (local_get ast)
+            (param_get node)))
+        (call_i32 emit_newline (param_get ctx))
+
+        (return
+          (local_get temp))))
+
+    (fn emit_binary_op_text
+      (params
+        (ctx ptr)
+        (op i32))
+      (returns i32)
+      (body
+        (if (eq_i32 (param_get op) (call_i32 op_add_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = add i32 "))))
+          (else (block)))
+
+        (if (eq_i32 (param_get op) (call_i32 op_sub_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = sub i32 "))))
+          (else (block)))
+
+        (if (eq_i32 (param_get op) (call_i32 op_mul_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = mul i32 "))))
+          (else (block)))
+
+        (if (eq_i32 (param_get op) (call_i32 op_eq_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp eq i32 "))))
+          (else (block)))
+
+        (if (eq_i32 (param_get op) (call_i32 op_lt_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp slt i32 "))))
+          (else (return (const_i32 1)))))
+
+    (fn emit_binary_expr
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i64)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let op i32
+          (cast_i64_to_i32
+            (call_i64 ast_op_type_at
+              (local_get ast)
+              (param_get node))))
+
+        (let lhs_node i64
+          (call_i64 ast_a_at
+            (local_get ast)
+            (param_get node)))
+
+        (let rhs_node i64
+          (call_i64 ast_b_at
+            (local_get ast)
+            (param_get node)))
+
+        (let lhs i64
+          (call_i64 emit_expr
+            (param_get ctx)
+            (local_get lhs_node)))
+
+        (let rhs i64
+          (call_i64 emit_expr
+            (param_get ctx)
+            (local_get rhs_node)))
+
+        (if
+          (or_bool
+            (lt_i64 (local_get lhs) (const_i64 0))
+            (lt_i64 (local_get rhs) (const_i64 0)))
+          (then (return (const_i64 -1)))
+          (else (block)))
+
+        (let temp i64
+          (call_i64 next_temp
+            (param_get ctx)))
+
+        (call_i32 emit_temp_name (param_get ctx) (local_get temp))
+        (call_i32 emit_binary_op_text (param_get ctx) (local_get op))
+        (call_i32 emit_temp_name (param_get ctx) (local_get lhs))
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr ", i32 "))
+        (call_i32 emit_temp_name (param_get ctx) (local_get rhs))
+        (call_i32 emit_newline (param_get ctx))
+
+        (return
+          (local_get temp))))
+
+    (fn emit_call_expr
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i64)
+      (body
+        ; Minimal placeholder: call emission will be expanded when parser stores
+        ; argument nodes reliably.
+        (return
+          (const_i64 -1))))
+
+    ; -------------------------------------------------------------------------
+    ; Statements
+    ; -------------------------------------------------------------------------
+
+    (fn emit_stmt
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i32)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let kind i32
+          (call_i32 ast_kind_at
+            (local_get ast)
+            (param_get node)))
+
+        (if
+          (eq_i32 (local_get kind) (call_i32 ast_return))
+          (then
+            (return
+              (call_i32 emit_return_stmt
+                (param_get ctx)
+                (param_get node))))
+          (else (block)))
+
+        (return
+          (const_i32 1))))
+
+    (fn emit_return_stmt
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i32)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let expr i64
+          (call_i64 ast_a_at
+            (local_get ast)
+            (param_get node)))
+
+        (let value i64
+          (call_i64 emit_expr
+            (param_get ctx)
+            (local_get expr)))
+
+        (if
+          (lt_i64 (local_get value) (const_i64 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  ret i32 "))
+        (call_i32 emit_temp_name (param_get ctx) (local_get value))
+        (call_i32 emit_newline (param_get ctx))
+
+        (return
+          (const_i32 0))))
+
+    ; -------------------------------------------------------------------------
+    ; Function emission
+    ; -------------------------------------------------------------------------
+
+    (fn emit_function
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i32)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let return_type i32
+          (cast_i64_to_i32
+            (call_i64 ast_op_type_at
+              (local_get ast)
+              (param_get node))))
+
+        (let body_node i64
+          (call_i64 ast_c_at
+            (local_get ast)
+            (param_get node)))
+
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr "define "))
+        (call_i32 emit_type (param_get ctx) (local_get return_type))
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr " @"))
+        (call_i32 emit_source_slice
+          (param_get ctx)
+          (call_i64 ast_text_start_at (local_get ast) (param_get node))
+          (call_i64 ast_text_len_at (local_get ast) (param_get node)))
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr "() {\n"))
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr "entry:\n"))
+
+        (if
+          (ne_i32
+            (call_i32 emit_stmt
+              (param_get ctx)
+              (local_get body_node))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (call_i32 emit_cstr (param_get ctx) (const_string_ptr "}\n\n"))
+        (return
+          (const_i32 0))))
+
+    ; -------------------------------------------------------------------------
+    ; Program emission
+    ; -------------------------------------------------------------------------
+
+    (fn emit_program
+      (params
+        (ctx ptr)
+        (program_node i64))
+      (returns i32)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let first i64
+          (call_i64 ast_a_at
+            (local_get ast)
+            (param_get program_node)))
+
+        (let count i64
+          (call_i64 ast_c_at
+            (local_get ast)
+            (param_get program_node)))
+
+        (call_i32 emit_module_header
+          (param_get ctx))
+
+        (let i i64
+          (const_i64 0))
+
+        (while
+          (lt_i64
+            (local_get i)
+            (local_get count))
+          (body
+            (block
+              (if
+                (ne_i32
+                  (call_i32 emit_function
+                    (param_get ctx)
+                    (add_i64
+                      (local_get first)
+                      (local_get i)))
+                  (const_i32 0))
+                (then (return (const_i32 1)))
+                (else (block)))
+
+              (set i
+                (add_i64
+                  (local_get i)
+                  (const_i64 1))))))
+
+        (return
+          (const_i32 0))))
+
+    ; -------------------------------------------------------------------------
+    ; Public entry point
+    ; -------------------------------------------------------------------------
+
+    (fn emit_llvm
+      (params
+        (source ptr)
+        (ast ptr)
+        (program_node i64)
+        (output ptr))
+      (returns i32)
+      (body
+        (let ctx ptr
+          (call_ptr emit_context_new
+            (param_get source)
+            (param_get ast)
+            (param_get output)))
+
+        (if
+          (eq_ptr (local_get ctx) (const_null))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (let status i32
+          (call_i32 emit_program
+            (local_get ctx)
+            (param_get program_node)))
+
+        (call_void emit_context_free
+          (local_get ctx))
+
+        (return
+          (local_get status))))))

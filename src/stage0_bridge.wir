@@ -1,0 +1,28 @@
+(core-module
+  (core-version 1)
+
+  (decls
+
+    (fn main
+      (params
+        (argc i32)
+        (argv ptr))
+      (returns i32)
+
+      (body
+        (let input_path ptr
+          (load_ptr
+            (ptr_add
+              (param_get argv)
+              (const_i64 8))))
+
+        (let output_path ptr
+          (load_ptr
+            (ptr_add
+              (param_get argv)
+              (const_i64 16))))
+
+        (return
+          (call_i32 weave_compile_file
+            (local_get input_path)
+            (local_get output_path)))))))
