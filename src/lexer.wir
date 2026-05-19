@@ -638,7 +638,7 @@
                     (set index
                       (add_i64
                         (local_get index)
-                        (const_i64 1))))))))))
+                        (const_i64 1)))))))))
 
         (return
           (const_i64 -1))))
@@ -805,76 +805,130 @@
                   (param_get source)
                   (local_get index)))
 
+              (let handled i32
+                (const_i32 0))
+
               (if
                 (call_bool is_whitespace
                   (local_get ch))
 
                 (then
-                  (set index
-                    (add_i64
-                      (local_get index)
-                      (const_i64 1))))
+                  (block
+                    (set index
+                      (add_i64
+                        (local_get index)
+                        (const_i64 1)))
+
+                    (set handled
+                      (const_i32 1))))
 
                 (else
+                  (block)))
+
+              (if
+                (and_bool
+                  (eq_i32
+                    (local_get handled)
+                    (const_i32 0))
+                  (eq_i32
+                    (local_get ch)
+                    (const_i32 59)))
+
+                (then
                   (block
-                    (if
-                      (eq_i32
-                        (local_get ch)
-                        (const_i32 59))
+                    (set index
+                      (call_i64 skip_comment
+                        (param_get source)
+                        (local_get index)))
 
-                      (then
-                        (set index
-                          (call_i64 skip_comment
-                            (param_get source)
-                            (local_get index))))
+                    (set handled
+                      (const_i32 1))))
 
-                      (else
-                        (block
-                          (if
-                            (call_bool is_ident_start
-                              (local_get ch))
+                (else
+                  (block)))
 
-                            (then
-                              (set index
-                                (call_i64 lex_identifier
-                                  (param_get source)
-                                  (param_get tokens)
-                                  (local_get index))))
+              (if
+                (and_bool
+                  (eq_i32
+                    (local_get handled)
+                    (const_i32 0))
+                  (call_bool is_ident_start
+                    (local_get ch)))
 
-                            (else
-                              (block
-                                (if
-                                  (call_bool is_digit
-                                    (local_get ch))
+                (then
+                  (block
+                    (set index
+                      (call_i64 lex_identifier
+                        (param_get source)
+                        (param_get tokens)
+                        (local_get index)))
 
-                                  (then
-                                    (set index
-                                      (call_i64 lex_integer
-                                        (param_get source)
-                                        (param_get tokens)
-                                        (local_get index))))
+                    (set handled
+                      (const_i32 1))))
 
-                                  (else
-                                    (block
-                                      (if
-                                        (eq_i32
-                                          (local_get ch)
-                                          (const_i32 34))
+                (else
+                  (block)))
 
-                                        (then
-                                          (set index
-                                            (call_i64 lex_string
-                                              (param_get source)
-                                              (param_get tokens)
-                                              (local_get index))))
+              (if
+                (and_bool
+                  (eq_i32
+                    (local_get handled)
+                    (const_i32 0))
+                  (call_bool is_digit
+                    (local_get ch)))
 
-                                        (else
-                                          (set index
-                                            (call_i64 lex_punctuation
-                                              (param_get source)
-                                              (param_get tokens)
-                                              (local_get index)
-                                              (local_get ch))))))))))))))))
+                (then
+                  (block
+                    (set index
+                      (call_i64 lex_integer
+                        (param_get source)
+                        (param_get tokens)
+                        (local_get index)))
+
+                    (set handled
+                      (const_i32 1))))
+
+                (else
+                  (block)))
+
+              (if
+                (and_bool
+                  (eq_i32
+                    (local_get handled)
+                    (const_i32 0))
+                  (eq_i32
+                    (local_get ch)
+                    (const_i32 34)))
+
+                (then
+                  (block
+                    (set index
+                      (call_i64 lex_string
+                        (param_get source)
+                        (param_get tokens)
+                        (local_get index)))
+
+                    (set handled
+                      (const_i32 1))))
+
+                (else
+                  (block)))
+
+              (if
+                (eq_i32
+                  (local_get handled)
+                  (const_i32 0))
+
+                (then
+                  (set index
+                    (call_i64 lex_punctuation
+                      (param_get source)
+                      (param_get tokens)
+                      (local_get index)
+                      (local_get ch))))
+
+                (else
+                  (block)))
 
               (if
                 (lt_i64
@@ -900,4 +954,4 @@
               (const_i32 1)))
           (else
             (return
-              (const_i32 0)))))))
+              (const_i32 0))))))))
