@@ -4,25 +4,20 @@ declare ptr @malloc(i64)
 declare void @free(ptr)
 define i32 @main() {
 entry:
-%t1 = add i64 0, 2
-%t2 = add i64 0, 4
-%t3 = mul i64 %t1, %t2
-%t0 = call ptr @malloc(i64 %t3)
+%t1 = mul i64 2, 4
+%t0 = call ptr @malloc(i64 %t1)
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
-%t4 = load ptr, ptr %p.addr
-%t5 = getelementptr i8, ptr null, i64 0
-%t6 = icmp eq ptr %t4, %t5
-  br i1 %t6, label %then0, label %else0
+%t2 = load ptr, ptr %p.addr
+%t3 = icmp eq ptr %t2, null
+  br i1 %t3, label %then0, label %else0
 then0:
-%t7 = add i32 0, 0
-  ret i32 %t7
+  ret i32 0
 else0:
-%t8 = load ptr, ptr %p.addr
-  call void @free(ptr %t8)
+%t4 = load ptr, ptr %p.addr
+  call void @free(ptr %t4)
   br label %done0
 done0:
-%t9 = add i32 0, 42
-  ret i32 %t9
+  ret i32 42
 }
 

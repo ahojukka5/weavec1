@@ -9,43 +9,35 @@ entry:
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
 %t2 = load ptr, ptr %p.addr
-%t3 = getelementptr i8, ptr null, i64 0
-%t4 = icmp eq ptr %t2, %t3
-  br i1 %t4, label %then0, label %else0
+%t3 = icmp eq ptr %t2, null
+  br i1 %t3, label %then0, label %else0
 then0:
-%t5 = add i32 0, 0
-  ret i32 %t5
+  ret i32 0
 else0:
   br label %done0
 done0:
-%t6 = load ptr, ptr %p.addr
-%t7 = add i32 0, 21
-%t8 = add i32 0, 4
-%t9 = mul i32 %t7, %t8
-%t10 = add i32 0, 2
-%t11 = sdiv i32 %t9, %t10
-  store i32 %t11, ptr %t6
-%t12 = load ptr, ptr %p.addr
-%t13 = load i32, ptr %t12
+%t4 = load ptr, ptr %p.addr
+%t5 = mul i32 21, 4
+%t6 = sdiv i32 %t5, 2
+  store i32 %t6, ptr %t4
+%t7 = load ptr, ptr %p.addr
+%t8 = load i32, ptr %t7
 %x.addr = alloca i32
-  store i32 %t13, ptr %x.addr
-%t14 = load ptr, ptr %p.addr
-  call void @free(ptr %t14)
-%t15 = load i32, ptr %x.addr
-%t16 = add i32 0, 42
-%t17 = icmp eq i32 %t15, %t16
-%t18 = add i32 0, -1
-%t19 = sext i32 %t18 to i64
-%t20 = trunc i64 %t19 to i32
-%t21 = add i32 0, 0
-%t22 = icmp sle i32 %t20, %t21
-%t23 = and i1 %t17, %t22
-  br i1 %t23, label %then1, label %else1
+  store i32 %t8, ptr %x.addr
+%t9 = load ptr, ptr %p.addr
+  call void @free(ptr %t9)
+%t10 = load i32, ptr %x.addr
+%t11 = icmp eq i32 %t10, 42
+%t12 = add i32 0, -1
+%t13 = sext i32 %t12 to i64
+%t14 = trunc i64 %t13 to i32
+%t15 = icmp sle i32 %t14, 0
+%t16 = and i1 %t11, %t15
+  br i1 %t16, label %then1, label %else1
 then1:
-%t24 = load i32, ptr %x.addr
-  ret i32 %t24
+%t17 = load i32, ptr %x.addr
+  ret i32 %t17
 else1:
-%t25 = add i32 0, 0
-  ret i32 %t25
+  ret i32 0
 }
 

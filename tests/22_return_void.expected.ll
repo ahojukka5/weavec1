@@ -8,7 +8,6 @@ entry:
 define i32 @main() {
 entry:
   call void @noop()
-%t0 = add i32 0, 42
-  ret i32 %t0
+  ret i32 42
 }
 

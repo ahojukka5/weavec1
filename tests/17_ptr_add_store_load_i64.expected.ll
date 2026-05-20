@@ -9,39 +9,35 @@ entry:
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
 %t2 = load ptr, ptr %p.addr
-%t3 = getelementptr i8, ptr null, i64 0
-%t4 = icmp eq ptr %t2, %t3
-  br i1 %t4, label %then0, label %else0
+%t3 = icmp eq ptr %t2, null
+  br i1 %t3, label %then0, label %else0
 then0:
-%t5 = add i32 0, 0
-  ret i32 %t5
+  ret i32 0
 else0:
   br label %done0
 done0:
+%t4 = load ptr, ptr %p.addr
+%t5 = add i64 0, 20
+  store i64 %t5, ptr %t4
 %t6 = load ptr, ptr %p.addr
-%t7 = add i64 0, 20
-  store i64 %t7, ptr %t6
-%t8 = load ptr, ptr %p.addr
-%t9 = add i64 0, 8
-%t10 = getelementptr i8, ptr %t8, i64 %t9
-%t11 = add i64 0, 22
-  store i64 %t11, ptr %t10
-%t12 = load ptr, ptr %p.addr
-%t13 = load i64, ptr %t12
+%t7 = getelementptr i8, ptr %t6, i64 8
+%t8 = add i64 0, 22
+  store i64 %t8, ptr %t7
+%t9 = load ptr, ptr %p.addr
+%t10 = load i64, ptr %t9
 %a.addr = alloca i64
-  store i64 %t13, ptr %a.addr
-%t14 = load ptr, ptr %p.addr
-%t15 = add i64 0, 8
-%t16 = getelementptr i8, ptr %t14, i64 %t15
-%t17 = load i64, ptr %t16
+  store i64 %t10, ptr %a.addr
+%t11 = load ptr, ptr %p.addr
+%t12 = getelementptr i8, ptr %t11, i64 8
+%t13 = load i64, ptr %t12
 %b.addr = alloca i64
-  store i64 %t17, ptr %b.addr
-%t18 = load ptr, ptr %p.addr
-  call void @free(ptr %t18)
-%t19 = load i64, ptr %a.addr
-%t20 = load i64, ptr %b.addr
-%t21 = add i64 %t19, %t20
-%t22 = trunc i64 %t21 to i32
-  ret i32 %t22
+  store i64 %t13, ptr %b.addr
+%t14 = load ptr, ptr %p.addr
+  call void @free(ptr %t14)
+%t15 = load i64, ptr %a.addr
+%t16 = load i64, ptr %b.addr
+%t17 = add i64 %t15, %t16
+%t18 = trunc i64 %t17 to i32
+  ret i32 %t18
 }
 

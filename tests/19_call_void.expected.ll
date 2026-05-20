@@ -5,7 +5,6 @@ define i32 @main() {
 entry:
 %t0 = getelementptr i8, ptr null, i64 0
   call void @free(ptr %t0)
-%t1 = add i32 0, 42
-  ret i32 %t1
+  ret i32 42
 }
 

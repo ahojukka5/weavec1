@@ -2,15 +2,11 @@
 
 define i32 @main() {
 entry:
-%t0 = add i32 0, 1
-%t1 = add i32 0, 2
-%t2 = icmp slt i32 %t0, %t1
-  br i1 %t2, label %then0, label %else0
+%t0 = icmp slt i32 1, 2
+  br i1 %t0, label %then0, label %else0
 then0:
-%t3 = add i32 0, 42
-  ret i32 %t3
+  ret i32 42
 else0:
-%t4 = add i32 0, 0
-  ret i32 %t4
+  ret i32 0
 }
 

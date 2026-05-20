@@ -2,23 +2,16 @@
 
 define i32 @main() {
 entry:
-%t0 = getelementptr i8, ptr null, i64 0
-%t1 = getelementptr i8, ptr null, i64 0
-%t2 = icmp eq ptr %t0, %t1
-  br i1 %t2, label %then0, label %else0
+%t0 = icmp eq ptr null, null
+  br i1 %t0, label %then0, label %else0
 then0:
-%t3 = getelementptr i8, ptr null, i64 0
-%t4 = getelementptr i8, ptr null, i64 0
-%t5 = icmp ne ptr %t3, %t4
-  br i1 %t5, label %then1, label %else1
+%t1 = icmp ne ptr null, null
+  br i1 %t1, label %then1, label %else1
 then1:
-%t6 = add i32 0, 0
-  ret i32 %t6
+  ret i32 0
 else1:
-%t7 = add i32 0, 42
-  ret i32 %t7
+  ret i32 42
 else0:
-%t8 = add i32 0, 0
-  ret i32 %t8
+  ret i32 0
 }
 

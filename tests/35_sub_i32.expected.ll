@@ -2,9 +2,7 @@
 
 define i32 @main() {
 entry:
-%t0 = add i32 0, 50
-%t1 = add i32 0, 8
-%t2 = sub i32 %t0, %t1
-  ret i32 %t2
+%t0 = sub i32 50, 8
+  ret i32 %t0
 }
 

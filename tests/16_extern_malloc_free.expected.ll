@@ -9,16 +9,13 @@ entry:
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
 %t2 = load ptr, ptr %p.addr
-%t3 = getelementptr i8, ptr null, i64 0
-%t4 = icmp eq ptr %t2, %t3
-  br i1 %t4, label %then0, label %else0
+%t3 = icmp eq ptr %t2, null
+  br i1 %t3, label %then0, label %else0
 then0:
-%t5 = add i32 0, 0
-  ret i32 %t5
+  ret i32 0
 else0:
-%t6 = load ptr, ptr %p.addr
-  call void @free(ptr %t6)
-%t7 = add i32 0, 42
-  ret i32 %t7
+%t4 = load ptr, ptr %p.addr
+  call void @free(ptr %t4)
+  ret i32 42
 }
 

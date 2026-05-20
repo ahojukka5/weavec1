@@ -6,10 +6,8 @@ entry:
 %t1 = xor i1 %t0, true
   br i1 %t1, label %then0, label %else0
 then0:
-%t2 = add i32 0, 42
-  ret i32 %t2
+  ret i32 42
 else0:
-%t3 = add i32 0, 0
-  ret i32 %t3
+  ret i32 0
 }
 

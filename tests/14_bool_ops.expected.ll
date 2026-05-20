@@ -2,17 +2,12 @@
 
 define i32 @main() {
 entry:
-%t0 = or i1 false, true
-%t1 = or i1 false, false
-%t2 = or i1 false, true
-%t3 = or i1 %t1, %t2
-%t4 = and i1 %t0, %t3
-  br i1 %t4, label %then0, label %else0
+%t0 = or i1 0, 1
+%t1 = and i1 1, %t0
+  br i1 %t1, label %then0, label %else0
 then0:
-%t5 = add i32 0, 42
-  ret i32 %t5
+  ret i32 42
 else0:
-%t6 = add i32 0, 0
-  ret i32 %t6
+  ret i32 0
 }
 

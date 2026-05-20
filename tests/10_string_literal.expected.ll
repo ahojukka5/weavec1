@@ -6,7 +6,6 @@ define i32 @main() {
 entry:
 %t0 = getelementptr [17 x i8], ptr @.str0, i64 0, i64 0
   call i32 @puts(ptr %t0)
-%t1 = add i32 0, 42
-  ret i32 %t1
+  ret i32 42
 }
 

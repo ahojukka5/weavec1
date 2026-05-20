@@ -3,21 +3,18 @@
 define i1 @is_answer(i32 %x) {
 entry:
 %t0 = add i32 0, %x
-%t1 = add i32 0, 42
-%t2 = icmp eq i32 %t0, %t1
-  ret i1 %t2
+%t1 = icmp eq i32 %t0, 42
+  ret i1 %t1
 }
 
 define i32 @main() {
 entry:
-%t4 = add i32 0, 42
-%t3 = call i1 @is_answer(i32 %t4)
-  br i1 %t3, label %then0, label %else0
+%t3 = add i32 0, 42
+%t2 = call i1 @is_answer(i32 %t3)
+  br i1 %t2, label %then0, label %else0
 then0:
-%t5 = add i32 0, 42
-  ret i32 %t5
+  ret i32 42
 else0:
-%t6 = add i32 0, 0
-  ret i32 %t6
+  ret i32 0
 }
 

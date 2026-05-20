@@ -3,15 +3,14 @@
 define i32 @inc(i32 %x) {
 entry:
 %t0 = add i32 0, %x
-%t1 = add i32 0, 1
-%t2 = add i32 %t0, %t1
-  ret i32 %t2
+%t1 = add i32 %t0, 1
+  ret i32 %t1
 }
 
 define i32 @main() {
 entry:
-%t4 = add i32 0, 41
-%t3 = call i32 @inc(i32 %t4)
-  ret i32 %t3
+%t3 = add i32 0, 41
+%t2 = call i32 @inc(i32 %t3)
+  ret i32 %t2
 }
 

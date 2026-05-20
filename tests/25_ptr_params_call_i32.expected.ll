@@ -7,18 +7,16 @@ entry:
 %t2 = icmp eq ptr %t0, %t1
   br i1 %t2, label %then0, label %else0
 then0:
-%t3 = add i32 0, 42
-  ret i32 %t3
+  ret i32 42
 else0:
-%t4 = add i32 0, 0
-  ret i32 %t4
+  ret i32 0
 }
 
 define i32 @main() {
 entry:
-%t6 = getelementptr i8, ptr null, i64 0
-%t7 = getelementptr i8, ptr null, i64 0
-%t5 = call i32 @same_ptr(ptr %t6, ptr %t7)
-  ret i32 %t5
+%t4 = getelementptr i8, ptr null, i64 0
+%t5 = getelementptr i8, ptr null, i64 0
+%t3 = call i32 @same_ptr(ptr %t4, ptr %t5)
+  ret i32 %t3
 }
 

@@ -11,21 +11,18 @@ entry:
   br label %while.cond0
 while.cond0:
 %t2 = load i32, ptr %i.addr
-%t3 = add i32 0, 7
-%t4 = icmp slt i32 %t2, %t3
-  br i1 %t4, label %while.body0, label %while.end0
+%t3 = icmp slt i32 %t2, 7
+  br i1 %t3, label %while.body0, label %while.end0
 while.body0:
-%t5 = load i32, ptr %sum.addr
-%t6 = add i32 0, 6
-%t7 = add i32 %t5, %t6
-  store i32 %t7, ptr %sum.addr
-%t8 = load i32, ptr %i.addr
-%t9 = add i32 0, 1
-%t10 = add i32 %t8, %t9
-  store i32 %t10, ptr %i.addr
+%t4 = load i32, ptr %sum.addr
+%t5 = add i32 %t4, 6
+  store i32 %t5, ptr %sum.addr
+%t6 = load i32, ptr %i.addr
+%t7 = add i32 %t6, 1
+  store i32 %t7, ptr %i.addr
   br label %while.cond0
 while.end0:
-%t11 = load i32, ptr %sum.addr
-  ret i32 %t11
+%t8 = load i32, ptr %sum.addr
+  ret i32 %t8
 }
 

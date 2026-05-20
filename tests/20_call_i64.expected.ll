@@ -2,14 +2,13 @@
 
 define i64 @answer64() {
 entry:
-%t0 = add i64 0, 42
-  ret i64 %t0
+  ret i64 42
 }
 
 define i32 @main() {
 entry:
-%t1 = call i64 @answer64()
-%t2 = trunc i64 %t1 to i32
-  ret i32 %t2
+%t0 = call i64 @answer64()
+%t1 = trunc i64 %t0 to i32
+  ret i32 %t1
 }
 

@@ -9,17 +9,16 @@ entry:
 %b.addr = alloca i64
   store i64 %t1, ptr %b.addr
 %t2 = load i64, ptr %b.addr
-%t3 = add i64 0, 11
-%t4 = mul i64 %t2, %t3
+%t3 = mul i64 %t2, 11
 %c.addr = alloca i64
-  store i64 %t4, ptr %c.addr
-%t5 = load i64, ptr %a.addr
-%t6 = load i64, ptr %c.addr
-%t7 = add i64 %t5, %t6
+  store i64 %t3, ptr %c.addr
+%t4 = load i64, ptr %a.addr
+%t5 = load i64, ptr %c.addr
+%t6 = add i64 %t4, %t5
 %d.addr = alloca i64
-  store i64 %t7, ptr %d.addr
-%t8 = load i64, ptr %d.addr
-%t9 = trunc i64 %t8 to i32
-  ret i32 %t9
+  store i64 %t6, ptr %d.addr
+%t7 = load i64, ptr %d.addr
+%t8 = trunc i64 %t7 to i32
+  ret i32 %t8
 }
 
