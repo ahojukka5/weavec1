@@ -1131,6 +1131,10 @@
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = add i64 "))))
           (else (block)))
 
+        (if (eq_i32 (param_get op) (call_i32 op_sub_i64))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = sub i64 "))))
+          (else (block)))
+
         (if (eq_i32 (param_get op) (call_i32 op_mul_i64))
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = mul i64 "))))
           (else (block)))
@@ -1149,6 +1153,10 @@
 
         (if (eq_i32 (param_get op) (call_i32 op_lt_i64))
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp slt i64 "))))
+          (else (block)))
+
+        (if (eq_i32 (param_get op) (call_i32 op_eq_i64))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp eq i64 "))))
           (else (block)))
 
         (if (eq_i32 (param_get op) (call_i32 op_le_i64))
