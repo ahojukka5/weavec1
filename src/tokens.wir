@@ -1,588 +1,858 @@
-; =============================================================================
-; Weave Bootstrap Compiler
-; tokens.wir
-;
-; Token constants and token-stream helpers for the first WIR-written compiler.
-;
-; This file is WIR/TIR, not surface Weave.
-; =============================================================================
-
 (core-module
   (core-version 1)
-
   (decls
-
-    ; -------------------------------------------------------------------------
-    ; Token kind constants
-    ; -------------------------------------------------------------------------
-    ;
-    ; Keep these numeric values aligned with weavec0.
-
-    (fn token_eof    (params) (returns i32) (body (return (const_i32 0))))
-    (fn token_lparen (params) (returns i32) (body (return (const_i32 1))))
-    (fn token_rparen (params) (returns i32) (body (return (const_i32 2))))
-    (fn token_ident  (params) (returns i32) (body (return (const_i32 3))))
-    (fn token_int    (params) (returns i32) (body (return (const_i32 4))))
-    (fn token_string (params) (returns i32) (body (return (const_i32 5))))
-
-    (fn token_fn     (params) (returns i32) (body (return (const_i32 6))))
-    (fn token_return (params) (returns i32) (body (return (const_i32 7))))
-    (fn token_if     (params) (returns i32) (body (return (const_i32 8))))
-    (fn token_else   (params) (returns i32) (body (return (const_i32 9))))
-    (fn token_while  (params) (returns i32) (body (return (const_i32 10))))
-    (fn token_let    (params) (returns i32) (body (return (const_i32 11))))
-    (fn token_set    (params) (returns i32) (body (return (const_i32 12))))
-
-    (fn token_plus   (params) (returns i32) (body (return (const_i32 13))))
-    (fn token_minus  (params) (returns i32) (body (return (const_i32 14))))
-    (fn token_star   (params) (returns i32) (body (return (const_i32 15))))
-    (fn token_slash  (params) (returns i32) (body (return (const_i32 16))))
-    (fn token_eq     (params) (returns i32) (body (return (const_i32 17))))
-    (fn token_eqeq   (params) (returns i32) (body (return (const_i32 18))))
-    (fn token_ne     (params) (returns i32) (body (return (const_i32 19))))
-    (fn token_lt     (params) (returns i32) (body (return (const_i32 20))))
-    (fn token_le     (params) (returns i32) (body (return (const_i32 21))))
-    (fn token_gt     (params) (returns i32) (body (return (const_i32 22))))
-    (fn token_ge     (params) (returns i32) (body (return (const_i32 23))))
-
-    ; WIR/TIR-specific keywords used by the self-hosted compiler.
-    ; These can be added to the lexer once needed.
-
-    (fn token_core_module  (params) (returns i32) (body (return (const_i32 24))))
-    (fn token_core_version (params) (returns i32) (body (return (const_i32 25))))
-    (fn token_decls        (params) (returns i32) (body (return (const_i32 26))))
-    (fn token_extern       (params) (returns i32) (body (return (const_i32 27))))
-    (fn token_params       (params) (returns i32) (body (return (const_i32 28))))
-    (fn token_returns      (params) (returns i32) (body (return (const_i32 29))))
-    (fn token_body         (params) (returns i32) (body (return (const_i32 30))))
-    (fn token_then         (params) (returns i32) (body (return (const_i32 31))))
-    (fn token_body_kw      (params) (returns i32) (body (return (const_i32 32))))
-    (fn token_block        (params) (returns i32) (body (return (const_i32 33))))
-    (fn token_return_void  (params) (returns i32) (body (return (const_i32 34))))
-
-    ; -------------------------------------------------------------------------
-    ; TokenStream layout
-    ; -------------------------------------------------------------------------
-    ;
-    ; Raw memory object, 48 bytes:
-    ;
-    ;   offset 0:  kinds    ptr -> i32[count]
-    ;   offset 8:  starts   ptr -> i64[count]
-    ;   offset 16: lengths  ptr -> i64[count]
-    ;   offset 24: values   ptr -> i32[count]
-    ;   offset 32: count    i64
-    ;   offset 40: capacity i64
-
-    (fn tokens_size
+    (fn
+      token_eof
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 0))))
+    (fn
+      token_lparen
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 1))))
+    (fn
+      token_rparen
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 2))))
+    (fn
+      token_ident
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 3))))
+    (fn
+      token_int
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 4))))
+    (fn
+      token_string
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 5))))
+    (fn
+      token_fn
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 6))))
+    (fn
+      token_return
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 7))))
+    (fn
+      token_if
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 8))))
+    (fn
+      token_else
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 9))))
+    (fn
+      token_while
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 10))))
+    (fn
+      token_let
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 11))))
+    (fn
+      token_set
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 12))))
+    (fn
+      token_plus
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 13))))
+    (fn
+      token_minus
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 14))))
+    (fn
+      token_star
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 15))))
+    (fn
+      token_slash
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 16))))
+    (fn
+      token_eq
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 17))))
+    (fn
+      token_eqeq
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 18))))
+    (fn
+      token_ne
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 19))))
+    (fn
+      token_lt
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 20))))
+    (fn
+      token_le
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 21))))
+    (fn
+      token_gt
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 22))))
+    (fn
+      token_ge
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 23))))
+    (fn
+      token_core_module
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 24))))
+    (fn
+      token_core_version
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 25))))
+    (fn
+      token_decls
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 26))))
+    (fn
+      token_extern
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 27))))
+    (fn
+      token_params
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 28))))
+    (fn
+      token_returns
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 29))))
+    (fn
+      token_then
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 31))))
+    (fn
+      token_block
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 33))))
+    (fn
+      token_return_void
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 34))))
+    (fn
+      token_do
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 35))))
+    (fn
+      token_condition
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 36))))
+    (fn
+      tokens_size
       (params)
       (returns i64)
-      (body
+      (do
         (return
           (const_i64 48))))
-
-    (fn tokens_initial_capacity
+    (fn
+      tokens_initial_capacity
       (params)
       (returns i64)
-      (body
+      (do
         (return
           (const_i64 256))))
-
-    ; -------------------------------------------------------------------------
-    ; Field address helpers
-    ; -------------------------------------------------------------------------
-
-    (fn tokens_kinds_field
+    (fn
+      tokens_kinds_field
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (param_get tokens))))
-
-    (fn tokens_starts_field
+    (fn
+      tokens_starts_field
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get tokens)
             (const_i64 8)))))
-
-    (fn tokens_lengths_field
+    (fn
+      tokens_lengths_field
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get tokens)
             (const_i64 16)))))
-
-    (fn tokens_values_field
+    (fn
+      tokens_values_field
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get tokens)
             (const_i64 24)))))
-
-    (fn tokens_count_field
+    (fn
+      tokens_count_field
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get tokens)
             (const_i64 32)))))
-
-    (fn tokens_capacity_field
+    (fn
+      tokens_capacity_field
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get tokens)
             (const_i64 40)))))
-
-    ; -------------------------------------------------------------------------
-    ; Field loads
-    ; -------------------------------------------------------------------------
-
-    (fn tokens_kinds
+    (fn
+      tokens_kinds
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (load_ptr
-            (call_ptr tokens_kinds_field
+            (call_ptr
+              tokens_kinds_field
               (param_get tokens))))))
-
-    (fn tokens_starts
+    (fn
+      tokens_starts
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (load_ptr
-            (call_ptr tokens_starts_field
+            (call_ptr
+              tokens_starts_field
               (param_get tokens))))))
-
-    (fn tokens_lengths
+    (fn
+      tokens_lengths
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (load_ptr
-            (call_ptr tokens_lengths_field
+            (call_ptr
+              tokens_lengths_field
               (param_get tokens))))))
-
-    (fn tokens_values
+    (fn
+      tokens_values
       (params
         (tokens ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (load_ptr
-            (call_ptr tokens_values_field
+            (call_ptr
+              tokens_values_field
               (param_get tokens))))))
-
-    (fn tokens_count
+    (fn
+      tokens_count
       (params
         (tokens ptr))
       (returns i64)
-      (body
+      (do
         (return
           (load_i64
-            (call_ptr tokens_count_field
+            (call_ptr
+              tokens_count_field
               (param_get tokens))))))
-
-    (fn tokens_capacity
+    (fn
+      tokens_capacity
       (params
         (tokens ptr))
       (returns i64)
-      (body
+      (do
         (return
           (load_i64
-            (call_ptr tokens_capacity_field
+            (call_ptr
+              tokens_capacity_field
               (param_get tokens))))))
-
-    ; -------------------------------------------------------------------------
-    ; Field stores
-    ; -------------------------------------------------------------------------
-
-    (fn tokens_set_kinds
+    (fn
+      tokens_set_kinds
       (params
         (tokens ptr)
         (kinds ptr))
       (returns void)
-      (body
+      (do
         (store_ptr
-          (call_ptr tokens_kinds_field
+          (call_ptr
+            tokens_kinds_field
             (param_get tokens))
           (param_get kinds))
         (return_void)))
-
-    (fn tokens_set_starts
+    (fn
+      tokens_set_starts
       (params
         (tokens ptr)
         (starts ptr))
       (returns void)
-      (body
+      (do
         (store_ptr
-          (call_ptr tokens_starts_field
+          (call_ptr
+            tokens_starts_field
             (param_get tokens))
           (param_get starts))
         (return_void)))
-
-    (fn tokens_set_lengths
+    (fn
+      tokens_set_lengths
       (params
         (tokens ptr)
         (lengths ptr))
       (returns void)
-      (body
+      (do
         (store_ptr
-          (call_ptr tokens_lengths_field
+          (call_ptr
+            tokens_lengths_field
             (param_get tokens))
           (param_get lengths))
         (return_void)))
-
-    (fn tokens_set_values
+    (fn
+      tokens_set_values
       (params
         (tokens ptr)
         (values ptr))
       (returns void)
-      (body
+      (do
         (store_ptr
-          (call_ptr tokens_values_field
+          (call_ptr
+            tokens_values_field
             (param_get tokens))
           (param_get values))
         (return_void)))
-
-    (fn tokens_set_count
+    (fn
+      tokens_set_count
       (params
         (tokens ptr)
         (count i64))
       (returns void)
-      (body
+      (do
         (store_i64
-          (call_ptr tokens_count_field
+          (call_ptr
+            tokens_count_field
             (param_get tokens))
           (param_get count))
         (return_void)))
-
-    (fn tokens_set_capacity
+    (fn
+      tokens_set_capacity
       (params
         (tokens ptr)
         (capacity i64))
       (returns void)
-      (body
+      (do
         (store_i64
-          (call_ptr tokens_capacity_field
+          (call_ptr
+            tokens_capacity_field
             (param_get tokens))
           (param_get capacity))
         (return_void)))
-
-    ; -------------------------------------------------------------------------
-    ; TokenStream lifecycle
-    ; -------------------------------------------------------------------------
-
-    (fn tokens_new
+    (fn
+      tokens_new
       (params)
       (returns ptr)
-      (body
-        (let tokens ptr
-          (call_ptr malloc
+      (do
+        (let
+          tokens
+          ptr
+          (call_ptr
+            malloc
             (call_i64 tokens_size)))
-
         (if
-          (eq_ptr
-            (local_get tokens)
-            (const_null))
-          (then
-            (return
+          (condition
+            (eq_ptr
+              (local_get tokens)
               (const_null)))
-          (else
-            (block)))
-
-        (let capacity i64
-          (call_i64 tokens_initial_capacity))
-
-        (let kinds ptr
-          (call_ptr malloc
-            (mul_i64
-              (local_get capacity)
-              (const_i64 4))))
-
-        (let starts ptr
-          (call_ptr malloc
-            (mul_i64
-              (local_get capacity)
-              (const_i64 8))))
-
-        (let lengths ptr
-          (call_ptr malloc
-            (mul_i64
-              (local_get capacity)
-              (const_i64 8))))
-
-        (let values ptr
-          (call_ptr malloc
-            (mul_i64
-              (local_get capacity)
-              (const_i64 4))))
-
-        (if
-          (or_bool
-            (or_bool
-              (eq_ptr (local_get kinds) (const_null))
-              (eq_ptr (local_get starts) (const_null)))
-            (or_bool
-              (eq_ptr (local_get lengths) (const_null))
-              (eq_ptr (local_get values) (const_null))))
-
           (then
-            (block
-              (if (ne_ptr (local_get kinds) (const_null))
-                (then (call_void free (local_get kinds)))
-                (else (block)))
-
-              (if (ne_ptr (local_get starts) (const_null))
-                (then (call_void free (local_get starts)))
-                (else (block)))
-
-              (if (ne_ptr (local_get lengths) (const_null))
-                (then (call_void free (local_get lengths)))
-                (else (block)))
-
-              (if (ne_ptr (local_get values) (const_null))
-                (then (call_void free (local_get values)))
-                (else (block)))
-
-              (call_void free
-                (local_get tokens))
-
+            (do
               (return
                 (const_null))))
-
           (else
-            (block)))
-
-        (call_void tokens_set_kinds
+            (do)))
+        (let
+          capacity
+          i64
+          (call_i64 tokens_initial_capacity))
+        (let
+          kinds
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (local_get capacity)
+              (const_i64 4))))
+        (let
+          starts
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (local_get capacity)
+              (const_i64 8))))
+        (let
+          lengths
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (local_get capacity)
+              (const_i64 8))))
+        (let
+          values
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (local_get capacity)
+              (const_i64 4))))
+        (if
+          (condition
+            (or_bool
+              (or_bool
+                (eq_ptr
+                  (local_get kinds)
+                  (const_null))
+                (eq_ptr
+                  (local_get starts)
+                  (const_null)))
+              (or_bool
+                (eq_ptr
+                  (local_get lengths)
+                  (const_null))
+                (eq_ptr
+                  (local_get values)
+                  (const_null)))))
+          (then
+            (do
+              (if
+                (condition
+                  (ne_ptr
+                    (local_get kinds)
+                    (const_null)))
+                (then
+                  (do
+                    (call_void
+                      free
+                      (local_get kinds))))
+                (else
+                  (do)))
+              (if
+                (condition
+                  (ne_ptr
+                    (local_get starts)
+                    (const_null)))
+                (then
+                  (do
+                    (call_void
+                      free
+                      (local_get starts))))
+                (else
+                  (do)))
+              (if
+                (condition
+                  (ne_ptr
+                    (local_get lengths)
+                    (const_null)))
+                (then
+                  (do
+                    (call_void
+                      free
+                      (local_get lengths))))
+                (else
+                  (do)))
+              (if
+                (condition
+                  (ne_ptr
+                    (local_get values)
+                    (const_null)))
+                (then
+                  (do
+                    (call_void
+                      free
+                      (local_get values))))
+                (else
+                  (do)))
+              (call_void
+                free
+                (local_get tokens))
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (call_void
+          tokens_set_kinds
           (local_get tokens)
           (local_get kinds))
-
-        (call_void tokens_set_starts
+        (call_void
+          tokens_set_starts
           (local_get tokens)
           (local_get starts))
-
-        (call_void tokens_set_lengths
+        (call_void
+          tokens_set_lengths
           (local_get tokens)
           (local_get lengths))
-
-        (call_void tokens_set_values
+        (call_void
+          tokens_set_values
           (local_get tokens)
           (local_get values))
-
-        (call_void tokens_set_count
+        (call_void
+          tokens_set_count
           (local_get tokens)
           (const_i64 0))
-
-        (call_void tokens_set_capacity
+        (call_void
+          tokens_set_capacity
           (local_get tokens)
           (local_get capacity))
-
         (return
           (local_get tokens))))
-
-    (fn tokens_free
+    (fn
+      tokens_free
       (params
         (tokens ptr))
       (returns void)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get tokens)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (param_get tokens)
+              (const_null)))
           (then
-            (return_void))
-
+            (do
+              (return_void)))
           (else
-            (block)))
-
-        (let kinds ptr
-          (call_ptr tokens_kinds
+            (do)))
+        (let
+          kinds
+          ptr
+          (call_ptr
+            tokens_kinds
             (param_get tokens)))
-
-        (let starts ptr
-          (call_ptr tokens_starts
+        (let
+          starts
+          ptr
+          (call_ptr
+            tokens_starts
             (param_get tokens)))
-
-        (let lengths ptr
-          (call_ptr tokens_lengths
+        (let
+          lengths
+          ptr
+          (call_ptr
+            tokens_lengths
             (param_get tokens)))
-
-        (let values ptr
-          (call_ptr tokens_values
+        (let
+          values
+          ptr
+          (call_ptr
+            tokens_values
             (param_get tokens)))
-
-        (if (ne_ptr (local_get kinds) (const_null))
-          (then (call_void free (local_get kinds)))
-          (else (block)))
-
-        (if (ne_ptr (local_get starts) (const_null))
-          (then (call_void free (local_get starts)))
-          (else (block)))
-
-        (if (ne_ptr (local_get lengths) (const_null))
-          (then (call_void free (local_get lengths)))
-          (else (block)))
-
-        (if (ne_ptr (local_get values) (const_null))
-          (then (call_void free (local_get values)))
-          (else (block)))
-
-        (call_void free
+        (if
+          (condition
+            (ne_ptr
+              (local_get kinds)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get kinds))))
+          (else
+            (do)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get starts)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get starts))))
+          (else
+            (do)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get lengths)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get lengths))))
+          (else
+            (do)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get values)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get values))))
+          (else
+            (do)))
+        (call_void
+          free
           (param_get tokens))
-
         (return_void)))
-
-    ; -------------------------------------------------------------------------
-    ; Reserve capacity
-    ; -------------------------------------------------------------------------
-
-    (fn tokens_reserve
+    (fn
+      tokens_reserve
       (params
         (tokens ptr)
         (needed i64))
       (returns i32)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get tokens)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (param_get tokens)
+              (const_null)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (let capacity i64
-          (call_i64 tokens_capacity
+            (do)))
+        (let
+          capacity
+          i64
+          (call_i64
+            tokens_capacity
             (param_get tokens)))
-
         (if
-          (le_i64
-            (param_get needed)
-            (local_get capacity))
-
+          (condition
+            (le_i64
+              (param_get needed)
+              (local_get capacity)))
           (then
-            (return
-              (const_i32 0)))
-
+            (do
+              (return
+                (const_i32 0))))
           (else
-            (block)))
-
-        (let new_capacity i64
+            (do)))
+        (let
+          new_capacity
+          i64
           (local_get capacity))
-
         (while
-          (lt_i64
-            (local_get new_capacity)
-            (param_get needed))
-
-          (body
-            (block
-              (set new_capacity
-                (mul_i64
-                  (local_get new_capacity)
-                  (const_i64 2))))))
-
-        (let new_kinds ptr
-          (call_ptr realloc
-            (call_ptr tokens_kinds
+          (condition
+            (lt_i64
+              (local_get new_capacity)
+              (param_get needed)))
+          (do
+            (set
+              new_capacity
+              (mul_i64
+                (local_get new_capacity)
+                (const_i64 2)))))
+        (let
+          new_kinds
+          ptr
+          (call_ptr
+            realloc
+            (call_ptr
+              tokens_kinds
               (param_get tokens))
             (mul_i64
               (local_get new_capacity)
               (const_i64 4))))
-
-        (let new_starts ptr
-          (call_ptr realloc
-            (call_ptr tokens_starts
+        (let
+          new_starts
+          ptr
+          (call_ptr
+            realloc
+            (call_ptr
+              tokens_starts
               (param_get tokens))
             (mul_i64
               (local_get new_capacity)
               (const_i64 8))))
-
-        (let new_lengths ptr
-          (call_ptr realloc
-            (call_ptr tokens_lengths
+        (let
+          new_lengths
+          ptr
+          (call_ptr
+            realloc
+            (call_ptr
+              tokens_lengths
               (param_get tokens))
             (mul_i64
               (local_get new_capacity)
               (const_i64 8))))
-
-        (let new_values ptr
-          (call_ptr realloc
-            (call_ptr tokens_values
+        (let
+          new_values
+          ptr
+          (call_ptr
+            realloc
+            (call_ptr
+              tokens_values
               (param_get tokens))
             (mul_i64
               (local_get new_capacity)
               (const_i64 4))))
-
         (if
-          (or_bool
+          (condition
             (or_bool
-              (eq_ptr (local_get new_kinds) (const_null))
-              (eq_ptr (local_get new_starts) (const_null)))
-            (or_bool
-              (eq_ptr (local_get new_lengths) (const_null))
-              (eq_ptr (local_get new_values) (const_null))))
-
+              (or_bool
+                (eq_ptr
+                  (local_get new_kinds)
+                  (const_null))
+                (eq_ptr
+                  (local_get new_starts)
+                  (const_null)))
+              (or_bool
+                (eq_ptr
+                  (local_get new_lengths)
+                  (const_null))
+                (eq_ptr
+                  (local_get new_values)
+                  (const_null)))))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (call_void tokens_set_kinds
+            (do)))
+        (call_void
+          tokens_set_kinds
           (param_get tokens)
           (local_get new_kinds))
-
-        (call_void tokens_set_starts
+        (call_void
+          tokens_set_starts
           (param_get tokens)
           (local_get new_starts))
-
-        (call_void tokens_set_lengths
+        (call_void
+          tokens_set_lengths
           (param_get tokens)
           (local_get new_lengths))
-
-        (call_void tokens_set_values
+        (call_void
+          tokens_set_values
           (param_get tokens)
           (local_get new_values))
-
-        (call_void tokens_set_capacity
+        (call_void
+          tokens_set_capacity
           (param_get tokens)
           (local_get new_capacity))
-
         (return
           (const_i32 0))))
-
-    ; -------------------------------------------------------------------------
-    ; Push token
-    ; -------------------------------------------------------------------------
-
-    (fn tokens_push
+    (fn
+      tokens_push
       (params
         (tokens ptr)
         (kind i32)
@@ -590,159 +860,164 @@
         (length i64)
         (value i32))
       (returns i32)
-      (body
-        (let count i64
-          (call_i64 tokens_count
+      (do
+        (let
+          count
+          i64
+          (call_i64
+            tokens_count
             (param_get tokens)))
-
-        (let needed i64
+        (let
+          needed
+          i64
           (add_i64
             (local_get count)
             (const_i64 1)))
-
         (if
-          (ne_i32
-            (call_i32 tokens_reserve
-              (param_get tokens)
-              (local_get needed))
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (call_i32
+                tokens_reserve
+                (param_get tokens)
+                (local_get needed))
+              (const_i32 0)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
+            (do)))
         (store_i32
           (ptr_add
-            (call_ptr tokens_kinds
+            (call_ptr
+              tokens_kinds
               (param_get tokens))
             (mul_i64
               (local_get count)
               (const_i64 4)))
           (param_get kind))
-
         (store_i64
           (ptr_add
-            (call_ptr tokens_starts
+            (call_ptr
+              tokens_starts
               (param_get tokens))
             (mul_i64
               (local_get count)
               (const_i64 8)))
           (param_get start))
-
         (store_i64
           (ptr_add
-            (call_ptr tokens_lengths
+            (call_ptr
+              tokens_lengths
               (param_get tokens))
             (mul_i64
               (local_get count)
               (const_i64 8)))
           (param_get length))
-
         (store_i32
           (ptr_add
-            (call_ptr tokens_values
+            (call_ptr
+              tokens_values
               (param_get tokens))
             (mul_i64
               (local_get count)
               (const_i64 4)))
           (param_get value))
-
-        (call_void tokens_set_count
+        (call_void
+          tokens_set_count
           (param_get tokens)
           (local_get needed))
-
         (return
           (const_i32 0))))
-
-    ; -------------------------------------------------------------------------
-    ; Accessors
-    ; -------------------------------------------------------------------------
-
-    (fn token_kind_at
+    (fn
+      token_kind_at
       (params
         (tokens ptr)
         (index i64))
       (returns i32)
-      (body
+      (do
         (return
           (load_i32
             (ptr_add
-              (call_ptr tokens_kinds
+              (call_ptr
+                tokens_kinds
                 (param_get tokens))
               (mul_i64
                 (param_get index)
                 (const_i64 4)))))))
-
-    (fn token_start_at
+    (fn
+      token_start_at
       (params
         (tokens ptr)
         (index i64))
       (returns i64)
-      (body
+      (do
         (return
           (load_i64
             (ptr_add
-              (call_ptr tokens_starts
+              (call_ptr
+                tokens_starts
                 (param_get tokens))
               (mul_i64
                 (param_get index)
                 (const_i64 8)))))))
-
-    (fn token_length_at
+    (fn
+      token_length_at
       (params
         (tokens ptr)
         (index i64))
       (returns i64)
-      (body
+      (do
         (return
           (load_i64
             (ptr_add
-              (call_ptr tokens_lengths
+              (call_ptr
+                tokens_lengths
                 (param_get tokens))
               (mul_i64
                 (param_get index)
                 (const_i64 8)))))))
-
-    (fn token_value_at
+    (fn
+      token_value_at
       (params
         (tokens ptr)
         (index i64))
       (returns i32)
-      (body
+      (do
         (return
           (load_i32
             (ptr_add
-              (call_ptr tokens_values
+              (call_ptr
+                tokens_values
                 (param_get tokens))
               (mul_i64
                 (param_get index)
                 (const_i64 4)))))))
-
-    (fn token_is
+    (fn
+      token_is
       (params
         (tokens ptr)
         (index i64)
         (expected i32))
       (returns bool)
-      (body
+      (do
         (return
           (eq_i32
-            (call_i32 token_kind_at
+            (call_i32
+              token_kind_at
               (param_get tokens)
               (param_get index))
             (param_get expected)))))
-
-    (fn token_is_eof
+    (fn
+      token_is_eof
       (params
         (tokens ptr)
         (index i64))
       (returns bool)
-      (body
+      (do
         (return
-          (call_bool token_is
+          (call_bool
+            token_is
             (param_get tokens)
             (param_get index)
             (call_i32 token_eof)))))))

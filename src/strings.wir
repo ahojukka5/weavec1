@@ -1,704 +1,653 @@
-; =============================================================================
-; Weave Bootstrap Compiler
-; strings.wir
-;
-; Tiny buffer and byte-string helpers for the first WIR-written compiler.
-;
-; This file is WIR/TIR, not surface Weave.
-;
-; It intentionally uses explicit low-level operations only where they are needed
-; for runtime data structures.
-; =============================================================================
-
 (core-module
   (core-version 1)
-
   (decls
-
-    ; -------------------------------------------------------------------------
-    ; Buffer layout
-    ; -------------------------------------------------------------------------
-    ;
-    ; Buffer is a raw memory object with three 8-byte fields:
-    ;
-    ;   offset 0: data     ptr
-    ;   offset 8: length   i64
-    ;   offset 16: capacity i64
-    ;
-    ; Total size: 24 bytes.
-
-    (fn buffer_size
+    (fn
+      buffer_size
       (params)
       (returns i64)
-      (body
+      (do
         (return
           (const_i64 24))))
-
-    (fn buffer_initial_capacity
+    (fn
+      buffer_initial_capacity
       (params)
       (returns i64)
-      (body
+      (do
         (return
           (const_i64 256))))
-
-    ; -------------------------------------------------------------------------
-    ; Buffer field addresses
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_data_field
+    (fn
+      buffer_data_field
       (params
         (buffer ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (param_get buffer))))
-
-    (fn buffer_length_field
+    (fn
+      buffer_length_field
       (params
         (buffer ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get buffer)
             (const_i64 8)))))
-
-    (fn buffer_capacity_field
+    (fn
+      buffer_capacity_field
       (params
         (buffer ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (ptr_add
             (param_get buffer)
             (const_i64 16)))))
-
-    ; -------------------------------------------------------------------------
-    ; Buffer field loads
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_data
+    (fn
+      buffer_data
       (params
         (buffer ptr))
       (returns ptr)
-      (body
+      (do
         (return
           (load_ptr
-            (call_ptr buffer_data_field
+            (call_ptr
+              buffer_data_field
               (param_get buffer))))))
-
-    (fn buffer_length
+    (fn
+      buffer_length
       (params
         (buffer ptr))
       (returns i64)
-      (body
+      (do
         (return
           (load_i64
-            (call_ptr buffer_length_field
+            (call_ptr
+              buffer_length_field
               (param_get buffer))))))
-
-    (fn buffer_capacity
+    (fn
+      buffer_capacity
       (params
         (buffer ptr))
       (returns i64)
-      (body
+      (do
         (return
           (load_i64
-            (call_ptr buffer_capacity_field
+            (call_ptr
+              buffer_capacity_field
               (param_get buffer))))))
-
-    ; -------------------------------------------------------------------------
-    ; Buffer field stores
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_set_data
+    (fn
+      buffer_set_data
       (params
         (buffer ptr)
         (data ptr))
       (returns void)
-      (body
+      (do
         (store_ptr
-          (call_ptr buffer_data_field
+          (call_ptr
+            buffer_data_field
             (param_get buffer))
           (param_get data))
-
         (return_void)))
-
-    (fn buffer_set_length
+    (fn
+      buffer_set_length
       (params
         (buffer ptr)
         (length i64))
       (returns void)
-      (body
+      (do
         (store_i64
-          (call_ptr buffer_length_field
+          (call_ptr
+            buffer_length_field
             (param_get buffer))
           (param_get length))
-
         (return_void)))
-
-    (fn buffer_set_capacity
+    (fn
+      buffer_set_capacity
       (params
         (buffer ptr)
         (capacity i64))
       (returns void)
-      (body
+      (do
         (store_i64
-          (call_ptr buffer_capacity_field
+          (call_ptr
+            buffer_capacity_field
             (param_get buffer))
           (param_get capacity))
-
         (return_void)))
-
-    ; -------------------------------------------------------------------------
-    ; Buffer lifecycle
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_new
+    (fn
+      buffer_new
       (params)
       (returns ptr)
-      (body
-        (let buffer ptr
-          (call_ptr malloc
+      (do
+        (let
+          buffer
+          ptr
+          (call_ptr
+            malloc
             (call_i64 buffer_size)))
-
         (if
-          (eq_ptr
-            (local_get buffer)
-            (const_null))
-
-          (then
-            (return
+          (condition
+            (eq_ptr
+              (local_get buffer)
               (const_null)))
-
-          (else
-            (block)))
-
-        (let capacity i64
-          (call_i64 buffer_initial_capacity))
-
-        (let data ptr
-          (call_ptr malloc
-            (local_get capacity)))
-
-        (if
-          (eq_ptr
-            (local_get data)
-            (const_null))
-
           (then
-            (block
-              (call_void free
-                (local_get buffer))
-
+            (do
               (return
                 (const_null))))
-
           (else
-            (block)))
-
+            (do)))
+        (let
+          capacity
+          i64
+          (call_i64 buffer_initial_capacity))
+        (let
+          data
+          ptr
+          (call_ptr
+            malloc
+            (local_get capacity)))
+        (if
+          (condition
+            (eq_ptr
+              (local_get data)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get buffer))
+              (return
+                (const_null))))
+          (else
+            (do)))
         (store_i8
           (local_get data)
           (const_i32 0))
-
-        (call_void buffer_set_data
+        (call_void
+          buffer_set_data
           (local_get buffer)
           (local_get data))
-
-        (call_void buffer_set_length
+        (call_void
+          buffer_set_length
           (local_get buffer)
           (const_i64 0))
-
-        (call_void buffer_set_capacity
+        (call_void
+          buffer_set_capacity
           (local_get buffer)
           (local_get capacity))
-
         (return
           (local_get buffer))))
-
-    (fn buffer_free
+    (fn
+      buffer_free
       (params
         (buffer ptr))
       (returns void)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get buffer)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (param_get buffer)
+              (const_null)))
           (then
-            (return_void))
-
+            (do
+              (return_void)))
           (else
-            (block)))
-
-        (let data ptr
-          (call_ptr buffer_data
+            (do)))
+        (let
+          data
+          ptr
+          (call_ptr
+            buffer_data
             (param_get buffer)))
-
         (if
-          (ne_ptr
-            (local_get data)
-            (const_null))
-
+          (condition
+            (ne_ptr
+              (local_get data)
+              (const_null)))
           (then
-            (call_void free
-              (local_get data)))
-
+            (do
+              (call_void
+                free
+                (local_get data))))
           (else
-            (block)))
-
-        (call_void free
+            (do)))
+        (call_void
+          free
           (param_get buffer))
-
         (return_void)))
-
-    ; -------------------------------------------------------------------------
-    ; Buffer reserve
-    ; -------------------------------------------------------------------------
-    ;
-    ; Ensures capacity >= needed.
-    ; Returns 0 on success, 1 on allocation failure.
-
-    (fn buffer_reserve
+    (fn
+      buffer_reserve
       (params
         (buffer ptr)
         (needed i64))
       (returns i32)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get buffer)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (param_get buffer)
+              (const_null)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (let capacity i64
-          (call_i64 buffer_capacity
+            (do)))
+        (let
+          capacity
+          i64
+          (call_i64
+            buffer_capacity
             (param_get buffer)))
-
         (if
-          (le_i64
-            (param_get needed)
-            (local_get capacity))
-
+          (condition
+            (le_i64
+              (param_get needed)
+              (local_get capacity)))
           (then
-            (return
-              (const_i32 0)))
-
+            (do
+              (return
+                (const_i32 0))))
           (else
-            (block)))
-
-        (let new_capacity i64
+            (do)))
+        (let
+          new_capacity
+          i64
           (local_get capacity))
-
         (while
-          (lt_i64
-            (local_get new_capacity)
-            (param_get needed))
-
-          (body
-            (block
-              (set new_capacity
-                (mul_i64
-                  (local_get new_capacity)
-                  (const_i64 2))))))
-
-        (let old_data ptr
-          (call_ptr buffer_data
+          (condition
+            (lt_i64
+              (local_get new_capacity)
+              (param_get needed)))
+          (do
+            (set
+              new_capacity
+              (mul_i64
+                (local_get new_capacity)
+                (const_i64 2)))))
+        (let
+          old_data
+          ptr
+          (call_ptr
+            buffer_data
             (param_get buffer)))
-
-        (let new_data ptr
-          (call_ptr realloc
+        (let
+          new_data
+          ptr
+          (call_ptr
+            realloc
             (local_get old_data)
             (local_get new_capacity)))
-
         (if
-          (eq_ptr
-            (local_get new_data)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (local_get new_data)
+              (const_null)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (call_void buffer_set_data
+            (do)))
+        (call_void
+          buffer_set_data
           (param_get buffer)
           (local_get new_data))
-
-        (call_void buffer_set_capacity
+        (call_void
+          buffer_set_capacity
           (param_get buffer)
           (local_get new_capacity))
-
         (return
           (const_i32 0))))
-
-    ; -------------------------------------------------------------------------
-    ; Append byte
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_append_byte
+    (fn
+      buffer_append_byte
       (params
         (buffer ptr)
         (byte i32))
       (returns i32)
-      (body
-        (let length i64
-          (call_i64 buffer_length
+      (do
+        (let
+          length
+          i64
+          (call_i64
+            buffer_length
             (param_get buffer)))
-
-        (let new_length i64
+        (let
+          new_length
+          i64
           (add_i64
             (local_get length)
             (const_i64 1)))
-
-        (let needed i64
+        (let
+          needed
+          i64
           (add_i64
             (local_get new_length)
             (const_i64 1)))
-
         (if
-          (ne_i32
-            (call_i32 buffer_reserve
-              (param_get buffer)
-              (local_get needed))
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (call_i32
+                buffer_reserve
+                (param_get buffer)
+                (local_get needed))
+              (const_i32 0)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (let data ptr
-          (call_ptr buffer_data
+            (do)))
+        (let
+          data
+          ptr
+          (call_ptr
+            buffer_data
             (param_get buffer)))
-
         (store_i8
           (ptr_add
             (local_get data)
             (local_get length))
           (param_get byte))
-
         (store_i8
           (ptr_add
             (local_get data)
             (local_get new_length))
           (const_i32 0))
-
-        (call_void buffer_set_length
+        (call_void
+          buffer_set_length
           (param_get buffer)
           (local_get new_length))
-
         (return
           (const_i32 0))))
-
-    ; -------------------------------------------------------------------------
-    ; Append bytes
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_append_bytes
+    (fn
+      buffer_append_bytes
       (params
         (buffer ptr)
         (src ptr)
         (count i64))
       (returns i32)
-      (body
+      (do
         (if
-          (and_bool
-            (eq_ptr
-              (param_get src)
-              (const_null))
-            (ne_i64
-              (param_get count)
-              (const_i64 0)))
-
+          (condition
+            (and_bool
+              (eq_ptr
+                (param_get src)
+                (const_null))
+              (ne_i64
+                (param_get count)
+                (const_i64 0))))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (let length i64
-          (call_i64 buffer_length
+            (do)))
+        (let
+          length
+          i64
+          (call_i64
+            buffer_length
             (param_get buffer)))
-
-        (let new_length i64
+        (let
+          new_length
+          i64
           (add_i64
             (local_get length)
             (param_get count)))
-
-        (let needed i64
+        (let
+          needed
+          i64
           (add_i64
             (local_get new_length)
             (const_i64 1)))
-
         (if
-          (ne_i32
-            (call_i32 buffer_reserve
-              (param_get buffer)
-              (local_get needed))
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (call_i32
+                buffer_reserve
+                (param_get buffer)
+                (local_get needed))
+              (const_i32 0)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (let data ptr
-          (call_ptr buffer_data
+            (do)))
+        (let
+          data
+          ptr
+          (call_ptr
+            buffer_data
             (param_get buffer)))
-
         (if
-          (ne_i64
-            (param_get count)
-            (const_i64 0))
-
+          (condition
+            (ne_i64
+              (param_get count)
+              (const_i64 0)))
           (then
-            (call_ptr memcpy
-              (ptr_add
-                (local_get data)
-                (local_get length))
-              (param_get src)
-              (param_get count)))
-
+            (do
+              (call_ptr
+                memcpy
+                (ptr_add
+                  (local_get data)
+                  (local_get length))
+                (param_get src)
+                (param_get count))))
           (else
-            (block)))
-
+            (do)))
         (store_i8
           (ptr_add
             (local_get data)
             (local_get new_length))
           (const_i32 0))
-
-        (call_void buffer_set_length
+        (call_void
+          buffer_set_length
           (param_get buffer)
           (local_get new_length))
-
         (return
           (const_i32 0))))
-
-    ; -------------------------------------------------------------------------
-    ; Append null-terminated string
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_append_cstr
+    (fn
+      buffer_append_cstr
       (params
         (buffer ptr)
         (text ptr))
       (returns i32)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get text)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (param_get text)
+              (const_null)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        (let length i64
-          (call_i64 strlen
+            (do)))
+        (let
+          length
+          i64
+          (call_i64
+            strlen
             (param_get text)))
-
         (return
-          (call_i32 buffer_append_bytes
+          (call_i32
+            buffer_append_bytes
             (param_get buffer)
             (param_get text)
             (local_get length)))))
-
-    ; -------------------------------------------------------------------------
-    ; Append i32 as decimal text
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_append_i32
+    (fn
+      buffer_append_i32
       (params
         (buffer ptr)
         (value i32))
       (returns i32)
-      (body
+      (do
         (if
-          (lt_i32
-            (param_get value)
-            (const_i32 0))
-
+          (condition
+            (lt_i32
+              (param_get value)
+              (const_i32 0)))
           (then
-            (block
+            (do
               (if
-                (ne_i32
-                  (call_i32 buffer_append_byte
-                    (param_get buffer)
-                    (const_i32 45))
-                  (const_i32 0))
-
+                (condition
+                  (ne_i32
+                    (call_i32
+                      buffer_append_byte
+                      (param_get buffer)
+                      (const_i32 45))
+                    (const_i32 0)))
                 (then
-                  (return
-                    (const_i32 1)))
-
+                  (do
+                    (return
+                      (const_i32 1))))
                 (else
-                  (block)))
-
+                  (do)))
               (return
-                (call_i32 buffer_append_i32
+                (call_i32
+                  buffer_append_i32
                   (param_get buffer)
                   (mul_i32
                     (param_get value)
                     (const_i32 -1))))))
-
           (else
-            (block)))
-
+            (do)))
         (if
-          (ge_i32
-            (param_get value)
-            (const_i32 10))
-
+          (condition
+            (ge_i32
+              (param_get value)
+              (const_i32 10)))
           (then
-            (block
-              (let prefix i32
+            (do
+              (let
+                prefix
+                i32
                 (div_i32
                   (param_get value)
                   (const_i32 10)))
-
-              (let digit i32
+              (let
+                digit
+                i32
                 (mod_i32
                   (param_get value)
                   (const_i32 10)))
-
               (if
-                (ne_i32
-                  (call_i32 buffer_append_i32
-                    (param_get buffer)
-                    (local_get prefix))
-                  (const_i32 0))
-
+                (condition
+                  (ne_i32
+                    (call_i32
+                      buffer_append_i32
+                      (param_get buffer)
+                      (local_get prefix))
+                    (const_i32 0)))
                 (then
-                  (return
-                    (const_i32 1)))
-
+                  (do
+                    (return
+                      (const_i32 1))))
                 (else
-                  (block)))
-
+                  (do)))
               (return
-                (call_i32 buffer_append_byte
+                (call_i32
+                  buffer_append_byte
                   (param_get buffer)
                   (add_i32
                     (local_get digit)
                     (const_i32 48))))))
-
           (else
-            (return
-              (call_i32 buffer_append_byte
-                (param_get buffer)
-                (add_i32
-                  (param_get value)
-                  (const_i32 48))))))))
-
-    ; -------------------------------------------------------------------------
-    ; Byte slice equality
-    ; -------------------------------------------------------------------------
-
-    (fn bytes_equal
+            (do
+              (return
+                (call_i32
+                  buffer_append_byte
+                  (param_get buffer)
+                  (add_i32
+                    (param_get value)
+                    (const_i32 48)))))))))
+    (fn
+      bytes_equal
       (params
         (a ptr)
         (a_len i64)
         (b ptr)
         (b_len i64))
       (returns bool)
-      (body
+      (do
         (if
-          (ne_i64
-            (param_get a_len)
-            (param_get b_len))
-
+          (condition
+            (ne_i64
+              (param_get a_len)
+              (param_get b_len)))
           (then
-            (return
-              (const_bool false)))
-
+            (do
+              (return
+                (const_bool false))))
           (else
-            (block)))
-
+            (do)))
         (if
-          (and_bool
-            (eq_ptr
-              (param_get a)
-              (const_null))
-            (eq_ptr
-              (param_get b)
-              (const_null)))
-
+          (condition
+            (and_bool
+              (eq_ptr
+                (param_get a)
+                (const_null))
+              (eq_ptr
+                (param_get b)
+                (const_null))))
           (then
-            (return
-              (const_bool true)))
-
+            (do
+              (return
+                (const_bool true))))
           (else
-            (block)))
-
+            (do)))
         (if
-          (or_bool
-            (eq_ptr
-              (param_get a)
-              (const_null))
-            (eq_ptr
-              (param_get b)
-              (const_null)))
-
+          (condition
+            (or_bool
+              (eq_ptr
+                (param_get a)
+                (const_null))
+              (eq_ptr
+                (param_get b)
+                (const_null))))
           (then
-            (return
-              (const_bool false)))
-
+            (do
+              (return
+                (const_bool false))))
           (else
-            (block)))
-
+            (do)))
         (return
           (eq_i32
-            (call_i32 strncmp
+            (call_i32
+              strncmp
               (param_get a)
               (param_get b)
               (param_get a_len))
             (const_i32 0)))))
-
-    ; -------------------------------------------------------------------------
-    ; Write buffer to file
-    ; -------------------------------------------------------------------------
-
-    (fn buffer_write_file
+    (fn
+      buffer_write_file
       (params
         (path ptr)
         (buffer ptr))
       (returns i32)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get buffer)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (param_get buffer)
+              (const_null)))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
+            (do)))
         (return
-          (call_i32 write_file
+          (call_i32
+            write_file
             (param_get path)
-            (call_ptr buffer_data
+            (call_ptr
+              buffer_data
               (param_get buffer))
-            (call_i64 buffer_length
+            (call_i64
+              buffer_length
               (param_get buffer))))))))

@@ -1,508 +1,455 @@
-; =============================================================================
-; Weave Bootstrap Compiler
-; driver.wir
-;
-; Compiler pipeline driver for the first WIR-written compiler.
-;
-; Responsibility:
-;
-;     input file -> source -> tokens -> AST -> LLVM output buffer -> output file
-;
-; This file contains orchestration only.
-; =============================================================================
-
 (core-module
   (core-version 1)
-
   (decls
-
-    ; -------------------------------------------------------------------------
-    ; Error reporting
-    ; -------------------------------------------------------------------------
-    ;
-    ; Diagnostics are intentionally simple during bootstrap.
-
-    (fn driver_error
+    (fn
+      driver_error
       (params
         (message ptr))
       (returns i32)
-      (body
-        (call_i32 puts
+      (do
+        (call_i32
+          puts
           (param_get message))
-
         (return
           (const_i32 1))))
-
-    ; -------------------------------------------------------------------------
-    ; Compile source buffer to output buffer
-    ; -------------------------------------------------------------------------
-    ;
-    ; This is the in-memory compiler pipeline.
-    ;
-    ; It does not own source_data.
-    ; It writes generated LLVM IR into output.
-
-    (fn compile_buffer_to_buffer
+    (fn
+      compile_buffer_to_buffer
       (params
         (source_data ptr)
         (source_length_value i64)
         (output ptr))
       (returns i32)
-      (body
+      (do
         (if
-          (or_bool
-            (eq_ptr
-              (param_get source_data)
-              (const_null))
-            (eq_ptr
-              (param_get output)
-              (const_null)))
-
+          (condition
+            (or_bool
+              (eq_ptr
+                (param_get source_data)
+                (const_null))
+              (eq_ptr
+                (param_get output)
+                (const_null))))
           (then
-            (return
-              (const_i32 1)))
-
+            (do
+              (return
+                (const_i32 1))))
           (else
-            (block)))
-
-        ; Source wrapper
-        (let source ptr
-          (call_ptr source_new
+            (do)))
+        (let
+          source
+          ptr
+          (call_ptr
+            source_new
             (param_get source_data)
             (param_get source_length_value)))
-
         (if
-          (eq_ptr
-            (local_get source)
-            (const_null))
-
-          (then
-            (return
-              (const_i32 1)))
-
-          (else
-            (block)))
-
-        ; Token stream
-        (let tokens ptr
-          (call_ptr tokens_new))
-
-        (if
-          (eq_ptr
-            (local_get tokens)
-            (const_null))
-
-          (then
-            (block
-              (call_void source_free
-                (local_get source))
-
-              (return
-                (const_i32 1))))
-
-          (else
-            (block)))
-
-        ; Lex
-        (if
-          (ne_i32
-            (call_i32 lex
+          (condition
+            (eq_ptr
               (local_get source)
-              (local_get tokens))
-            (const_i32 0))
-
+              (const_null)))
           (then
-            (block
-              (call_void tokens_free
-                (local_get tokens))
-
-              (call_void source_free
-                (local_get source))
-
+            (do
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; AST
-        (let tree ptr
-          (call_ptr ast_new))
-
+            (do)))
+        (let
+          tokens
+          ptr
+          (call_ptr tokens_new))
         (if
-          (eq_ptr
-            (local_get tree)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (local_get tokens)
+              (const_null)))
           (then
-            (block
-              (call_void tokens_free
-                (local_get tokens))
-
-              (call_void source_free
+            (do
+              (call_void
+                source_free
                 (local_get source))
-
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; Parser object
-        (let parser ptr
-          (call_ptr parser_new
+            (do)))
+        (if
+          (condition
+            (ne_i32
+              (call_i32
+                lex
+                (local_get source)
+                (local_get tokens))
+              (const_i32 0)))
+          (then
+            (do
+              (call_void
+                tokens_free
+                (local_get tokens))
+              (call_void
+                source_free
+                (local_get source))
+              (return
+                (const_i32 1))))
+          (else
+            (do)))
+        (let
+          tree
+          ptr
+          (call_ptr ast_new))
+        (if
+          (condition
+            (eq_ptr
+              (local_get tree)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                tokens_free
+                (local_get tokens))
+              (call_void
+                source_free
+                (local_get source))
+              (return
+                (const_i32 1))))
+          (else
+            (do)))
+        (let
+          parser
+          ptr
+          (call_ptr
+            parser_new
             (local_get source)
             (local_get tokens)
             (local_get tree)))
-
         (if
-          (eq_ptr
-            (local_get parser)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (local_get parser)
+              (const_null)))
           (then
-            (block
-              (call_void ast_free
+            (do
+              (call_void
+                ast_free
                 (local_get tree))
-
-              (call_void tokens_free
+              (call_void
+                tokens_free
                 (local_get tokens))
-
-              (call_void source_free
+              (call_void
+                source_free
                 (local_get source))
-
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; Parse the WIR module and keep the AST program node.
-        (let program_node i64
-          (call_i64 parse
+            (do)))
+        (let
+          program_node
+          i64
+          (call_i64
+            parse
             (local_get parser)))
-
         (if
-          (lt_i64
-            (local_get program_node)
-            (const_i64 0))
-
+          (condition
+            (lt_i64
+              (local_get program_node)
+              (const_i64 0)))
           (then
-            (block
-              (call_void parser_free
+            (do
+              (call_void
+                parser_free
                 (local_get parser))
-
-              (call_void ast_free
+              (call_void
+                ast_free
                 (local_get tree))
-
-              (call_void tokens_free
+              (call_void
+                tokens_free
                 (local_get tokens))
-
-              (call_void source_free
+              (call_void
+                source_free
                 (local_get source))
-
-              (call_i32 driver_error
+              (call_i32
+                driver_error
                 (const_string_ptr "error: parse failed"))
-
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; Emit LLVM
-        (let emit_status i32
-          (call_i32 emit_llvm
+            (do)))
+        (let
+          emit_status
+          i32
+          (call_i32
+            emit_llvm
             (local_get source)
             (local_get tree)
             (local_get program_node)
             (param_get output)))
-
         (if
-          (ne_i32
-            (local_get emit_status)
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (local_get emit_status)
+              (const_i32 0)))
           (then
-            (block
-              (call_void parser_free
+            (do
+              (call_void
+                parser_free
                 (local_get parser))
-
-              (call_void ast_free
+              (call_void
+                ast_free
                 (local_get tree))
-
-              (call_void tokens_free
+              (call_void
+                tokens_free
                 (local_get tokens))
-
-              (call_void source_free
+              (call_void
+                source_free
                 (local_get source))
-
-              (call_i32 driver_error
+              (call_i32
+                driver_error
                 (const_string_ptr "error: emit llvm failed"))
-
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; Cleanup
-        (call_void parser_free
+            (do)))
+        (call_void
+          parser_free
           (local_get parser))
-
-        (call_void ast_free
+        (call_void
+          ast_free
           (local_get tree))
-
-        (call_void tokens_free
+        (call_void
+          tokens_free
           (local_get tokens))
-
-        (call_void source_free
+        (call_void
+          source_free
           (local_get source))
-
         (return
           (local_get emit_status))))
-
-    ; -------------------------------------------------------------------------
-    ; Compile file to file
-    ; -------------------------------------------------------------------------
-    ;
-    ; Public driver entry:
-    ;
-    ;     input.wir -> output.ll
-
-    (fn compile_file
+    (fn
+      compile_file
       (params
         (input_path ptr)
         (output_path ptr))
       (returns i32)
-      (body
+      (do
         (return
-          (call_i32 compile_file_self_hosted
+          (call_i32
+            compile_file_self_hosted
             (param_get input_path)
             (param_get output_path)))))
-
-    (fn compile_file_self_hosted
+    (fn
+      compile_file_self_hosted
       (params
         (input_path ptr)
         (output_path ptr))
       (returns i32)
-      (body
+      (do
         (if
-          (or_bool
-            (eq_ptr
-              (param_get input_path)
-              (const_null))
-            (eq_ptr
-              (param_get output_path)
-              (const_null)))
-
+          (condition
+            (or_bool
+              (eq_ptr
+                (param_get input_path)
+                (const_null))
+              (eq_ptr
+                (param_get output_path)
+                (const_null))))
           (then
-            (return
-              (call_i32 driver_error
-                (const_string_ptr "error: invalid compiler arguments"))))
-
+            (do
+              (return
+                (call_i32
+                  driver_error
+                  (const_string_ptr "error: invalid compiler arguments")))))
           (else
-            (block)))
-
-        ; Allocate length storage.
-        (let length_storage ptr
-          (call_ptr malloc
+            (do)))
+        (let
+          length_storage
+          ptr
+          (call_ptr
+            malloc
             (const_i64 8)))
-
         (if
-          (eq_ptr
-            (local_get length_storage)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (local_get length_storage)
+              (const_null)))
           (then
-            (return
-              (call_i32 driver_error
-                (const_string_ptr "error: could not allocate length storage"))))
-
+            (do
+              (return
+                (call_i32
+                  driver_error
+                  (const_string_ptr "error: could not allocate length storage")))))
           (else
-            (block)))
-
+            (do)))
         (store_i64
           (local_get length_storage)
           (const_i64 0))
-
-        ; Read input file.
-        (let source_data ptr
-          (call_ptr read_file
+        (let
+          source_data
+          ptr
+          (call_ptr
+            read_file
             (param_get input_path)
             (local_get length_storage)))
-
         (if
-          (eq_ptr
-            (local_get source_data)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (local_get source_data)
+              (const_null)))
           (then
-            (block
-              (call_void free
+            (do
+              (call_void
+                free
                 (local_get length_storage))
-
               (return
-                (call_i32 driver_error
+                (call_i32
+                  driver_error
                   (const_string_ptr "error: could not read input file")))))
-
           (else
-            (block)))
-
-        (let source_length_value i64
+            (do)))
+        (let
+          source_length_value
+          i64
           (load_i64
             (local_get length_storage)))
-
-        (call_void free
+        (call_void
+          free
           (local_get length_storage))
-
-        ; Output buffer.
-        (let output ptr
+        (let
+          output
+          ptr
           (call_ptr buffer_new))
-
         (if
-          (eq_ptr
-            (local_get output)
-            (const_null))
-
+          (condition
+            (eq_ptr
+              (local_get output)
+              (const_null)))
           (then
-            (block
-              (call_void free
+            (do
+              (call_void
+                free
                 (local_get source_data))
-
               (return
-                (call_i32 driver_error
+                (call_i32
+                  driver_error
                   (const_string_ptr "error: could not allocate output buffer")))))
-
           (else
-            (block)))
-
-        ; Compile in memory.
-        (let status i32
-          (call_i32 compile_buffer_to_buffer
+            (do)))
+        (let
+          status
+          i32
+          (call_i32
+            compile_buffer_to_buffer
             (local_get source_data)
             (local_get source_length_value)
             (local_get output)))
-
         (if
-          (ne_i32
-            (local_get status)
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (local_get status)
+              (const_i32 0)))
           (then
-            (block
-              (call_void buffer_free
+            (do
+              (call_void
+                buffer_free
                 (local_get output))
-
-              (call_void free
+              (call_void
+                free
                 (local_get source_data))
-
               (return
-                (call_i32 driver_error
+                (call_i32
+                  driver_error
                   (const_string_ptr "error: compilation failed")))))
-
           (else
-            (block)))
-
-        ; Write output file.
-        (let write_status i32
-          (call_i32 buffer_write_file
+            (do)))
+        (let
+          write_status
+          i32
+          (call_i32
+            buffer_write_file
             (param_get output_path)
             (local_get output)))
-
         (if
-          (ne_i32
-            (local_get write_status)
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (local_get write_status)
+              (const_i32 0)))
           (then
-            (block
-              (call_void buffer_free
+            (do
+              (call_void
+                buffer_free
                 (local_get output))
-
-              (call_void free
+              (call_void
+                free
                 (local_get source_data))
-
               (return
-                (call_i32 driver_error
+                (call_i32
+                  driver_error
                   (const_string_ptr "error: could not write output file")))))
-
           (else
-            (block)))
-
-        ; Success cleanup.
-        (call_void buffer_free
+            (do)))
+        (call_void
+          buffer_free
           (local_get output))
-
-        (call_void free
+        (call_void
+          free
           (local_get source_data))
-
         (return
           (const_i32 0))))
-
-    ; -------------------------------------------------------------------------
-    ; Compile null-terminated source string to a new output buffer
-    ; -------------------------------------------------------------------------
-    ;
-    ; Test helper used for future smoke tests.
-
-    (fn compile_string
+    (fn
+      compile_string
       (params
         (source_text ptr))
       (returns ptr)
-      (body
+      (do
         (if
-          (eq_ptr
-            (param_get source_text)
-            (const_null))
-
-          (then
-            (return
+          (condition
+            (eq_ptr
+              (param_get source_text)
               (const_null)))
-
+          (then
+            (do
+              (return
+                (const_null))))
           (else
-            (block)))
-
-        (let output ptr
+            (do)))
+        (let
+          output
+          ptr
           (call_ptr buffer_new))
-
         (if
-          (eq_ptr
-            (local_get output)
-            (const_null))
-
-          (then
-            (return
+          (condition
+            (eq_ptr
+              (local_get output)
               (const_null)))
-
+          (then
+            (do
+              (return
+                (const_null))))
           (else
-            (block)))
-
-        (let length i64
-          (call_i64 strlen
+            (do)))
+        (let
+          length
+          i64
+          (call_i64
+            strlen
             (param_get source_text)))
-
-        (let status i32
-          (call_i32 compile_buffer_to_buffer
+        (let
+          status
+          i32
+          (call_i32
+            compile_buffer_to_buffer
             (param_get source_text)
             (local_get length)
             (local_get output)))
-
         (if
-          (ne_i32
-            (local_get status)
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (local_get status)
+              (const_i32 0)))
           (then
-            (block
-              (call_void buffer_free
+            (do
+              (call_void
+                buffer_free
                 (local_get output))
-
               (return
                 (const_null))))
-
           (else
-            (block)))
-
+            (do)))
         (return
           (local_get output))))))

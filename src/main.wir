@@ -1,153 +1,97 @@
-; =============================================================================
-; Weave Bootstrap Compiler
-; main.wir
-;
-; Program entry point for weavec1.
-;
-; Responsibility:
-;
-;     command line handling
-;     invoking compile_file
-;     exit codes
-;
-; This is intentionally tiny. All compiler logic lives elsewhere.
-; =============================================================================
-
 (core-module
   (core-version 1)
-
   (decls
-
-    ; -------------------------------------------------------------------------
-    ; Print usage
-    ; -------------------------------------------------------------------------
-
-    (fn print_usage
+    (fn
+      print_usage
       (params)
       (returns void)
-      (body
-        (call_i32 puts
-          (const_string_ptr
-            "usage: weavec1 <input.wir> <output.ll>"))
-
+      (do
+        (call_i32
+          puts
+          (const_string_ptr "usage: weavec1 <input.wir> <output.ll>"))
         (return_void)))
-
-    ; -------------------------------------------------------------------------
-    ; Print banner
-    ; -------------------------------------------------------------------------
-
-    (fn print_banner
+    (fn
+      print_banner
       (params)
       (returns void)
-      (body
-        (call_i32 puts
-          (const_string_ptr
-            "weavec1 - Weave bootstrap compiler"))
-
+      (do
+        (call_i32
+          puts
+          (const_string_ptr "weavec1 - Weave bootstrap compiler"))
         (return_void)))
-
-    ; -------------------------------------------------------------------------
-    ; Main entry point
-    ; -------------------------------------------------------------------------
-    ;
-    ; argv layout:
-    ;
-    ;   argv[0] = executable
-    ;   argv[1] = input.wir
-    ;   argv[2] = output.ll
-
-    (fn main
+    (fn
+      main
       (params
         (argc i32)
         (argv ptr))
       (returns i32)
-      (body
-
-        ; Optional startup banner.
-        ;
-        ; Comment out later if silent operation is preferred.
+      (do
         (call_void print_banner)
-
-        ; Need exactly:
-        ;
-        ;   weavec1 input.wir output.ll
-        ;
-        ; argc therefore must be 3.
         (if
-          (ne_i32
-            (param_get argc)
-            (const_i32 3))
-
+          (condition
+            (ne_i32
+              (param_get argc)
+              (const_i32 3)))
           (then
-            (block
+            (do
               (call_void print_usage)
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; argv is ptr to ptr.
-        ;
-        ;   argv[1]
-        ;   argv[2]
-
-        (let input_path ptr
+            (do)))
+        (let
+          input_path
+          ptr
           (load_ptr
             (ptr_add
               (param_get argv)
               (const_i64 8))))
-
-        (let output_path ptr
+        (let
+          output_path
+          ptr
           (load_ptr
             (ptr_add
               (param_get argv)
               (const_i64 16))))
-
         (if
-          (or_bool
-            (eq_ptr
-              (local_get input_path)
-              (const_null))
-            (eq_ptr
-              (local_get output_path)
-              (const_null)))
-
+          (condition
+            (or_bool
+              (eq_ptr
+                (local_get input_path)
+                (const_null))
+              (eq_ptr
+                (local_get output_path)
+                (const_null))))
           (then
-            (block
+            (do
               (call_void print_usage)
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        ; Compile.
-        (let status i32
-          (call_i32 compile_file
+            (do)))
+        (let
+          status
+          i32
+          (call_i32
+            compile_file
             (local_get input_path)
             (local_get output_path)))
-
         (if
-          (ne_i32
-            (local_get status)
-            (const_i32 0))
-
+          (condition
+            (ne_i32
+              (local_get status)
+              (const_i32 0)))
           (then
-            (block
-              (call_i32 puts
-                (const_string_ptr
-                  "weavec1: compilation failed"))
-
+            (do
+              (call_i32
+                puts
+                (const_string_ptr "weavec1: compilation failed"))
               (return
                 (const_i32 1))))
-
           (else
-            (block)))
-
-        (call_i32 puts
-          (const_string_ptr
-            "weavec1: compilation succeeded"))
-
+            (do)))
+        (call_i32
+          puts
+          (const_string_ptr "weavec1: compilation succeeded"))
         (return
           (const_i32 0))))))
