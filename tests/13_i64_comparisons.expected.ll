@@ -2,21 +2,34 @@
 
 define i32 @main() {
 entry:
-%t0 = icmp slt i64 1, 2
+  %t0 = icmp slt i64 1, 2
+  ; if condition
   br i1 %t0, label %then0, label %else0
 then0:
-%t1 = icmp sle i64 2, 2
+  ; then
+  %t1 = icmp sle i64 2, 2
+  ; if condition
   br i1 %t1, label %then1, label %else1
 then1:
-%t2 = icmp ne i64 3, 4
+  ; then
+  %t2 = icmp ne i64 3, 4
+  ; if condition
   br i1 %t2, label %then2, label %else2
 then2:
+  ; then
+  ; return
   ret i32 42
 else2:
+  ; else
+  ; return
   ret i32 0
 else1:
+  ; else
+  ; return
   ret i32 0
 else0:
+  ; else
+  ; return
   ret i32 0
 }
 

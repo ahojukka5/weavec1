@@ -2,7 +2,8 @@
 
 define i32 @main() {
 entry:
-%t0 = add i32 -8, 50
+  ; return
+  %t0 = add i32 -8, 50
   ret i32 %t0
 }
 

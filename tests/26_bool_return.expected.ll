@@ -2,16 +2,22 @@
 
 define i1 @same(i1 %x) {
 entry:
+  ; return
   ret i1 %x
 }
 
 define i32 @main() {
 entry:
-%t0 = call i1 @same(i1 1)
+  %t0 = call i1 @same(i1 1)
+  ; if condition
   br i1 %t0, label %then0, label %else0
 then0:
+  ; then
+  ; return
   ret i32 42
 else0:
+  ; else
+  ; return
   ret i32 0
 }
 

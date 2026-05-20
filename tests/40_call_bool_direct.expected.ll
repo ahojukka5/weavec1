@@ -2,17 +2,23 @@
 
 define i1 @is_answer(i32 %x) {
 entry:
-%t0 = icmp eq i32 %x, 42
+  ; return
+  %t0 = icmp eq i32 %x, 42
   ret i1 %t0
 }
 
 define i32 @main() {
 entry:
-%t1 = call i1 @is_answer(i32 42)
+  %t1 = call i1 @is_answer(i32 42)
+  ; if condition
   br i1 %t1, label %then0, label %else0
 then0:
+  ; then
+  ; return
   ret i32 42
 else0:
+  ; else
+  ; return
   ret i32 0
 }
 

@@ -2,17 +2,23 @@
 
 define i32 @same_ptr(ptr %a, ptr %b) {
 entry:
-%t0 = icmp eq ptr %a, %b
+  %t0 = icmp eq ptr %a, %b
+  ; if condition
   br i1 %t0, label %then0, label %else0
 then0:
+  ; then
+  ; return
   ret i32 42
 else0:
+  ; else
+  ; return
   ret i32 0
 }
 
 define i32 @main() {
 entry:
-%t1 = call i32 @same_ptr(ptr null, ptr null)
+  ; return
+  %t1 = call i32 @same_ptr(ptr null, ptr null)
   ret i32 %t1
 }
 

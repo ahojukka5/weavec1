@@ -18,3 +18,8 @@ The build ladder checks:
 
 When self-hosting is enabled by `build.sh`, the same ladder is also run with
 the `weavec2` binary produced by `weavec1`.
+
+Generated LLVM now includes section comments, consistent instruction
+indentation, selected WIR operation comments, and explicit `(debug "...")`
+markers. Source semicolon comments are not preserved yet because the current
+lexer discards them before the parser can attach them to AST nodes.

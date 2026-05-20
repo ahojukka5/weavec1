@@ -2,12 +2,14 @@
 
 define i32 @main() {
 entry:
-%t0 = call i32 @answer()
+  ; return
+  %t0 = call i32 @answer()
   ret i32 %t0
 }
 
 define i32 @answer() {
 entry:
+  ; return
   ret i32 42
 }
 

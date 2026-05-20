@@ -1831,6 +1831,89 @@
           (condition
             (eq_i32
               (local_get head_kind)
+              (call_i32 token_debug)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (call_void
+                parser_advance
+                (param_get parser))
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_current_kind
+                      (param_get parser))
+                    (call_i32 token_string)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (let
+                debug_message_start
+                i64
+                (call_i64
+                  parser_current_start
+                  (param_get parser)))
+              (let
+                debug_message_len
+                i64
+                (call_i64
+                  parser_current_length
+                  (param_get parser)))
+              (call_void
+                parser_advance
+                (param_get parser))
+              (let
+                debug_body
+                i64
+                (call_i64
+                  parser_parse_stmt
+                  (param_get parser)))
+              (if
+                (condition
+                  (lt_i64
+                    (local_get debug_body)
+                    (const_i64 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_rparen))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (return
+                (call_i64
+                  ast_make_debug
+                  (call_ptr
+                    parser_ast
+                    (param_get parser))
+                  (local_get debug_body)
+                  (local_get debug_message_start)
+                  (local_get debug_message_len)))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get head_kind)
               (call_i32 token_while)))
           (then
             (do

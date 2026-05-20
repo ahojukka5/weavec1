@@ -5,10 +5,14 @@ entry:
   ; let x
   %x.addr = alloca i32
   store i32 40, ptr %x.addr
+  ; debug start: this is my debug zone
+
   %t0 = load i32, ptr %x.addr
   %t1 = add i32 %t0, 2
   ; set x
   store i32 %t1, ptr %x.addr
+
+  ; debug end: this is my debug zone
   ; return
   %t2 = load i32, ptr %x.addr
   ret i32 %t2

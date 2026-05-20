@@ -2,11 +2,16 @@
 
 define i32 @main() {
 entry:
-%t0 = icmp sge i32 42, 42
+  %t0 = icmp sge i32 42, 42
+  ; if condition
   br i1 %t0, label %then0, label %else0
 then0:
+  ; then
+  ; return
   ret i32 42
 else0:
+  ; else
+  ; return
   ret i32 0
 }
 

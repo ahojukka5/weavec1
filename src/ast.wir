@@ -177,6 +177,13 @@
         (return
           (const_i32 46))))
     (fn
+      ast_debug
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 47))))
+    (fn
       type_void
       (params)
       (returns i32)
@@ -1604,4 +1611,25 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)
-            (const_i64 0)))))))
+            (const_i64 0)))))
+    (fn
+      ast_make_debug
+      (params
+        (ast ptr)
+        (body i64)
+        (message_start i64)
+        (message_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_debug)
+            (const_i64 0)
+            (param_get body)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get message_start)
+            (param_get message_len)))))))

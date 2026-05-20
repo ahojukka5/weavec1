@@ -247,6 +247,13 @@
         (return
           (const_i32 36))))
     (fn
+      token_debug
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 37))))
+    (fn
       tokens_size
       (params)
       (returns i64)

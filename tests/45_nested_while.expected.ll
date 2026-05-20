@@ -2,38 +2,49 @@
 
 define i32 @main() {
 entry:
-%outer.addr = alloca i32
+  ; let outer
+  %outer.addr = alloca i32
   store i32 0, ptr %outer.addr
-%total.addr = alloca i32
+  ; let total
+  %total.addr = alloca i32
   store i32 0, ptr %total.addr
+  ; while condition
   br label %while.cond0
 while.cond0:
-%t0 = load i32, ptr %outer.addr
-%t1 = icmp slt i32 %t0, 2
+  %t0 = load i32, ptr %outer.addr
+  %t1 = icmp slt i32 %t0, 2
   br i1 %t1, label %while.body0, label %while.end0
 while.body0:
-%inner.addr = alloca i32
+  ; while body
+  ; let inner
+  %inner.addr = alloca i32
   store i32 0, ptr %inner.addr
+  ; while condition
   br label %while.cond1
 while.cond1:
-%t2 = load i32, ptr %inner.addr
-%t3 = icmp slt i32 %t2, 3
+  %t2 = load i32, ptr %inner.addr
+  %t3 = icmp slt i32 %t2, 3
   br i1 %t3, label %while.body1, label %while.end1
 while.body1:
-%t4 = load i32, ptr %total.addr
-%t5 = add i32 %t4, 7
+  ; while body
+  %t4 = load i32, ptr %total.addr
+  %t5 = add i32 %t4, 7
+  ; set total
   store i32 %t5, ptr %total.addr
-%t6 = load i32, ptr %inner.addr
-%t7 = add i32 %t6, 1
+  %t6 = load i32, ptr %inner.addr
+  %t7 = add i32 %t6, 1
+  ; set inner
   store i32 %t7, ptr %inner.addr
   br label %while.cond1
 while.end1:
-%t8 = load i32, ptr %outer.addr
-%t9 = add i32 %t8, 1
+  %t8 = load i32, ptr %outer.addr
+  %t9 = add i32 %t8, 1
+  ; set outer
   store i32 %t9, ptr %outer.addr
   br label %while.cond0
 while.end0:
-%t10 = load i32, ptr %total.addr
+  ; return
+  %t10 = load i32, ptr %total.addr
   ret i32 %t10
 }
 

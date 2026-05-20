@@ -2,46 +2,71 @@
 
 define i32 @main() {
 entry:
-%t0 = icmp eq i32 42, 42
+  %t0 = icmp eq i32 42, 42
+  ; if condition
   br i1 %t0, label %then0, label %else0
 then0:
+  ; then
   br label %done0
 else0:
+  ; else
+  ; return
   ret i32 0
 done0:
-%t1 = icmp ne i32 42, 0
+  %t1 = icmp ne i32 42, 0
+  ; if condition
   br i1 %t1, label %then1, label %else1
 then1:
+  ; then
   br label %done1
 else1:
+  ; else
+  ; return
   ret i32 0
 done1:
-%t2 = icmp slt i32 1, 2
+  %t2 = icmp slt i32 1, 2
+  ; if condition
   br i1 %t2, label %then2, label %else2
 then2:
+  ; then
   br label %done2
 else2:
+  ; else
+  ; return
   ret i32 0
 done2:
-%t3 = icmp sle i32 2, 2
+  %t3 = icmp sle i32 2, 2
+  ; if condition
   br i1 %t3, label %then3, label %else3
 then3:
+  ; then
   br label %done3
 else3:
+  ; else
+  ; return
   ret i32 0
 done3:
-%t4 = icmp sgt i32 3, 2
+  %t4 = icmp sgt i32 3, 2
+  ; if condition
   br i1 %t4, label %then4, label %else4
 then4:
+  ; then
   br label %done4
 else4:
+  ; else
+  ; return
   ret i32 0
 done4:
-%t5 = icmp sge i32 4, 4
+  %t5 = icmp sge i32 4, 4
+  ; if condition
   br i1 %t5, label %then5, label %else5
 then5:
+  ; then
+  ; return
   ret i32 42
 else5:
+  ; else
+  ; return
   ret i32 0
 }
 

@@ -430,6 +430,20 @@
                 (call_i32 token_block))))
           (else
             (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (param_get text)
+              (param_get length)
+              (const_string_ptr "debug")
+              (const_i64 5)))
+          (then
+            (do
+              (return
+                (call_i32 token_debug))))
+          (else
+            (do)))
         (return
           (call_i32 token_ident))))
     (fn

@@ -2,10 +2,12 @@
 
 define i32 @main() {
 entry:
-%x.addr = alloca i32
+  ; let x
+  %x.addr = alloca i32
   store i32 40, ptr %x.addr
-%t0 = load i32, ptr %x.addr
-%t1 = add i32 %t0, 2
+  ; return
+  %t0 = load i32, ptr %x.addr
+  %t1 = add i32 %t0, 2
   ret i32 %t1
 }
 

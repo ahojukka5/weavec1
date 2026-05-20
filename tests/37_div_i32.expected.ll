@@ -2,7 +2,8 @@
 
 define i32 @main() {
 entry:
-%t0 = sdiv i32 126, 3
+  ; return
+  %t0 = sdiv i32 126, 3
   ret i32 %t0
 }
 

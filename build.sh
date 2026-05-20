@@ -337,6 +337,7 @@ run_tests() {
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "51_unknown_operator" "unknown operator"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "52_wrong_arity_add_i32_too_few" "arity"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "53_wrong_arity_add_i32_too_many" "arity"
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "54_debug_marker" 42
 
   log "all $compiler_name tests passed"
 }

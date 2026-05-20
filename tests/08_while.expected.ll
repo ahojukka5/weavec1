@@ -2,25 +2,32 @@
 
 define i32 @main() {
 entry:
-%i.addr = alloca i32
+  ; let i
+  %i.addr = alloca i32
   store i32 0, ptr %i.addr
-%sum.addr = alloca i32
+  ; let sum
+  %sum.addr = alloca i32
   store i32 0, ptr %sum.addr
+  ; while condition
   br label %while.cond0
 while.cond0:
-%t0 = load i32, ptr %i.addr
-%t1 = icmp slt i32 %t0, 7
+  %t0 = load i32, ptr %i.addr
+  %t1 = icmp slt i32 %t0, 7
   br i1 %t1, label %while.body0, label %while.end0
 while.body0:
-%t2 = load i32, ptr %sum.addr
-%t3 = add i32 %t2, 6
+  ; while body
+  %t2 = load i32, ptr %sum.addr
+  %t3 = add i32 %t2, 6
+  ; set sum
   store i32 %t3, ptr %sum.addr
-%t4 = load i32, ptr %i.addr
-%t5 = add i32 %t4, 1
+  %t4 = load i32, ptr %i.addr
+  %t5 = add i32 %t4, 1
+  ; set i
   store i32 %t5, ptr %i.addr
   br label %while.cond0
 while.end0:
-%t6 = load i32, ptr %sum.addr
+  ; return
+  %t6 = load i32, ptr %sum.addr
   ret i32 %t6
 }
 

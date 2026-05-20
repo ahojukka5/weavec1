@@ -2,7 +2,8 @@
 
 define i32 @main() {
 entry:
-%t0 = mul i32 6, 7
+  ; return
+  %t0 = mul i32 6, 7
   ret i32 %t0
 }
 

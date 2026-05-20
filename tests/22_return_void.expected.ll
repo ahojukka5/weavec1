@@ -7,7 +7,9 @@ entry:
 
 define i32 @main() {
 entry:
+  ; call_void
   call void @noop()
+  ; return
   ret i32 42
 }
 

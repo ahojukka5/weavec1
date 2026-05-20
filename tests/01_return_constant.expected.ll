@@ -2,6 +2,7 @@
 
 define i32 @main() {
 entry:
+  ; return
   ret i32 0
 }
 

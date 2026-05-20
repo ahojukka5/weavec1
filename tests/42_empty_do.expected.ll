@@ -2,13 +2,17 @@
 
 define i32 @main() {
 entry:
-%t0 = icmp eq i32 1, 2
+  %t0 = icmp eq i32 1, 2
+  ; if condition
   br i1 %t0, label %then0, label %else0
 then0:
+  ; then
   br label %done0
 else0:
+  ; else
   br label %done0
 done0:
+  ; return
   ret i32 42
 }
 

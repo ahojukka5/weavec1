@@ -2,12 +2,17 @@
 
 define i32 @main() {
 entry:
-%t0 = or i1 false, false
-%t1 = xor i1 %t0, true
+  %t0 = or i1 false, false
+  %t1 = xor i1 %t0, true
+  ; if condition
   br i1 %t1, label %then0, label %else0
 then0:
+  ; then
+  ; return
   ret i32 42
 else0:
+  ; else
+  ; return
   ret i32 0
 }
 
