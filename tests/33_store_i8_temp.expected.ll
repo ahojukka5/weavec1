@@ -15,21 +15,20 @@ then0:
 else0:
   br label %done0
 done0:
-%t3 = add i32 0, 42
 %value.addr = alloca i32
-  store i32 %t3, ptr %value.addr
-%t4 = load ptr, ptr %p.addr
-%t5 = load i32, ptr %value.addr
-%t6 = trunc i32 %t5 to i8
-  store i8 %t6, ptr %t4
-%t7 = load ptr, ptr %p.addr
-%t8 = load i8, ptr %t7
-%t9 = zext i8 %t8 to i32
+  store i32 42, ptr %value.addr
+%t3 = load ptr, ptr %p.addr
+%t4 = load i32, ptr %value.addr
+%t5 = trunc i32 %t4 to i8
+  store i8 %t5, ptr %t3
+%t6 = load ptr, ptr %p.addr
+%t7 = load i8, ptr %t6
+%t8 = zext i8 %t7 to i32
 %loaded.addr = alloca i32
-  store i32 %t9, ptr %loaded.addr
-%t10 = load ptr, ptr %p.addr
-  call void @free(ptr %t10)
-%t11 = load i32, ptr %loaded.addr
-  ret i32 %t11
+  store i32 %t8, ptr %loaded.addr
+%t9 = load ptr, ptr %p.addr
+  call void @free(ptr %t9)
+%t10 = load i32, ptr %loaded.addr
+  ret i32 %t10
 }
 

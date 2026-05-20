@@ -2,11 +2,10 @@
 
 define i32 @main() {
 entry:
-%t0 = add i64 0, 42
 %x.addr = alloca i64
-  store i64 %t0, ptr %x.addr
-%t1 = load i64, ptr %x.addr
-%t2 = trunc i64 %t1 to i32
-  ret i32 %t2
+  store i64 42, ptr %x.addr
+%t0 = load i64, ptr %x.addr
+%t1 = trunc i64 %t0 to i32
+  ret i32 %t1
 }
 

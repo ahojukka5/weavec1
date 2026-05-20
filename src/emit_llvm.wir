@@ -4754,21 +4754,39 @@
             (local_get ast)
             (param_get node)))
         (let
-          value
-          i64
-          (call_i64
-            emit_expr
+          expr_is_immediate
+          bool
+          (call_bool
+            emit_is_immediate_expr
             (param_get ctx)
             (local_get expr)))
+        (let
+          value
+          i64
+          (const_i64 0))
         (if
           (condition
-            (lt_i64
-              (local_get value)
-              (const_i64 0)))
+            (not_bool
+              (local_get expr_is_immediate)))
           (then
             (do
-              (return
-                (const_i32 1))))
+              (set
+                value
+                (call_i64
+                  emit_expr
+                  (param_get ctx)
+                  (local_get expr)))
+              (if
+                (condition
+                  (lt_i64
+                    (local_get value)
+                    (const_i64 0)))
+                (then
+                  (do
+                    (return
+                      (const_i32 1))))
+                (else
+                  (do)))))
           (else
             (do)))
         (call_i32
@@ -4776,8 +4794,9 @@
           (param_get ctx)
           (const_string_ptr "  call i32 @puts(ptr "))
         (call_i32
-          emit_temp_name
+          emit_expr_operand
           (param_get ctx)
+          (local_get expr)
           (local_get value))
         (call_i32
           emit_cstr
@@ -5715,21 +5734,39 @@
             (local_get ast)
             (param_get node)))
         (let
-          value
-          i64
-          (call_i64
-            emit_expr
+          expr_is_immediate
+          bool
+          (call_bool
+            emit_is_immediate_expr
             (param_get ctx)
             (local_get expr)))
+        (let
+          value
+          i64
+          (const_i64 0))
         (if
           (condition
-            (lt_i64
-              (local_get value)
-              (const_i64 0)))
+            (not_bool
+              (local_get expr_is_immediate)))
           (then
             (do
-              (return
-                (const_i32 1))))
+              (set
+                value
+                (call_i64
+                  emit_expr
+                  (param_get ctx)
+                  (local_get expr)))
+              (if
+                (condition
+                  (lt_i64
+                    (local_get value)
+                    (const_i64 0)))
+                (then
+                  (do
+                    (return
+                      (const_i32 1))))
+                (else
+                  (do)))))
           (else
             (do)))
         (call_i32
@@ -5779,8 +5816,9 @@
           (param_get ctx)
           (const_string_ptr " "))
         (call_i32
-          emit_temp_name
+          emit_expr_operand
           (param_get ctx)
+          (local_get expr)
           (local_get value))
         (call_i32
           emit_cstr
