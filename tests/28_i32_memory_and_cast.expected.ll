@@ -4,39 +4,38 @@ declare ptr @malloc(i64)
 declare void @free(ptr)
 define i32 @main() {
 entry:
-%t1 = add i64 0, 4
-%t0 = call ptr @malloc(i64 %t1)
+%t0 = call ptr @malloc(i64 4)
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
-%t2 = load ptr, ptr %p.addr
-%t3 = icmp eq ptr %t2, null
-  br i1 %t3, label %then0, label %else0
+%t1 = load ptr, ptr %p.addr
+%t2 = icmp eq ptr %t1, null
+  br i1 %t2, label %then0, label %else0
 then0:
   ret i32 0
 else0:
   br label %done0
 done0:
-%t4 = load ptr, ptr %p.addr
-%t5 = mul i32 21, 4
-%t6 = sdiv i32 %t5, 2
-  store i32 %t6, ptr %t4
-%t7 = load ptr, ptr %p.addr
-%t8 = load i32, ptr %t7
+%t3 = load ptr, ptr %p.addr
+%t4 = mul i32 21, 4
+%t5 = sdiv i32 %t4, 2
+  store i32 %t5, ptr %t3
+%t6 = load ptr, ptr %p.addr
+%t7 = load i32, ptr %t6
 %x.addr = alloca i32
-  store i32 %t8, ptr %x.addr
-%t9 = load ptr, ptr %p.addr
-  call void @free(ptr %t9)
-%t10 = load i32, ptr %x.addr
-%t11 = icmp eq i32 %t10, 42
-%t12 = add i32 0, -1
-%t13 = sext i32 %t12 to i64
-%t14 = trunc i64 %t13 to i32
-%t15 = icmp sle i32 %t14, 0
-%t16 = and i1 %t11, %t15
-  br i1 %t16, label %then1, label %else1
+  store i32 %t7, ptr %x.addr
+%t8 = load ptr, ptr %p.addr
+  call void @free(ptr %t8)
+%t9 = load i32, ptr %x.addr
+%t10 = icmp eq i32 %t9, 42
+%t11 = add i32 0, -1
+%t12 = sext i32 %t11 to i64
+%t13 = trunc i64 %t12 to i32
+%t14 = icmp sle i32 %t13, 0
+%t15 = and i1 %t10, %t14
+  br i1 %t15, label %then1, label %else1
 then1:
-%t17 = load i32, ptr %x.addr
-  ret i32 %t17
+%t16 = load i32, ptr %x.addr
+  ret i32 %t16
 else1:
   ret i32 0
 }

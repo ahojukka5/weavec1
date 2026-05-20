@@ -4,40 +4,39 @@ declare ptr @malloc(i64)
 declare void @free(ptr)
 define i32 @main() {
 entry:
-%t1 = add i64 0, 16
-%t0 = call ptr @malloc(i64 %t1)
+%t0 = call ptr @malloc(i64 16)
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
-%t2 = load ptr, ptr %p.addr
-%t3 = icmp eq ptr %t2, null
-  br i1 %t3, label %then0, label %else0
+%t1 = load ptr, ptr %p.addr
+%t2 = icmp eq ptr %t1, null
+  br i1 %t2, label %then0, label %else0
 then0:
   ret i32 0
 else0:
   br label %done0
 done0:
-%t4 = load ptr, ptr %p.addr
-%t5 = add i64 0, 20
-  store i64 %t5, ptr %t4
-%t6 = load ptr, ptr %p.addr
-%t7 = getelementptr i8, ptr %t6, i64 8
-%t8 = add i64 0, 22
-  store i64 %t8, ptr %t7
-%t9 = load ptr, ptr %p.addr
-%t10 = load i64, ptr %t9
+%t3 = load ptr, ptr %p.addr
+%t4 = add i64 0, 20
+  store i64 %t4, ptr %t3
+%t5 = load ptr, ptr %p.addr
+%t6 = getelementptr i8, ptr %t5, i64 8
+%t7 = add i64 0, 22
+  store i64 %t7, ptr %t6
+%t8 = load ptr, ptr %p.addr
+%t9 = load i64, ptr %t8
 %a.addr = alloca i64
-  store i64 %t10, ptr %a.addr
-%t11 = load ptr, ptr %p.addr
-%t12 = getelementptr i8, ptr %t11, i64 8
-%t13 = load i64, ptr %t12
+  store i64 %t9, ptr %a.addr
+%t10 = load ptr, ptr %p.addr
+%t11 = getelementptr i8, ptr %t10, i64 8
+%t12 = load i64, ptr %t11
 %b.addr = alloca i64
-  store i64 %t13, ptr %b.addr
-%t14 = load ptr, ptr %p.addr
-  call void @free(ptr %t14)
-%t15 = load i64, ptr %a.addr
-%t16 = load i64, ptr %b.addr
-%t17 = add i64 %t15, %t16
-%t18 = trunc i64 %t17 to i32
-  ret i32 %t18
+  store i64 %t12, ptr %b.addr
+%t13 = load ptr, ptr %p.addr
+  call void @free(ptr %t13)
+%t14 = load i64, ptr %a.addr
+%t15 = load i64, ptr %b.addr
+%t16 = add i64 %t14, %t15
+%t17 = trunc i64 %t16 to i32
+  ret i32 %t17
 }
 

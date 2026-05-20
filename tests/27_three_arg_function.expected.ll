@@ -2,20 +2,14 @@
 
 define i32 @add3(i32 %a, i32 %b, i32 %c) {
 entry:
-%t0 = add i32 0, %a
-%t1 = add i32 0, %b
-%t2 = add i32 %t0, %t1
-%t3 = add i32 0, %c
-%t4 = add i32 %t2, %t3
-  ret i32 %t4
+%t0 = add i32 %a, %b
+%t1 = add i32 %t0, %c
+  ret i32 %t1
 }
 
 define i32 @main() {
 entry:
-%t6 = add i32 0, 10
-%t7 = add i32 0, 20
-%t8 = add i32 0, 12
-%t5 = call i32 @add3(i32 %t6, i32 %t7, i32 %t8)
-  ret i32 %t5
+%t2 = call i32 @add3(i32 10, i32 20, i32 12)
+  ret i32 %t2
 }
 

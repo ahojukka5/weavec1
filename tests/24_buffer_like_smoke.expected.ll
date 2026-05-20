@@ -4,61 +4,59 @@ declare ptr @malloc(i64)
 declare void @free(ptr)
 define i32 @main() {
 entry:
-%t1 = add i64 0, 24
-%t0 = call ptr @malloc(i64 %t1)
+%t0 = call ptr @malloc(i64 24)
 %buffer.addr = alloca ptr
   store ptr %t0, ptr %buffer.addr
-%t2 = load ptr, ptr %buffer.addr
-%t3 = icmp eq ptr %t2, null
-  br i1 %t3, label %then0, label %else0
+%t1 = load ptr, ptr %buffer.addr
+%t2 = icmp eq ptr %t1, null
+  br i1 %t2, label %then0, label %else0
 then0:
   ret i32 0
 else0:
   br label %done0
 done0:
-%t5 = add i64 0, 8
-%t4 = call ptr @malloc(i64 %t5)
+%t3 = call ptr @malloc(i64 8)
 %data.addr = alloca ptr
-  store ptr %t4, ptr %data.addr
-%t6 = load ptr, ptr %data.addr
-%t7 = icmp eq ptr %t6, null
-  br i1 %t7, label %then1, label %else1
+  store ptr %t3, ptr %data.addr
+%t4 = load ptr, ptr %data.addr
+%t5 = icmp eq ptr %t4, null
+  br i1 %t5, label %then1, label %else1
 then1:
-%t8 = load ptr, ptr %buffer.addr
-  call void @free(ptr %t8)
+%t6 = load ptr, ptr %buffer.addr
+  call void @free(ptr %t6)
   ret i32 0
 else1:
   br label %done1
 done1:
+%t7 = load ptr, ptr %buffer.addr
+%t8 = load ptr, ptr %data.addr
+  store ptr %t8, ptr %t7
 %t9 = load ptr, ptr %buffer.addr
-%t10 = load ptr, ptr %data.addr
-  store ptr %t10, ptr %t9
-%t11 = load ptr, ptr %buffer.addr
-%t12 = getelementptr i8, ptr %t11, i64 8
-%t13 = add i64 0, 1
-  store i64 %t13, ptr %t12
-%t14 = load ptr, ptr %buffer.addr
-%t15 = getelementptr i8, ptr %t14, i64 16
-%t16 = add i64 0, 8
-  store i64 %t16, ptr %t15
-%t17 = load ptr, ptr %data.addr
-%t18 = add i32 0, 42
-%t19 = trunc i32 %t18 to i8
-  store i8 %t19, ptr %t17
-%t20 = load ptr, ptr %buffer.addr
-%t21 = load ptr, ptr %t20
+%t10 = getelementptr i8, ptr %t9, i64 8
+%t11 = add i64 0, 1
+  store i64 %t11, ptr %t10
+%t12 = load ptr, ptr %buffer.addr
+%t13 = getelementptr i8, ptr %t12, i64 16
+%t14 = add i64 0, 8
+  store i64 %t14, ptr %t13
+%t15 = load ptr, ptr %data.addr
+%t16 = add i32 0, 42
+%t17 = trunc i32 %t16 to i8
+  store i8 %t17, ptr %t15
+%t18 = load ptr, ptr %buffer.addr
+%t19 = load ptr, ptr %t18
 %data2.addr = alloca ptr
-  store ptr %t21, ptr %data2.addr
-%t22 = load ptr, ptr %data2.addr
-%t23 = load i8, ptr %t22
-%t24 = zext i8 %t23 to i32
+  store ptr %t19, ptr %data2.addr
+%t20 = load ptr, ptr %data2.addr
+%t21 = load i8, ptr %t20
+%t22 = zext i8 %t21 to i32
 %x.addr = alloca i32
-  store i32 %t24, ptr %x.addr
-%t25 = load ptr, ptr %data.addr
-  call void @free(ptr %t25)
-%t26 = load ptr, ptr %buffer.addr
-  call void @free(ptr %t26)
-%t27 = load i32, ptr %x.addr
-  ret i32 %t27
+  store i32 %t22, ptr %x.addr
+%t23 = load ptr, ptr %data.addr
+  call void @free(ptr %t23)
+%t24 = load ptr, ptr %buffer.addr
+  call void @free(ptr %t24)
+%t25 = load i32, ptr %x.addr
+  ret i32 %t25
 }
 

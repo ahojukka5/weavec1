@@ -2,10 +2,8 @@
 
 define i32 @same_ptr(ptr %a, ptr %b) {
 entry:
-%t0 = getelementptr i8, ptr %a, i64 0
-%t1 = getelementptr i8, ptr %b, i64 0
-%t2 = icmp eq ptr %t0, %t1
-  br i1 %t2, label %then0, label %else0
+%t0 = icmp eq ptr %a, %b
+  br i1 %t0, label %then0, label %else0
 then0:
   ret i32 42
 else0:
@@ -14,9 +12,7 @@ else0:
 
 define i32 @main() {
 entry:
-%t4 = getelementptr i8, ptr null, i64 0
-%t5 = getelementptr i8, ptr null, i64 0
-%t3 = call i32 @same_ptr(ptr %t4, ptr %t5)
-  ret i32 %t3
+%t1 = call i32 @same_ptr(ptr null, ptr null)
+  ret i32 %t1
 }
 

@@ -4,33 +4,32 @@ declare ptr @malloc(i64)
 declare void @free(ptr)
 define i32 @main() {
 entry:
-%t1 = add i64 0, 1
-%t0 = call ptr @malloc(i64 %t1)
+%t0 = call ptr @malloc(i64 1)
 %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
-%t2 = load ptr, ptr %p.addr
-%t3 = icmp eq ptr %t2, null
-  br i1 %t3, label %then0, label %else0
+%t1 = load ptr, ptr %p.addr
+%t2 = icmp eq ptr %t1, null
+  br i1 %t2, label %then0, label %else0
 then0:
   ret i32 0
 else0:
   br label %done0
 done0:
-%t4 = add i32 0, 42
+%t3 = add i32 0, 42
 %value.addr = alloca i32
-  store i32 %t4, ptr %value.addr
-%t5 = load ptr, ptr %p.addr
-%t6 = load i32, ptr %value.addr
-%t7 = trunc i32 %t6 to i8
-  store i8 %t7, ptr %t5
-%t8 = load ptr, ptr %p.addr
-%t9 = load i8, ptr %t8
-%t10 = zext i8 %t9 to i32
+  store i32 %t3, ptr %value.addr
+%t4 = load ptr, ptr %p.addr
+%t5 = load i32, ptr %value.addr
+%t6 = trunc i32 %t5 to i8
+  store i8 %t6, ptr %t4
+%t7 = load ptr, ptr %p.addr
+%t8 = load i8, ptr %t7
+%t9 = zext i8 %t8 to i32
 %loaded.addr = alloca i32
-  store i32 %t10, ptr %loaded.addr
-%t11 = load ptr, ptr %p.addr
-  call void @free(ptr %t11)
-%t12 = load i32, ptr %loaded.addr
-  ret i32 %t12
+  store i32 %t9, ptr %loaded.addr
+%t10 = load ptr, ptr %p.addr
+  call void @free(ptr %t10)
+%t11 = load i32, ptr %loaded.addr
+  ret i32 %t11
 }
 

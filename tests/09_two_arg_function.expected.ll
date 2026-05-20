@@ -2,17 +2,13 @@
 
 define i32 @add(i32 %a, i32 %b) {
 entry:
-%t0 = add i32 0, %a
-%t1 = add i32 0, %b
-%t2 = add i32 %t0, %t1
-  ret i32 %t2
+%t0 = add i32 %a, %b
+  ret i32 %t0
 }
 
 define i32 @main() {
 entry:
-%t4 = add i32 0, 20
-%t5 = add i32 0, 22
-%t3 = call i32 @add(i32 %t4, i32 %t5)
-  ret i32 %t3
+%t1 = call i32 @add(i32 20, i32 22)
+  ret i32 %t1
 }
 

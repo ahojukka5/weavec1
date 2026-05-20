@@ -2,15 +2,13 @@
 
 define i1 @same(i1 %x) {
 entry:
-%t0 = xor i1 false, %x
-  ret i1 %t0
+  ret i1 %x
 }
 
 define i32 @main() {
 entry:
-%t2 = or i1 false, true
-%t1 = call i1 @same(i1 %t2)
-  br i1 %t1, label %then0, label %else0
+%t0 = call i1 @same(i1 1)
+  br i1 %t0, label %then0, label %else0
 then0:
   ret i32 42
 else0:
