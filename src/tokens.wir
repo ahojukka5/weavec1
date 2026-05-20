@@ -58,6 +58,7 @@
     (fn token_then         (params) (returns i32) (body (return (const_i32 31))))
     (fn token_body_kw      (params) (returns i32) (body (return (const_i32 32))))
     (fn token_block        (params) (returns i32) (body (return (const_i32 33))))
+    (fn token_return_void  (params) (returns i32) (body (return (const_i32 34))))
 
     ; -------------------------------------------------------------------------
     ; TokenStream layout

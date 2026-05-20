@@ -232,6 +232,18 @@
           (call_bool bytes_equal
             (param_get text)
             (param_get length)
+            (const_string_ptr "return_void")
+            (const_i64 11))
+          (then
+            (return
+              (call_i32 token_return_void)))
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (param_get text)
+            (param_get length)
             (const_string_ptr "if")
             (const_i64 2))
           (then
