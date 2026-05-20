@@ -549,6 +549,10 @@
           (then (return (call_i32 op_call_ptr)))
           (else (block)))
 
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "call_bool") (const_i64 9))
+          (then (return (call_i32 op_call_bool)))
+          (else (block)))
+
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "call_void") (const_i64 9))
           (then (return (call_i32 op_call_void)))
           (else (block)))
@@ -1969,7 +1973,9 @@
               (eq_i32 (local_get op_id) (call_i32 op_call_i32))
               (eq_i32 (local_get op_id) (call_i32 op_call_i64)))
             (or_bool
-              (eq_i32 (local_get op_id) (call_i32 op_call_ptr))
+              (or_bool
+                (eq_i32 (local_get op_id) (call_i32 op_call_ptr))
+                (eq_i32 (local_get op_id) (call_i32 op_call_bool)))
               (eq_i32 (local_get op_id) (call_i32 op_call_void))))
 
           (then

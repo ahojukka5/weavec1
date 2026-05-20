@@ -1298,7 +1298,11 @@
             (if
               (eq_i32 (local_get op) (call_i32 op_call_ptr))
               (then (call_i32 emit_cstr (param_get ctx) (const_string_ptr "ptr")))
-              (else (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i32"))))))
+              (else
+                (if
+                  (eq_i32 (local_get op) (call_i32 op_call_bool))
+                  (then (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i1")))
+                  (else (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i32"))))))))
         (call_i32 emit_cstr (param_get ctx) (const_string_ptr " @"))
         (call_i32 emit_source_slice
           (param_get ctx)
@@ -1350,6 +1354,18 @@
                 (then
                   (block
                     (call_i32 emit_cstr (param_get ctx) (const_string_ptr "ptr "))
+                    (set wrote_arg_type (const_i32 1))))
+                (else (block)))
+
+              (if
+                (eq_i32
+                  (call_i32 ast_kind_at
+                    (local_get ast)
+                    (add_i64 (local_get arg_first) (local_get i)))
+                  (call_i32 ast_const_bool))
+                (then
+                  (block
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr "i1 "))
                     (set wrote_arg_type (const_i32 1))))
                 (else (block)))
 
