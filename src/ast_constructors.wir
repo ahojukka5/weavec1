@@ -1,0 +1,531 @@
+; ast_constructors.wir
+; AST node constructor functions.
+; Each ast_make_* function creates a new typed node in the AST,
+; filling in the appropriate fields and returning the node index.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      ast_make_program
+      (params
+        (ast ptr)
+        (first i64)
+        (last i64)
+        (count i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_program)
+            (const_i64 0)
+            (param_get first)
+            (param_get last)
+            (param_get count)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_extern
+      (params
+        (ast ptr)
+        (return_type i32)
+        (param_first i64)
+        (param_count i64)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_extern)
+            (cast_i32_to_i64
+              (param_get return_type))
+            (param_get param_first)
+            (param_get param_count)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_function
+      (params
+        (ast ptr)
+        (return_type i32)
+        (param_first i64)
+        (param_count i64)
+        (do_node i64)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_function)
+            (cast_i32_to_i64
+              (param_get return_type))
+            (param_get param_first)
+            (param_get param_count)
+            (param_get do_node)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_param
+      (params
+        (ast ptr)
+        (type_id i32)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_param)
+            (cast_i32_to_i64
+              (param_get type_id))
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_block
+      (params
+        (ast ptr)
+        (first i64)
+        (last i64)
+        (count i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_block)
+            (const_i64 0)
+            (param_get first)
+            (param_get last)
+            (param_get count)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_return
+      (params
+        (ast ptr)
+        (expr i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_return)
+            (const_i64 0)
+            (param_get expr)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_return_void
+      (params
+        (ast ptr))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_return_void)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_if
+      (params
+        (ast ptr)
+        (cond i64)
+        (then_node i64)
+        (else_node i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_if)
+            (const_i64 0)
+            (param_get cond)
+            (param_get then_node)
+            (param_get else_node)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_while
+      (params
+        (ast ptr)
+        (cond i64)
+        (do_node i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_while)
+            (const_i64 0)
+            (param_get cond)
+            (param_get do_node)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_let
+      (params
+        (ast ptr)
+        (type_id i32)
+        (expr i64)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_let)
+            (cast_i32_to_i64
+              (param_get type_id))
+            (param_get expr)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_set
+      (params
+        (ast ptr)
+        (expr i64)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_set)
+            (const_i64 0)
+            (param_get expr)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_const_i32
+      (params
+        (ast ptr)
+        (value i32))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_const_i32)
+            (const_i64 0)
+            (cast_i32_to_i64
+              (param_get value))
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_const_i64
+      (params
+        (ast ptr)
+        (value i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_const_i64)
+            (const_i64 0)
+            (param_get value)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_const_bool
+      (params
+        (ast ptr)
+        (value i32))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_const_bool)
+            (const_i64 0)
+            (cast_i32_to_i64
+              (param_get value))
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_const_null
+      (params
+        (ast ptr))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_const_null)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_const_string
+      (params
+        (ast ptr)
+        (text_start i64)
+        (text_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_const_string)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get text_start)
+            (param_get text_len)))))
+    (fn
+      ast_make_name_ref
+      (params
+        (ast ptr)
+        (kind i32)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (param_get kind)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_call
+      (params
+        (ast ptr)
+        (op i32)
+        (arg_first i64)
+        (arg_count i64)
+        (name_start i64)
+        (name_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_call)
+            (cast_i32_to_i64
+              (param_get op))
+            (param_get arg_first)
+            (param_get arg_count)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get name_start)
+            (param_get name_len)))))
+    (fn
+      ast_make_unary
+      (params
+        (ast ptr)
+        (op i32)
+        (arg i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_unary)
+            (cast_i32_to_i64
+              (param_get op))
+            (param_get arg)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_binary
+      (params
+        (ast ptr)
+        (op i32)
+        (lhs i64)
+        (rhs i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_binary)
+            (cast_i32_to_i64
+              (param_get op))
+            (param_get lhs)
+            (param_get rhs)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_load
+      (params
+        (ast ptr)
+        (op i32)
+        (ptr_expr i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_load)
+            (cast_i32_to_i64
+              (param_get op))
+            (param_get ptr_expr)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_store
+      (params
+        (ast ptr)
+        (op i32)
+        (ptr_expr i64)
+        (value_expr i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_store)
+            (cast_i32_to_i64
+              (param_get op))
+            (param_get ptr_expr)
+            (param_get value_expr)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_print
+      (params
+        (ast ptr)
+        (expr i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_print)
+            (const_i64 0)
+            (param_get expr)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_arg
+      (params
+        (ast ptr)
+        (expr i64)
+        (previous i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_arg)
+            (const_i64 0)
+            (param_get expr)
+            (param_get previous)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)))))
+    (fn
+      ast_make_debug
+      (params
+        (ast ptr)
+        (body i64)
+        (message_start i64)
+        (message_len i64))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            ast_push
+            (param_get ast)
+            (call_i32 ast_debug)
+            (const_i64 0)
+            (param_get body)
+            (const_i64 0)
+            (const_i64 0)
+            (const_i64 0)
+            (param_get message_start)
+            (param_get message_len)))))))

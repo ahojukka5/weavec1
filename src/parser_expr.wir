@@ -1,0 +1,843 @@
+; parser_expr.wir
+; WIR expression parsing.
+; Handles operator lookup, expression parsing, and condition slots.
+; Parses constants, arithmetic, comparisons, calls, loads, and more.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      parser_lookup_op
+      (params
+        (parser ptr))
+      (returns i32)
+      (do
+        (let
+          source
+          ptr
+          (call_ptr
+            parser_source
+            (param_get parser)))
+        (let
+          text
+          ptr
+          (ptr_add
+            (call_ptr
+              source_data
+              (local_get source))
+            (call_i64
+              parser_ident_start
+              (param_get parser))))
+        (let
+          length
+          i64
+          (call_i64
+            parser_ident_length
+            (param_get parser)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "add_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_add_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "add_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_add_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "sub_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_sub_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "mul_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_mul_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "sub_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_sub_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "mul_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_mul_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "div_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_div_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "mod_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_mod_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "eq_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_eq_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ne_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_ne_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "lt_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_lt_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "le_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_le_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "gt_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_gt_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ge_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_ge_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "lt_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_lt_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "eq_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_eq_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "le_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_le_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "gt_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_gt_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ge_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_ge_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ne_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_ne_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "eq_ptr")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_eq_ptr))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ne_ptr")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_ne_ptr))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "and_bool")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_and_bool))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "or_bool")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_or_bool))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "not_bool")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_not_bool))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ptr_add")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_ptr_add))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "cast_i64_to_i32")
+              (const_i64 15)))
+          (then
+            (do
+              (return
+                (call_i32 op_cast_i64_to_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "cast_i32_to_i64")
+              (const_i64 15)))
+          (then
+            (do
+              (return
+                (call_i32 op_cast_i32_to_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "load_i32")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_load_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "load_i64")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_load_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "load_ptr")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_load_ptr))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "load_u8")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_load_u8))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "store_i32")
+              (const_i64 9)))
+          (then
+            (do
+              (return
+                (call_i32 op_store_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "store_i64")
+              (const_i64 9)))
+          (then
+            (do
+              (return
+                (call_i32 op_store_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "store_ptr")
+              (const_i64 9)))
+          (then
+            (do
+              (return
+                (call_i32 op_store_ptr))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "store_i8")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_store_i8))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "call_i32")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_call_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "call_i64")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_call_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "call_ptr")
+              (const_i64 8)))
+          (then
+            (do
+              (return
+                (call_i32 op_call_ptr))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "call_bool")
+              (const_i64 9)))
+          (then
+            (do
+              (return
+                (call_i32 op_call_bool))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "call_void")
+              (const_i64 9)))
+          (then
+            (do
+              (return
+                (call_i32 op_call_void))))
+          (else
+            (do)))
+        (return
+          (const_i32 -1))))
+    (fn
+      parser_parse_expression
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (if
+          (condition
+            (call_bool
+              parser_match
+              (param_get parser)
+              (call_i32 token_int)))
+          (then
+            (do
+              (let
+                value
+                i32
+                (call_i32
+                  token_value_at
+                  (call_ptr
+                    parser_tokens
+                    (param_get parser))
+                  (call_i64
+                    parser_index
+                    (param_get parser))))
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i64
+                  ast_make_const_i32
+                  (call_ptr
+                    parser_ast
+                    (param_get parser))
+                  (local_get value)))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              parser_match
+              (param_get parser)
+              (call_i32 token_string)))
+          (then
+            (do
+              (let
+                string_start
+                i64
+                (call_i64
+                  parser_current_start
+                  (param_get parser)))
+              (let
+                string_length
+                i64
+                (call_i64
+                  parser_current_length
+                  (param_get parser)))
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i64
+                  ast_make_const_string
+                  (call_ptr
+                    parser_ast
+                    (param_get parser))
+                  (local_get string_start)
+                  (local_get string_length)))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              parser_match
+              (param_get parser)
+              (call_i32 token_lparen)))
+          (then
+            (do
+              (return
+                (call_i64
+                  parser_parse_list_expression
+                  (param_get parser)))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              parser_match
+              (param_get parser)
+              (call_i32 token_ident)))
+          (then
+            (do
+              (let
+                ident_start
+                i64
+                (call_i64
+                  parser_ident_start
+                  (param_get parser)))
+              (let
+                ident_length
+                i64
+                (call_i64
+                  parser_ident_length
+                  (param_get parser)))
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i64
+                  ast_make_name_ref
+                  (call_ptr
+                    parser_ast
+                    (param_get parser))
+                  (call_i32 ast_local_get)
+                  (local_get ident_start)
+                  (local_get ident_length)))))
+          (else
+            (do)))
+        (return
+          (const_i64 -1))))
+    (fn
+      parser_parse_condition_slot
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (let
+          current_kind
+          i32
+          (call_i32
+            parser_current_kind
+            (param_get parser)))
+        (if
+          (condition
+            (eq_i32
+              (local_get current_kind)
+              (call_i32 token_lparen)))
+          (then
+            (do
+              (let
+                tokens
+                ptr
+                (call_ptr
+                  parser_tokens
+                  (param_get parser)))
+              (let
+                head_index
+                i64
+                (add_i64
+                  (call_i64
+                    parser_index
+                    (param_get parser))
+                  (const_i64 1)))
+              (if
+                (condition
+                  (eq_i32
+                    (call_i32
+                      token_kind_at
+                      (local_get tokens)
+                      (local_get head_index))
+                    (call_i32 token_condition)))
+                (then
+                  (do
+                    (if
+                      (condition
+                        (ne_i32
+                          (call_i32
+                            parser_expect
+                            (param_get parser)
+                            (call_i32 token_lparen))
+                          (const_i32 0)))
+                      (then
+                        (do
+                          (return
+                            (const_i64 -1))))
+                      (else
+                        (do)))
+                    (if
+                      (condition
+                        (ne_i32
+                          (call_i32
+                            parser_expect
+                            (param_get parser)
+                            (call_i32 token_condition))
+                          (const_i32 0)))
+                      (then
+                        (do
+                          (return
+                            (const_i64 -1))))
+                      (else
+                        (do)))
+                    (let
+                      condition_expr
+                      i64
+                      (call_i64
+                        parser_parse_expression
+                        (param_get parser)))
+                    (if
+                      (condition
+                        (lt_i64
+                          (local_get condition_expr)
+                          (const_i64 0)))
+                      (then
+                        (do
+                          (return
+                            (const_i64 -1))))
+                      (else
+                        (do)))
+                    (if
+                      (condition
+                        (ne_i32
+                          (call_i32
+                            parser_expect
+                            (param_get parser)
+                            (call_i32 token_rparen))
+                          (const_i32 0)))
+                      (then
+                        (do
+                          (return
+                            (const_i64 -1))))
+                      (else
+                        (do)))
+                    (return
+                      (local_get condition_expr))))
+                (else
+                  (do)))))
+          (else
+            (do)))
+        (return
+          (const_i64 -1))))
+))

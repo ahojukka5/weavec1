@@ -1,0 +1,164 @@
+; parser_state.wir
+; Parser state management and accessors.
+; Handles parser allocation, token cursor navigation,
+; and error state tracking.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      parser_size
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 40))))
+    (fn
+      parser_new
+      (params
+        (source ptr)
+        (tokens ptr)
+        (ast ptr))
+      (returns ptr)
+      (do
+        (let
+          parser
+          ptr
+          (call_ptr
+            malloc
+            (call_i64 parser_size)))
+        (if
+          (condition
+            (eq_ptr
+              (local_get parser)
+              (const_null)))
+          (then
+            (do
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (store_ptr
+          (local_get parser)
+          (param_get source))
+        (store_ptr
+          (ptr_add
+            (local_get parser)
+            (const_i64 8))
+          (param_get tokens))
+        (store_ptr
+          (ptr_add
+            (local_get parser)
+            (const_i64 16))
+          (param_get ast))
+        (store_i64
+          (ptr_add
+            (local_get parser)
+            (const_i64 24))
+          (const_i64 0))
+        (store_i32
+          (ptr_add
+            (local_get parser)
+            (const_i64 32))
+          (const_i32 0))
+        (return
+          (local_get parser))))
+    (fn
+      parser_free
+      (params
+        (parser ptr))
+      (returns void)
+      (do
+        (if
+          (condition
+            (ne_ptr
+              (param_get parser)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (param_get parser))))
+          (else
+            (do)))
+        (return_void)))
+    (fn
+      parser_source
+      (params
+        (parser ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (param_get parser)))))
+    (fn
+      parser_tokens
+      (params
+        (parser ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (ptr_add
+              (param_get parser)
+              (const_i64 8))))))
+    (fn
+      parser_ast
+      (params
+        (parser ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (ptr_add
+              (param_get parser)
+              (const_i64 16))))))
+    (fn
+      parser_index
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (ptr_add
+              (param_get parser)
+              (const_i64 24))))))
+    (fn
+      parser_set_index
+      (params
+        (parser ptr)
+        (index i64))
+      (returns void)
+      (do
+        (store_i64
+          (ptr_add
+            (param_get parser)
+            (const_i64 24))
+          (param_get index))
+        (return_void)))
+    (fn
+      parser_error_code
+      (params
+        (parser ptr))
+      (returns i32)
+      (do
+        (return
+          (load_i32
+            (ptr_add
+              (param_get parser)
+              (const_i64 32))))))
+    (fn
+      parser_set_error_code
+      (params
+        (parser ptr)
+        (code i32))
+      (returns void)
+      (do
+        (store_i32
+          (ptr_add
+            (param_get parser)
+            (const_i64 32))
+          (param_get code))
+        (return_void)))
+))

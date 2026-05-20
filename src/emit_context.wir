@@ -1,0 +1,578 @@
+; emit_context.wir
+; LLVM emission context state management.
+; Tracks source, AST, output buffer, counters for temporaries,
+; labels, strings, and function-local state (params, locals, return type).
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      emit_context_size
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 88))))
+    (fn
+      emit_binding_size
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 24))))
+    (fn
+      emit_max_bindings
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 256))))
+    (fn
+      ctx_source_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (param_get ctx))))
+    (fn
+      ctx_ast_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 8)))))
+    (fn
+      ctx_output_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 16)))))
+    (fn
+      ctx_temp_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 24)))))
+    (fn
+      ctx_label_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 32)))))
+    (fn
+      ctx_string_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 40)))))
+    (fn
+      ctx_locals_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 48)))))
+    (fn
+      ctx_local_count_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 56)))))
+    (fn
+      ctx_params_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 64)))))
+    (fn
+      ctx_param_count_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 72)))))
+    (fn
+      ctx_return_type_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 80)))))
+    (fn
+      ctx_source
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (call_ptr
+              ctx_source_field
+              (param_get ctx))))))
+    (fn
+      ctx_ast
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (call_ptr
+              ctx_ast_field
+              (param_get ctx))))))
+    (fn
+      ctx_output
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (call_ptr
+              ctx_output_field
+              (param_get ctx))))))
+    (fn
+      ctx_temp_counter
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_temp_field
+              (param_get ctx))))))
+    (fn
+      ctx_label_counter
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_label_field
+              (param_get ctx))))))
+    (fn
+      ctx_string_counter
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_string_field
+              (param_get ctx))))))
+    (fn
+      ctx_locals
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (call_ptr
+              ctx_locals_field
+              (param_get ctx))))))
+    (fn
+      ctx_local_count
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_local_count_field
+              (param_get ctx))))))
+    (fn
+      ctx_params
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (call_ptr
+              ctx_params_field
+              (param_get ctx))))))
+    (fn
+      ctx_param_count
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_param_count_field
+              (param_get ctx))))))
+    (fn
+      ctx_return_type
+      (params
+        (ctx ptr))
+      (returns i32)
+      (do
+        (return
+          (cast_i64_to_i32
+            (load_i64
+              (call_ptr
+                ctx_return_type_field
+                (param_get ctx)))))))
+    (fn
+      ctx_set_source
+      (params
+        (ctx ptr)
+        (v ptr))
+      (returns void)
+      (do
+        (store_ptr
+          (call_ptr
+            ctx_source_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_ast
+      (params
+        (ctx ptr)
+        (v ptr))
+      (returns void)
+      (do
+        (store_ptr
+          (call_ptr
+            ctx_ast_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_output
+      (params
+        (ctx ptr)
+        (v ptr))
+      (returns void)
+      (do
+        (store_ptr
+          (call_ptr
+            ctx_output_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_temp_counter
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_temp_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_label_counter
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_label_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_string_counter
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_string_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_locals
+      (params
+        (ctx ptr)
+        (v ptr))
+      (returns void)
+      (do
+        (store_ptr
+          (call_ptr
+            ctx_locals_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_local_count
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_local_count_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_params
+      (params
+        (ctx ptr)
+        (v ptr))
+      (returns void)
+      (do
+        (store_ptr
+          (call_ptr
+            ctx_params_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_param_count
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_param_count_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+    (fn
+      ctx_set_return_type
+      (params
+        (ctx ptr)
+        (v i32))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_return_type_field
+            (param_get ctx))
+          (cast_i32_to_i64
+            (param_get v)))
+        (return_void)))
+    (fn
+      emit_context_new
+      (params
+        (source ptr)
+        (ast ptr)
+        (output ptr))
+      (returns ptr)
+      (do
+        (let
+          ctx
+          ptr
+          (call_ptr
+            malloc
+            (call_i64 emit_context_size)))
+        (if
+          (condition
+            (eq_ptr
+              (local_get ctx)
+              (const_null)))
+          (then
+            (do
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (let
+          locals
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (call_i64 emit_max_bindings)
+              (call_i64 emit_binding_size))))
+        (if
+          (condition
+            (eq_ptr
+              (local_get locals)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get ctx))
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (let
+          param_bindings
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (call_i64 emit_max_bindings)
+              (call_i64 emit_binding_size))))
+        (if
+          (condition
+            (eq_ptr
+              (local_get param_bindings)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get locals))
+              (call_void
+                free
+                (local_get ctx))
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (call_void
+          ctx_set_source
+          (local_get ctx)
+          (param_get source))
+        (call_void
+          ctx_set_ast
+          (local_get ctx)
+          (param_get ast))
+        (call_void
+          ctx_set_output
+          (local_get ctx)
+          (param_get output))
+        (call_void
+          ctx_set_temp_counter
+          (local_get ctx)
+          (const_i64 0))
+        (call_void
+          ctx_set_label_counter
+          (local_get ctx)
+          (const_i64 0))
+        (call_void
+          ctx_set_string_counter
+          (local_get ctx)
+          (const_i64 0))
+        (call_void
+          ctx_set_locals
+          (local_get ctx)
+          (local_get locals))
+        (call_void
+          ctx_set_local_count
+          (local_get ctx)
+          (const_i64 0))
+        (call_void
+          ctx_set_params
+          (local_get ctx)
+          (local_get param_bindings))
+        (call_void
+          ctx_set_param_count
+          (local_get ctx)
+          (const_i64 0))
+        (call_void
+          ctx_set_return_type
+          (local_get ctx)
+          (call_i32 type_i32))
+        (return
+          (local_get ctx))))
+    (fn
+      emit_context_free
+      (params
+        (ctx ptr))
+      (returns void)
+      (do
+        (if
+          (condition
+            (eq_ptr
+              (param_get ctx)
+              (const_null)))
+          (then
+            (do
+              (return_void)))
+          (else
+            (do)))
+        (let
+          locals
+          ptr
+          (call_ptr
+            ctx_locals
+            (param_get ctx)))
+        (let
+          param_bindings
+          ptr
+          (call_ptr
+            ctx_params
+            (param_get ctx)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get locals)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get locals))))
+          (else
+            (do)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get param_bindings)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get param_bindings))))
+          (else
+            (do)))
+        (call_void
+          free
+          (param_get ctx))
+        (return_void)))
+))

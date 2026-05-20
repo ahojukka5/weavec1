@@ -1,0 +1,97 @@
+; emit_text.wir
+; Low-level LLVM IR text emission primitives.
+; Provides byte-level and formatted output functions.
+; No semantic LLVM logic - pure text manipulation.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      emit_cstr
+      (params
+        (ctx ptr)
+        (text ptr))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            buffer_append_cstr
+            (call_ptr
+              ctx_output
+              (param_get ctx))
+            (param_get text)))))
+    (fn
+      emit_byte
+      (params
+        (ctx ptr)
+        (byte i32))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            buffer_append_byte
+            (call_ptr
+              ctx_output
+              (param_get ctx))
+            (param_get byte)))))
+    (fn
+      emit_i32
+      (params
+        (ctx ptr)
+        (value i32))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            buffer_append_i32
+            (call_ptr
+              ctx_output
+              (param_get ctx))
+            (param_get value)))))
+    (fn
+      emit_i64_as_i32
+      (params
+        (ctx ptr)
+        (value i64))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            emit_i32
+            (param_get ctx)
+            (cast_i64_to_i32
+              (param_get value))))))
+    (fn
+      emit_source_slice
+      (params
+        (ctx ptr)
+        (start i64)
+        (length i64))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            buffer_append_bytes
+            (call_ptr
+              ctx_output
+              (param_get ctx))
+            (ptr_add
+              (call_ptr
+                source_data
+                (call_ptr
+                  ctx_source
+                  (param_get ctx)))
+              (param_get start))
+            (param_get length)))))
+    (fn
+      emit_newline
+      (params
+        (ctx ptr))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            emit_byte
+            (param_get ctx)
+            (const_i32 10)))))
+))

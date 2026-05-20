@@ -1,0 +1,129 @@
+; emit_module.wir
+; Top-level LLVM module emission orchestration.
+; Coordinates module sections: header, declarations,
+; string literals, and function definitions.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      emit_program
+      (params
+        (ctx ptr)
+        (program_node i64))
+      (returns i32)
+      (do
+        (let
+          ast
+          ptr
+          (call_ptr
+            ctx_ast
+            (param_get ctx)))
+        (let
+          node_count
+          i64
+          (call_i64
+            ast_count
+            (local_get ast)))
+        (call_i32
+          emit_module_header
+          (param_get ctx))
+        (call_i32
+          emit_runtime_declarations
+          (param_get ctx))
+        (if
+          (condition
+            (ne_i32
+              (call_i32
+                emit_string_globals
+                (param_get ctx))
+              (const_i32 0)))
+          (then
+            (do
+              (return
+                (const_i32 1))))
+          (else
+            (do)))
+        (let
+          i
+          i64
+          (const_i64 0))
+        (while
+          (condition
+            (lt_i64
+              (local_get i)
+              (local_get node_count)))
+          (do
+            (if
+              (condition
+                (eq_i32
+                  (call_i32
+                    ast_kind_at
+                    (local_get ast)
+                    (local_get i))
+                  (call_i32 ast_function)))
+              (then
+                (do
+                  (if
+                    (condition
+                      (ne_i32
+                        (call_i32
+                          emit_function
+                          (param_get ctx)
+                          (local_get i))
+                        (const_i32 0)))
+                    (then
+                      (do
+                        (return
+                          (const_i32 1))))
+                    (else
+                      (do)))))
+              (else
+                (do)))
+            (set
+              i
+              (add_i64
+                (local_get i)
+                (const_i64 1)))))
+        (return
+          (const_i32 0))))
+    (fn
+      emit_llvm
+      (params
+        (source ptr)
+        (ast ptr)
+        (program_node i64)
+        (output ptr))
+      (returns i32)
+      (do
+        (let
+          ctx
+          ptr
+          (call_ptr
+            emit_context_new
+            (param_get source)
+            (param_get ast)
+            (param_get output)))
+        (if
+          (condition
+            (eq_ptr
+              (local_get ctx)
+              (const_null)))
+          (then
+            (do
+              (return
+                (const_i32 1))))
+          (else
+            (do)))
+        (let
+          status
+          i32
+          (call_i32
+            emit_program
+            (local_get ctx)
+            (param_get program_node)))
+        (call_void
+          emit_context_free
+          (local_get ctx))
+        (return
+          (local_get status))))))

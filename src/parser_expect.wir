@@ -1,0 +1,106 @@
+; parser_expect.wir
+; Parser token matching and expectation helpers.
+; Provides utilities for checking current tokens,
+; advancing the parser, and handling parse errors.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      parser_current_kind
+      (params
+        (parser ptr))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            token_kind_at
+            (call_ptr
+              parser_tokens
+              (param_get parser))
+            (call_i64
+              parser_index
+              (param_get parser))))))
+    (fn
+      parser_current_start
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            token_start_at
+            (call_ptr
+              parser_tokens
+              (param_get parser))
+            (call_i64
+              parser_index
+              (param_get parser))))))
+    (fn
+      parser_current_length
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            token_length_at
+            (call_ptr
+              parser_tokens
+              (param_get parser))
+            (call_i64
+              parser_index
+              (param_get parser))))))
+    (fn
+      parser_advance
+      (params
+        (parser ptr))
+      (returns void)
+      (do
+        (call_void
+          parser_set_index
+          (param_get parser)
+          (add_i64
+            (call_i64
+              parser_index
+              (param_get parser))
+            (const_i64 1)))
+        (return_void)))
+    (fn
+      parser_match
+      (params
+        (parser ptr)
+        (kind i32))
+      (returns bool)
+      (do
+        (return
+          (eq_i32
+            (call_i32
+              parser_current_kind
+              (param_get parser))
+            (param_get kind)))))
+    (fn
+      parser_expect
+      (params
+        (parser ptr)
+        (kind i32))
+      (returns i32)
+      (do
+        (if
+          (condition
+            (call_bool
+              parser_match
+              (param_get parser)
+              (param_get kind)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (const_i32 0))))
+          (else
+            (do
+              (return
+                (const_i32 1)))))))
+))

@@ -1,0 +1,29 @@
+; parser_entry.wir
+; Top-level parser orchestration.
+; Provides the main parse entry point that coordinates
+; tokenization and AST construction.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      parse
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (if
+          (condition
+            (eq_ptr
+              (param_get parser)
+              (const_null)))
+          (then
+            (do
+              (return
+                (const_i64 -1))))
+          (else
+            (do)))
+        (return
+          (call_i64
+            parser_parse_toplevel
+            (param_get parser)))))))

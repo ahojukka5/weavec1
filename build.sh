@@ -33,10 +33,35 @@ MODULES=(
   runtime_bindings
   strings
   tokens
-  ast
+
+  ast_kinds
+  ast_storage
+  ast_accessors
+  ast_constructors
+
   lexer
-  parser
-  emit_llvm
+
+  parser_state
+  parser_expect
+  parser_types
+  parser_expr
+  parser_stmt
+  parser_decl
+  parser_entry
+
+  emit_context
+  emit_text
+  emit_names
+  emit_types
+  emit_sections
+  emit_strings
+  emit_expr
+  emit_calls
+  emit_stmt
+  emit_control_flow
+  emit_declarations
+  emit_module
+
   driver
   main
 )

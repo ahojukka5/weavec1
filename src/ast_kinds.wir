@@ -1,0 +1,519 @@
+; ast_kinds.wir
+; AST node kind constants, type constants, and operator constants.
+; Defines the vocabulary of the abstract syntax tree used throughout
+; the compiler.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      ast_program
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 1))))
+    (fn
+      ast_extern
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 2))))
+    (fn
+      ast_function
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 3))))
+    (fn
+      ast_param
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 4))))
+    (fn
+      ast_block
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 5))))
+    (fn
+      ast_return
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 6))))
+    (fn
+      ast_return_void
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 7))))
+    (fn
+      ast_if
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 8))))
+    (fn
+      ast_while
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 9))))
+    (fn
+      ast_let
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 10))))
+    (fn
+      ast_set
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 11))))
+    (fn
+      ast_const_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 20))))
+    (fn
+      ast_const_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 21))))
+    (fn
+      ast_const_bool
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 22))))
+    (fn
+      ast_const_null
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 23))))
+    (fn
+      ast_const_string
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 24))))
+    (fn
+      ast_local_get
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 30))))
+    (fn
+      ast_param_get
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 31))))
+    (fn
+      ast_call
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 40))))
+    (fn
+      ast_unary
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 41))))
+    (fn
+      ast_binary
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 42))))
+    (fn
+      ast_store
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 43))))
+    (fn
+      ast_load
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 44))))
+    (fn
+      ast_print
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 45))))
+    (fn
+      ast_arg
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 46))))
+    (fn
+      ast_debug
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 47))))
+    (fn
+      type_void
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 0))))
+    (fn
+      type_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 1))))
+    (fn
+      type_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 2))))
+    (fn
+      type_bool
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 3))))
+    (fn
+      type_ptr
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 4))))
+    (fn
+      op_add_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 1))))
+    (fn
+      op_sub_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 2))))
+    (fn
+      op_mul_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 3))))
+    (fn
+      op_div_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 4))))
+    (fn
+      op_mod_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 5))))
+    (fn
+      op_eq_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 10))))
+    (fn
+      op_ne_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 11))))
+    (fn
+      op_lt_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 12))))
+    (fn
+      op_le_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 13))))
+    (fn
+      op_gt_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 14))))
+    (fn
+      op_ge_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 15))))
+    (fn
+      op_add_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 20))))
+    (fn
+      op_sub_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 21))))
+    (fn
+      op_mul_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 22))))
+    (fn
+      op_div_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 23))))
+    (fn
+      op_eq_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 30))))
+    (fn
+      op_ne_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 31))))
+    (fn
+      op_lt_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 32))))
+    (fn
+      op_le_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 33))))
+    (fn
+      op_gt_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 34))))
+    (fn
+      op_ge_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 35))))
+    (fn
+      op_eq_ptr
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 40))))
+    (fn
+      op_ne_ptr
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 41))))
+    (fn
+      op_and_bool
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 50))))
+    (fn
+      op_or_bool
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 51))))
+    (fn
+      op_not_bool
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 52))))
+    (fn
+      op_ptr_add
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 60))))
+    (fn
+      op_cast_i64_to_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 61))))
+    (fn
+      op_cast_i32_to_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 62))))
+    (fn
+      op_load_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 70))))
+    (fn
+      op_load_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 71))))
+    (fn
+      op_load_ptr
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 72))))
+    (fn
+      op_load_u8
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 73))))
+    (fn
+      op_store_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 80))))
+    (fn
+      op_store_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 81))))
+    (fn
+      op_store_ptr
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 82))))
+    (fn
+      op_store_i8
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 83))))
+    (fn
+      op_call_i32
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 90))))
+    (fn
+      op_call_i64
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 91))))
+    (fn
+      op_call_ptr
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 92))))
+    (fn
+      op_call_bool
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 93))))
+    (fn
+      op_call_void
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 94))))))

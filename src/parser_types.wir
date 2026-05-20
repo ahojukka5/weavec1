@@ -1,0 +1,156 @@
+; parser_types.wir
+; WIR type parsing.
+; Parses type annotations like i32, i64, bool, ptr, and void.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      parser_ident_start
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            parser_current_start
+            (param_get parser)))))
+    (fn
+      parser_ident_length
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (return
+          (call_i64
+            parser_current_length
+            (param_get parser)))))
+    (fn
+      parser_parse_type
+      (params
+        (parser ptr))
+      (returns i32)
+      (do
+        (if
+          (condition
+            (ne_i32
+              (call_i32
+                parser_current_kind
+                (param_get parser))
+              (call_i32 token_ident)))
+          (then
+            (do
+              (return
+                (const_i32 -1))))
+          (else
+            (do)))
+        (let
+          source
+          ptr
+          (call_ptr
+            parser_source
+            (param_get parser)))
+        (let
+          text
+          ptr
+          (ptr_add
+            (call_ptr
+              source_data
+              (local_get source))
+            (call_i64
+              parser_ident_start
+              (param_get parser))))
+        (let
+          length
+          i64
+          (call_i64
+            parser_ident_length
+            (param_get parser)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "void")
+              (const_i64 4)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i32 type_void))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "i32")
+              (const_i64 3)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i32 type_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "i64")
+              (const_i64 3)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i32 type_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "bool")
+              (const_i64 4)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i32 type_bool))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ptr")
+              (const_i64 3)))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (return
+                (call_i32 type_ptr))))
+          (else
+            (do)))
+        (return
+          (const_i32 -1))))
+))

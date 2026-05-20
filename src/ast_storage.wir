@@ -1,0 +1,487 @@
+; ast_storage.wir
+; AST storage management and memory layout.
+; Handles node allocation, growth, field accessors,
+; and low-level node memory operations.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      ast_node_size
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 64))))
+    (fn
+      ast_size
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 24))))
+    (fn
+      ast_initial_capacity
+      (params)
+      (returns i64)
+      (do
+        (return
+          (const_i64 512))))
+    (fn
+      ast_nodes_field
+      (params
+        (ast ptr))
+      (returns ptr)
+      (do
+        (return
+          (param_get ast))))
+    (fn
+      ast_count_field
+      (params
+        (ast ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ast)
+            (const_i64 8)))))
+    (fn
+      ast_capacity_field
+      (params
+        (ast ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ast)
+            (const_i64 16)))))
+    (fn
+      ast_nodes
+      (params
+        (ast ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (call_ptr
+              ast_nodes_field
+              (param_get ast))))))
+    (fn
+      ast_count
+      (params
+        (ast ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ast_count_field
+              (param_get ast))))))
+    (fn
+      ast_capacity
+      (params
+        (ast ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ast_capacity_field
+              (param_get ast))))))
+    (fn
+      ast_set_nodes
+      (params
+        (ast ptr)
+        (nodes ptr))
+      (returns void)
+      (do
+        (store_ptr
+          (call_ptr
+            ast_nodes_field
+            (param_get ast))
+          (param_get nodes))
+        (return_void)))
+    (fn
+      ast_set_count
+      (params
+        (ast ptr)
+        (count i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ast_count_field
+            (param_get ast))
+          (param_get count))
+        (return_void)))
+    (fn
+      ast_set_capacity
+      (params
+        (ast ptr)
+        (capacity i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ast_capacity_field
+            (param_get ast))
+          (param_get capacity))
+        (return_void)))
+    (fn
+      ast_node_at
+      (params
+        (ast ptr)
+        (index i64))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (call_ptr
+              ast_nodes
+              (param_get ast))
+            (mul_i64
+              (param_get index)
+              (call_i64 ast_node_size))))))
+    (fn
+      node_kind_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (param_get node))))
+    (fn
+      node_op_type_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 8)))))
+    (fn
+      node_a_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 16)))))
+    (fn
+      node_b_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 24)))))
+    (fn
+      node_c_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 32)))))
+    (fn
+      node_d_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 40)))))
+    (fn
+      node_text_start_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 48)))))
+    (fn
+      node_text_len_field
+      (params
+        (node ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get node)
+            (const_i64 56)))))
+    (fn
+      ast_new
+      (params)
+      (returns ptr)
+      (do
+        (let
+          ast
+          ptr
+          (call_ptr
+            malloc
+            (call_i64 ast_size)))
+        (if
+          (condition
+            (eq_ptr
+              (local_get ast)
+              (const_null)))
+          (then
+            (do
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (let
+          capacity
+          i64
+          (call_i64 ast_initial_capacity))
+        (let
+          nodes
+          ptr
+          (call_ptr
+            malloc
+            (mul_i64
+              (local_get capacity)
+              (call_i64 ast_node_size))))
+        (if
+          (condition
+            (eq_ptr
+              (local_get nodes)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get ast))
+              (return
+                (const_null))))
+          (else
+            (do)))
+        (call_void
+          ast_set_nodes
+          (local_get ast)
+          (local_get nodes))
+        (call_void
+          ast_set_count
+          (local_get ast)
+          (const_i64 0))
+        (call_void
+          ast_set_capacity
+          (local_get ast)
+          (local_get capacity))
+        (return
+          (local_get ast))))
+    (fn
+      ast_free
+      (params
+        (ast ptr))
+      (returns void)
+      (do
+        (if
+          (condition
+            (eq_ptr
+              (param_get ast)
+              (const_null)))
+          (then
+            (do
+              (return_void)))
+          (else
+            (do)))
+        (let
+          nodes
+          ptr
+          (call_ptr
+            ast_nodes
+            (param_get ast)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get nodes)
+              (const_null)))
+          (then
+            (do
+              (call_void
+                free
+                (local_get nodes))))
+          (else
+            (do)))
+        (call_void
+          free
+          (param_get ast))
+        (return_void)))
+    (fn
+      ast_reserve
+      (params
+        (ast ptr)
+        (needed i64))
+      (returns i32)
+      (do
+        (let
+          capacity
+          i64
+          (call_i64
+            ast_capacity
+            (param_get ast)))
+        (if
+          (condition
+            (le_i64
+              (param_get needed)
+              (local_get capacity)))
+          (then
+            (do
+              (return
+                (const_i32 0))))
+          (else
+            (do)))
+        (let
+          new_capacity
+          i64
+          (local_get capacity))
+        (while
+          (condition
+            (lt_i64
+              (local_get new_capacity)
+              (param_get needed)))
+          (do
+            (set
+              new_capacity
+              (mul_i64
+                (local_get new_capacity)
+                (const_i64 2)))))
+        (let
+          new_nodes
+          ptr
+          (call_ptr
+            realloc
+            (call_ptr
+              ast_nodes
+              (param_get ast))
+            (mul_i64
+              (local_get new_capacity)
+              (call_i64 ast_node_size))))
+        (if
+          (condition
+            (eq_ptr
+              (local_get new_nodes)
+              (const_null)))
+          (then
+            (do
+              (return
+                (const_i32 1))))
+          (else
+            (do)))
+        (call_void
+          ast_set_nodes
+          (param_get ast)
+          (local_get new_nodes))
+        (call_void
+          ast_set_capacity
+          (param_get ast)
+          (local_get new_capacity))
+        (return
+          (const_i32 0))))
+    (fn
+      ast_push
+      (params
+        (ast ptr)
+        (kind i32)
+        (op_or_type i64)
+        (a i64)
+        (b i64)
+        (c i64)
+        (d i64)
+        (text_start i64)
+        (text_len i64))
+      (returns i64)
+      (do
+        (let
+          count
+          i64
+          (call_i64
+            ast_count
+            (param_get ast)))
+        (let
+          needed
+          i64
+          (add_i64
+            (local_get count)
+            (const_i64 1)))
+        (if
+          (condition
+            (ne_i32
+              (call_i32
+                ast_reserve
+                (param_get ast)
+                (local_get needed))
+              (const_i32 0)))
+          (then
+            (do
+              (return
+                (const_i64 -1))))
+          (else
+            (do)))
+        (let
+          node
+          ptr
+          (call_ptr
+            ast_node_at
+            (param_get ast)
+            (local_get count)))
+        (store_i32
+          (call_ptr
+            node_kind_field
+            (local_get node))
+          (param_get kind))
+        (store_i64
+          (call_ptr
+            node_op_type_field
+            (local_get node))
+          (param_get op_or_type))
+        (store_i64
+          (call_ptr
+            node_a_field
+            (local_get node))
+          (param_get a))
+        (store_i64
+          (call_ptr
+            node_b_field
+            (local_get node))
+          (param_get b))
+        (store_i64
+          (call_ptr
+            node_c_field
+            (local_get node))
+          (param_get c))
+        (store_i64
+          (call_ptr
+            node_d_field
+            (local_get node))
+          (param_get d))
+        (store_i64
+          (call_ptr
+            node_text_start_field
+            (local_get node))
+          (param_get text_start))
+        (store_i64
+          (call_ptr
+            node_text_len_field
+            (local_get node))
+          (param_get text_len))
+        (call_void
+          ast_set_count
+          (param_get ast)
+          (local_get needed))
+        (return
+          (local_get count))))
+))

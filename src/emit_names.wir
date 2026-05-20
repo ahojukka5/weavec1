@@ -1,0 +1,109 @@
+; emit_names.wir
+; SSA temporary naming and label generation.
+; Manages unique names for LLVM values, labels, and strings.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn
+      emit_temp_name
+      (params
+        (ctx ptr)
+        (id i64))
+      (returns i32)
+      (do
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "%t"))
+        (return
+          (call_i32
+            emit_i64_as_i32
+            (param_get ctx)
+            (param_get id)))))
+    (fn
+      emit_indent
+      (params
+        (ctx ptr))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            emit_cstr
+            (param_get ctx)
+            (const_string_ptr "  ")))))
+    (fn
+      emit_temp_def_name
+      (params
+        (ctx ptr)
+        (id i64))
+      (returns i32)
+      (do
+        (call_i32
+          emit_indent
+          (param_get ctx))
+        (return
+          (call_i32
+            emit_temp_name
+            (param_get ctx)
+            (param_get id)))))
+    (fn
+      emit_comment
+      (params
+        (ctx ptr)
+        (text ptr))
+      (returns i32)
+      (do
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "  ; "))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (param_get text))
+        (return
+          (call_i32
+            emit_newline
+            (param_get ctx)))))
+    (fn
+      next_temp
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (let
+          old
+          i64
+          (call_i64
+            ctx_temp_counter
+            (param_get ctx)))
+        (call_void
+          ctx_set_temp_counter
+          (param_get ctx)
+          (add_i64
+            (local_get old)
+            (const_i64 1)))
+        (return
+          (local_get old))))
+    (fn
+      next_label
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (let
+          old
+          i64
+          (call_i64
+            ctx_label_counter
+            (param_get ctx)))
+        (call_void
+          ctx_set_label_counter
+          (param_get ctx)
+          (add_i64
+            (local_get old)
+            (const_i64 1)))
+        (return
+          (local_get old))))
+))
