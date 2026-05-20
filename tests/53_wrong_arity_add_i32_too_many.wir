@@ -6,7 +6,11 @@
       (returns i32)
       (do
         (return
-          (const_i32 0)
+          (add_i32
+            (const_i32 10)
+            (const_i32 20)
+            (const_i32 12)
+          ) ;; add_i32
         ) ;; return
       ) ;; do
     ) ;; fn

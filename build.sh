@@ -195,6 +195,7 @@ run_case() {
   local src="$TEST_DIR/${name}.wir"
   local expected_ll="$TEST_DIR/${name}.expected.ll"
   local ll="$test_ll_dir/${name}.ll"
+  local bc="$test_ll_dir/${name}.bc"
   local exe="$test_exe_dir/${name}.out"
 
   [[ -f "$src" ]] || fail "missing test source: $src"
@@ -203,6 +204,9 @@ run_case() {
   log "compile test $name"
   "$compiler" "$src" "$ll"
   [[ -s "$ll" ]] || fail "$compiler_name produced empty LLVM IR for $name"
+
+  log "llvm-as test $name"
+  llvm-as "$ll" -o "$bc"
 
   log "clang test $name"
   clang "$ll" -o "$exe"
@@ -233,6 +237,7 @@ run_compile_fail_case() {
   local compiler_name="$2"
   local test_ll_dir="$3"
   local name="$4"
+  local expected_message="$5"
 
   local src="$TEST_DIR/${name}.wir"
   local ll="$test_ll_dir/${name}.ll"
@@ -241,6 +246,7 @@ run_compile_fail_case() {
   [[ -f "$src" ]] || fail "missing test source: $src"
 
   log "compile-fail test $name"
+  rm -f "$ll" "$output"
   set +e
   "$compiler" "$src" "$ll" >"$output" 2>&1
   local compile_status=$?
@@ -253,11 +259,18 @@ run_compile_fail_case() {
     fail "$name: expected $compiler_name compiler failure, got success"
   fi
 
-  if ! grep -q "parse failed" "$output"; then
+  if [[ -s "$ll" ]]; then
+    printf '\n--- unexpected generated LLVM IR: %s ---\n' "$ll" >&2
+    sed -n '1,120p' "$ll" >&2 || true
+    printf '\n' >&2
+    fail "$name: compiler failure still produced non-empty LLVM IR"
+  fi
+
+  if ! grep -q "$expected_message" "$output"; then
     printf '\n--- compiler output: %s ---\n' "$output" >&2
     sed -n '1,120p' "$output" >&2 || true
     printf '\n' >&2
-    fail "$name: expected parse error diagnostic"
+    fail "$name: expected diagnostic containing: $expected_message"
   fi
 
   log "ok $name"
@@ -320,13 +333,17 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "47_multiple_externs_used_subset" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "48_string_escape" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "49_negative_i32_literal" 42
-  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "50_parse_error_smoke"
+  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "50_parse_error_smoke" "parse failed"
+  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "51_unknown_operator" "unknown operator"
+  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "52_wrong_arity_add_i32_too_few" "arity"
+  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "53_wrong_arity_add_i32_too_many" "arity"
 
   log "all $compiler_name tests passed"
 }
 
 main() {
   require_tool clang
+  require_tool llvm-as
   build_weavec0
   build_weavec1
   run_tests "$WEAVEC1" "weavec1" "$TEST_LL_DIR" "$TEST_EXE_DIR"
