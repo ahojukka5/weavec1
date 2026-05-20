@@ -383,6 +383,88 @@
         (return
           (call_i32 type_i32))))
 
+    (fn emit_lookup_param_type
+      (params
+        (ctx ptr)
+        (name_node i64))
+      (returns i32)
+      (body
+        (let ast ptr
+          (call_ptr ctx_ast
+            (param_get ctx)))
+
+        (let source ptr
+          (call_ptr ctx_source
+            (param_get ctx)))
+
+        (let name_start i64
+          (call_i64 ast_text_start_at
+            (local_get ast)
+            (param_get name_node)))
+
+        (let name_len i64
+          (call_i64 ast_text_len_at
+            (local_get ast)
+            (param_get name_node)))
+
+        (let name_text ptr
+          (ptr_add
+            (call_ptr source_data
+              (local_get source))
+            (local_get name_start)))
+
+        (let i i64
+          (const_i64 0))
+
+        (let node_count i64
+          (call_i64 ast_count
+            (local_get ast)))
+
+        (while
+          (lt_i64
+            (local_get i)
+            (local_get node_count))
+          (body
+            (block
+              (if
+                (eq_i32
+                  (call_i32 ast_kind_at
+                    (local_get ast)
+                    (local_get i))
+                  (call_i32 ast_param))
+                (then
+                  (if
+                    (call_bool bytes_equal
+                      (local_get name_text)
+                      (local_get name_len)
+                      (ptr_add
+                        (call_ptr source_data
+                          (local_get source))
+                        (call_i64 ast_text_start_at
+                          (local_get ast)
+                          (local_get i)))
+                      (call_i64 ast_text_len_at
+                        (local_get ast)
+                        (local_get i)))
+                    (then
+                      (return
+                        (cast_i64_to_i32
+                          (call_i64 ast_op_type_at
+                            (local_get ast)
+                            (local_get i)))))
+                    (else
+                      (block))))
+                (else
+                  (block)))
+
+              (set i
+                (add_i64
+                  (local_get i)
+                  (const_i64 1))))))
+
+        (return
+          (call_i32 type_i32))))
+
     (fn emit_is_block_member
       (params
         (ast ptr)
@@ -1313,12 +1395,37 @@
           (call_i64 next_temp
             (param_get ctx)))
 
+        (let value_type i32
+          (call_i32 emit_lookup_param_type
+            (param_get ctx)
+            (param_get node)))
+
         (call_i32 emit_temp_name (param_get ctx) (local_get temp))
-        (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = add i32 0, %"))
-        (call_i32 emit_source_slice
-          (param_get ctx)
-          (call_i64 ast_text_start_at (local_get ast) (param_get node))
-          (call_i64 ast_text_len_at (local_get ast) (param_get node)))
+        (if
+          (eq_i32 (local_get value_type) (call_i32 type_ptr))
+          (then
+            (block
+              (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = getelementptr i8, ptr %"))
+              (call_i32 emit_source_slice
+                (param_get ctx)
+                (call_i64 ast_text_start_at (local_get ast) (param_get node))
+                (call_i64 ast_text_len_at (local_get ast) (param_get node)))
+              (call_i32 emit_cstr (param_get ctx) (const_string_ptr ", i64 0"))))
+          (else
+            (block
+              (if
+                (eq_i32 (local_get value_type) (call_i32 type_bool))
+                (then
+                  (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = xor i1 false, %")))
+                (else
+                  (block
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = add "))
+                    (call_i32 emit_type (param_get ctx) (local_get value_type))
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr " 0, %")))))
+              (call_i32 emit_source_slice
+                (param_get ctx)
+                (call_i64 ast_text_start_at (local_get ast) (param_get node))
+                (call_i64 ast_text_len_at (local_get ast) (param_get node))))))
         (call_i32 emit_newline (param_get ctx))
 
         (return
