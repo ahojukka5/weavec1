@@ -193,10 +193,12 @@ run_case() {
   local expected_exit="$6"
 
   local src="$TEST_DIR/${name}.wir"
+  local expected_ll="$TEST_DIR/${name}.expected.ll"
   local ll="$test_ll_dir/${name}.ll"
   local exe="$test_exe_dir/${name}.out"
 
   [[ -f "$src" ]] || fail "missing test source: $src"
+  [[ -f "$expected_ll" ]] || fail "missing expected LLVM IR: $expected_ll"
 
   log "compile test $name"
   "$compiler" "$src" "$ll"
@@ -216,6 +218,11 @@ run_case() {
     sed -n '1,220p' "$ll" >&2 || true
     printf '\n' >&2
     fail "$name: expected exit $expected_exit, got $actual_exit"
+  fi
+
+  log "compare test $name"
+  if ! diff -u "$expected_ll" "$ll"; then
+    fail "$name: generated LLVM IR differs from expected fixture"
   fi
 
   log "ok $name"
@@ -263,6 +270,12 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "32_codegen_join_and_i64_arg" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "33_store_i8_temp" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "34_ge_i32" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "35_sub_i32" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "36_mul_i32" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "37_div_i32" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "38_i32_comparisons_full" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "39_i64_ge_gt" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "40_call_bool_direct" 42
 
   log "all $compiler_name tests passed"
 }

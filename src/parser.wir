@@ -644,6 +644,34 @@
               bytes_equal
               (local_get text)
               (local_get length)
+              (const_string_ptr "gt_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_gt_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "ge_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_ge_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
               (const_string_ptr "ne_i64")
               (const_i64 6)))
           (then
@@ -2624,6 +2652,30 @@
             (eq_i32
               (local_get op_id)
               (call_i32 op_le_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_gt_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_ge_i64)))
           (then
             (do
               (set
