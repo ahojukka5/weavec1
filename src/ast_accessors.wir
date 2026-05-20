@@ -1,12 +1,34 @@
 ; ast_accessors.wir
+;
 ; AST node field accessor functions.
-; Provides high-level access to node properties like kind,
-; operator/type, child references, and text spans.
+;
+; Responsibilities:
+;   - expose typed reads from the fixed AST node layout
+;   - keep emitter and parser code independent of byte offsets
+;   - centralize node field naming for auditability
+;
+; Callers are responsible for passing a valid AST pointer and node index.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; AST field reads
+; =============================================================================
+
+; ast_kind_at
+;
+; Reads the `kind` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   integer constant or field value.
+
+(fn
       ast_kind_at
       (params
         (ast ptr)
@@ -21,7 +43,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_op_type_at
+;
+; Reads the `op_type` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_op_type_at
       (params
         (ast ptr)
@@ -36,7 +70,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_a_at
+;
+; Reads the `a` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_a_at
       (params
         (ast ptr)
@@ -51,7 +97,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_b_at
+;
+; Reads the `b` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_b_at
       (params
         (ast ptr)
@@ -66,7 +124,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_c_at
+;
+; Reads the `c` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_c_at
       (params
         (ast ptr)
@@ -81,7 +151,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_d_at
+;
+; Reads the `d` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_d_at
       (params
         (ast ptr)
@@ -96,7 +178,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_text_start_at
+;
+; Reads the `text_start` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_text_start_at
       (params
         (ast ptr)
@@ -111,7 +205,19 @@
                 ast_node_at
                 (param_get ast)
                 (param_get index)))))))
-    (fn
+
+; ast_text_len_at
+;
+; Reads the `text_len` field from a node in AST storage.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       ast_text_len_at
       (params
         (ast ptr)

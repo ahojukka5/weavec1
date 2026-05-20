@@ -1,19 +1,55 @@
 ; parser_state.wir
-; Parser state management and accessors.
-; Handles parser allocation, token cursor navigation,
-; and error state tracking.
+;
+; Parser state storage.
+;
+; Responsibilities:
+;   - allocate and free parser records
+;   - store source, token stream, AST, cursor index, and error code
+;   - expose typed field accessors for parser modules
+;
+; Parser state uses a manual fixed-layout record to keep bootstrapping simple.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Parser layout constants
+; =============================================================================
+
+; parser_size
+;
+; Provides parser behavior for size.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       parser_size
       (params)
       (returns i64)
       (do
         (return
           (const_i64 40))))
-    (fn
+
+; =============================================================================
+; Parser allocation
+; =============================================================================
+
+; parser_new
+;
+; Provides parser behavior for new.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   tokens - Token stream pointer.
+;
+;   ast - AST container pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       parser_new
       (params
         (source ptr)
@@ -63,7 +99,18 @@
           (const_i32 0))
         (return
           (local_get parser))))
-    (fn
+
+; parser_free
+;
+; Provides parser behavior for free.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   no value.
+
+(fn
       parser_free
       (params
         (parser ptr))
@@ -82,7 +129,23 @@
           (else
             (do)))
         (return_void)))
-    (fn
+
+; =============================================================================
+; Parser accessors
+; =============================================================================
+
+; parser_source
+;
+; Provides parser behavior for source.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       parser_source
       (params
         (parser ptr))
@@ -91,7 +154,19 @@
         (return
           (load_ptr
             (param_get parser)))))
-    (fn
+
+; parser_tokens
+;
+; Provides parser behavior for tokens.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       parser_tokens
       (params
         (parser ptr))
@@ -102,7 +177,19 @@
             (ptr_add
               (param_get parser)
               (const_i64 8))))))
-    (fn
+
+; parser_ast
+;
+; Provides parser behavior for ast.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       parser_ast
       (params
         (parser ptr))
@@ -113,7 +200,18 @@
             (ptr_add
               (param_get parser)
               (const_i64 16))))))
-    (fn
+
+; parser_index
+;
+; Provides parser behavior for index.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       parser_index
       (params
         (parser ptr))
@@ -124,7 +222,23 @@
             (ptr_add
               (param_get parser)
               (const_i64 24))))))
-    (fn
+
+; =============================================================================
+; Parser mutators
+; =============================================================================
+
+; parser_set_index
+;
+; Provides parser behavior for set index.
+;
+; Parameters:
+;   parser - Parser state pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   no value.
+
+(fn
       parser_set_index
       (params
         (parser ptr)
@@ -137,7 +251,18 @@
             (const_i64 24))
           (param_get index))
         (return_void)))
-    (fn
+
+; parser_error_code
+;
+; Provides parser behavior for error code.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       parser_error_code
       (params
         (parser ptr))
@@ -148,7 +273,19 @@
             (ptr_add
               (param_get parser)
               (const_i64 32))))))
-    (fn
+
+; parser_set_error_code
+;
+; Provides parser behavior for set error code.
+;
+; Parameters:
+;   parser - Parser state pointer.
+;
+;   code - Parser error code.
+; Returns:
+;   no value.
+
+(fn
       parser_set_error_code
       (params
         (parser ptr)

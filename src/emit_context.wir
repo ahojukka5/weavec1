@@ -1,33 +1,85 @@
 ; emit_context.wir
-; LLVM emission context state management.
-; Tracks source, AST, output buffer, counters for temporaries,
-; labels, strings, and function-local state (params, locals, return type).
+;
+; LLVM emission context storage.
+;
+; Responsibilities:
+;   - define the mutable state carried through emission
+;   - manage counters for temporary, label, and string names
+;   - store local and parameter binding tables
+;   - keep source, AST, and output buffers available to emitters
+;
+; The context is intentionally a manual fixed-layout record for bootstrap
+; transparency and simple self-hosted code generation.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Context layout constants
+; =============================================================================
+
+; emit_context_size
+;
+; Emits or computes LLVM output for context size.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       emit_context_size
       (params)
       (returns i64)
       (do
         (return
           (const_i64 88))))
-    (fn
+
+; emit_binding_size
+;
+; Emits or computes LLVM output for binding size.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       emit_binding_size
       (params)
       (returns i64)
       (do
         (return
           (const_i64 24))))
-    (fn
+
+; emit_max_bindings
+;
+; Emits or computes LLVM output for max bindings.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       emit_max_bindings
       (params)
       (returns i64)
       (do
         (return
           (const_i64 256))))
-    (fn
+
+; =============================================================================
+; Context field address accessors
+; =============================================================================
+
+; ctx_source_field
+;
+; Returns the address of the `source` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_source_field
       (params
         (ctx ptr))
@@ -35,7 +87,19 @@
       (do
         (return
           (param_get ctx))))
-    (fn
+
+; ctx_ast_field
+;
+; Returns the address of the `ast` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_ast_field
       (params
         (ctx ptr))
@@ -45,7 +109,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 8)))))
-    (fn
+
+; ctx_output_field
+;
+; Returns the address of the `output` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_output_field
       (params
         (ctx ptr))
@@ -55,7 +131,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 16)))))
-    (fn
+
+; ctx_temp_field
+;
+; Returns the address of the `temp` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_temp_field
       (params
         (ctx ptr))
@@ -65,7 +153,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 24)))))
-    (fn
+
+; ctx_label_field
+;
+; Returns the address of the `label` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_label_field
       (params
         (ctx ptr))
@@ -75,7 +175,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 32)))))
-    (fn
+
+; ctx_string_field
+;
+; Returns the address of the `string` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_string_field
       (params
         (ctx ptr))
@@ -85,7 +197,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 40)))))
-    (fn
+
+; ctx_locals_field
+;
+; Returns the address of the `locals` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_locals_field
       (params
         (ctx ptr))
@@ -95,7 +219,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 48)))))
-    (fn
+
+; ctx_local_count_field
+;
+; Returns the address of the `local_count` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_local_count_field
       (params
         (ctx ptr))
@@ -105,7 +241,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 56)))))
-    (fn
+
+; ctx_params_field
+;
+; Returns the address of the `params` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_params_field
       (params
         (ctx ptr))
@@ -115,7 +263,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 64)))))
-    (fn
+
+; ctx_param_count_field
+;
+; Returns the address of the `param_count` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_param_count_field
       (params
         (ctx ptr))
@@ -125,7 +285,19 @@
           (ptr_add
             (param_get ctx)
             (const_i64 72)))))
-    (fn
+
+; ctx_return_type_field
+;
+; Returns the address of the `return_type` field inside an emission context.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_return_type_field
       (params
         (ctx ptr))
@@ -135,7 +307,23 @@
           (ptr_add
             (param_get ctx)
             (const_i64 80)))))
-    (fn
+
+; =============================================================================
+; Context value accessors
+; =============================================================================
+
+; ctx_source
+;
+; Reads the emission context `source` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_source
       (params
         (ctx ptr))
@@ -146,7 +334,19 @@
             (call_ptr
               ctx_source_field
               (param_get ctx))))))
-    (fn
+
+; ctx_ast
+;
+; Reads the emission context `ast` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_ast
       (params
         (ctx ptr))
@@ -157,7 +357,19 @@
             (call_ptr
               ctx_ast_field
               (param_get ctx))))))
-    (fn
+
+; ctx_output
+;
+; Reads the emission context `output` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_output
       (params
         (ctx ptr))
@@ -168,7 +380,18 @@
             (call_ptr
               ctx_output_field
               (param_get ctx))))))
-    (fn
+
+; ctx_temp_counter
+;
+; Reads the emission context `temp_counter` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       ctx_temp_counter
       (params
         (ctx ptr))
@@ -179,7 +402,18 @@
             (call_ptr
               ctx_temp_field
               (param_get ctx))))))
-    (fn
+
+; ctx_label_counter
+;
+; Reads the emission context `label_counter` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       ctx_label_counter
       (params
         (ctx ptr))
@@ -190,7 +424,18 @@
             (call_ptr
               ctx_label_field
               (param_get ctx))))))
-    (fn
+
+; ctx_string_counter
+;
+; Reads the emission context `string_counter` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       ctx_string_counter
       (params
         (ctx ptr))
@@ -201,7 +446,19 @@
             (call_ptr
               ctx_string_field
               (param_get ctx))))))
-    (fn
+
+; ctx_locals
+;
+; Reads the emission context `locals` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_locals
       (params
         (ctx ptr))
@@ -212,7 +469,18 @@
             (call_ptr
               ctx_locals_field
               (param_get ctx))))))
-    (fn
+
+; ctx_local_count
+;
+; Reads the emission context `local_count` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       ctx_local_count
       (params
         (ctx ptr))
@@ -223,7 +491,19 @@
             (call_ptr
               ctx_local_count_field
               (param_get ctx))))))
-    (fn
+
+; ctx_params
+;
+; Reads the emission context `params` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       ctx_params
       (params
         (ctx ptr))
@@ -234,7 +514,18 @@
             (call_ptr
               ctx_params_field
               (param_get ctx))))))
-    (fn
+
+; ctx_param_count
+;
+; Reads the emission context `param_count` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       ctx_param_count
       (params
         (ctx ptr))
@@ -245,7 +536,18 @@
             (call_ptr
               ctx_param_count_field
               (param_get ctx))))))
-    (fn
+
+; ctx_return_type
+;
+; Reads the emission context `return_type` field.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       ctx_return_type
       (params
         (ctx ptr))
@@ -257,7 +559,23 @@
               (call_ptr
                 ctx_return_type_field
                 (param_get ctx)))))))
-    (fn
+
+; =============================================================================
+; Context mutators
+; =============================================================================
+
+; ctx_set_source
+;
+; Stores a new value in the emission context `source` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_source
       (params
         (ctx ptr)
@@ -270,7 +588,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_ast
+;
+; Stores a new value in the emission context `ast` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_ast
       (params
         (ctx ptr)
@@ -283,7 +613,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_output
+;
+; Stores a new value in the emission context `output` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_output
       (params
         (ctx ptr)
@@ -296,7 +638,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_temp_counter
+;
+; Stores a new value in the emission context `temp_counter` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_temp_counter
       (params
         (ctx ptr)
@@ -309,7 +663,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_label_counter
+;
+; Stores a new value in the emission context `label_counter` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_label_counter
       (params
         (ctx ptr)
@@ -322,7 +688,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_string_counter
+;
+; Stores a new value in the emission context `string_counter` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_string_counter
       (params
         (ctx ptr)
@@ -335,7 +713,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_locals
+;
+; Stores a new value in the emission context `locals` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_locals
       (params
         (ctx ptr)
@@ -348,7 +738,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_local_count
+;
+; Stores a new value in the emission context `local_count` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_local_count
       (params
         (ctx ptr)
@@ -361,7 +763,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_params
+;
+; Stores a new value in the emission context `params` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_params
       (params
         (ctx ptr)
@@ -374,7 +788,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_param_count
+;
+; Stores a new value in the emission context `param_count` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_param_count
       (params
         (ctx ptr)
@@ -387,7 +813,19 @@
             (param_get ctx))
           (param_get v))
         (return_void)))
-    (fn
+
+; ctx_set_return_type
+;
+; Stores a new value in the emission context `return_type` field.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   v - Value to store.
+; Returns:
+;   no value.
+
+(fn
       ctx_set_return_type
       (params
         (ctx ptr)
@@ -401,7 +839,25 @@
           (cast_i32_to_i64
             (param_get v)))
         (return_void)))
-    (fn
+
+; =============================================================================
+; Context allocation
+; =============================================================================
+
+; emit_context_new
+;
+; Emits or computes LLVM output for context new.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   ast - AST container pointer.
+;
+;   output - Output buffer pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       emit_context_new
       (params
         (source ptr)
@@ -519,7 +975,18 @@
           (call_i32 type_i32))
         (return
           (local_get ctx))))
-    (fn
+
+; emit_context_free
+;
+; Emits or computes LLVM output for context free.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   no value.
+
+(fn
       emit_context_free
       (params
         (ctx ptr))

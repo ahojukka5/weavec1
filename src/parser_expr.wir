@@ -1,12 +1,39 @@
 ; parser_expr.wir
+;
 ; WIR expression parsing.
-; Handles operator lookup, expression parsing, and condition slots.
-; Parses constants, arithmetic, comparisons, calls, loads, and more.
+;
+; Responsibilities:
+;   - look up operator identifiers
+;   - parse expression subtrees
+;   - parse constants, calls, comparisons, arithmetic, and pointer operations
+;   - parse condition slots used by control-flow forms
+;
+; This module intentionally focuses only on expression-level syntax. Statement
+; and declaration parsing are handled elsewhere.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Operator lookup
+; =============================================================================
+
+; parser_lookup_op
+;
+; Looks up the WIR operator named by the parser's current identifier token.
+;
+; Notes:
+;   This is intentionally implemented as a linear comparison chain. The bootstrap
+;   compiler prioritizes explicitness and auditability over compact dispatch tables.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       parser_lookup_op
       (params
         (parser ptr))
@@ -610,7 +637,27 @@
             (do)))
         (return
           (const_i32 -1))))
-    (fn
+
+; =============================================================================
+; Expression entry points
+; =============================================================================
+
+; parser_parse_expression
+;
+; Parses one WIR expression subtree and appends the corresponding AST node.
+;
+; Invariants:
+;   - parser must point at the first token of an expression form or literal.
+;   - returned node indices refer to nodes in parser_ast(parser).
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       parser_parse_expression
       (params
         (parser ptr))
@@ -730,7 +777,27 @@
             (do)))
         (return
           (const_i64 -1))))
-    (fn
+
+; =============================================================================
+; Condition slot parsing
+; =============================================================================
+
+; parser_parse_condition_slot
+;
+; Parses a (condition ...) wrapper and returns the contained expression node.
+;
+; Invariants:
+;   - the current token must start the condition slot syntax.
+;   - the returned node is emitted by the surrounding control-flow helper.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       parser_parse_condition_slot
       (params
         (parser ptr))

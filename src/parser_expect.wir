@@ -1,12 +1,33 @@
 ; parser_expect.wir
-; Parser token matching and expectation helpers.
-; Provides utilities for checking current tokens,
-; advancing the parser, and handling parse errors.
+;
+; Parser token cursor helpers.
+;
+; Responsibilities:
+;   - expose the current token kind and source span
+;   - advance or conditionally match tokens
+;   - record parse errors when expected tokens are missing
+;
+; These helpers keep syntax routines concise and make error contracts uniform.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Token cursor reads
+; =============================================================================
+
+; parser_current_kind
+;
+; Reads the current token kind from parser state.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       parser_current_kind
       (params
         (parser ptr))
@@ -21,7 +42,18 @@
             (call_i64
               parser_index
               (param_get parser))))))
-    (fn
+
+; parser_current_start
+;
+; Reads the current token start from parser state.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       parser_current_start
       (params
         (parser ptr))
@@ -36,7 +68,18 @@
             (call_i64
               parser_index
               (param_get parser))))))
-    (fn
+
+; parser_current_length
+;
+; Reads the current token length from parser state.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       parser_current_length
       (params
         (parser ptr))
@@ -51,7 +94,22 @@
             (call_i64
               parser_index
               (param_get parser))))))
-    (fn
+
+; =============================================================================
+; Token cursor movement
+; =============================================================================
+
+; parser_advance
+;
+; Provides parser behavior for advance.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   no value.
+
+(fn
       parser_advance
       (params
         (parser ptr))
@@ -66,7 +124,24 @@
               (param_get parser))
             (const_i64 1)))
         (return_void)))
-    (fn
+
+; =============================================================================
+; Expectation helpers
+; =============================================================================
+
+; parser_match
+;
+; Provides parser behavior for match.
+;
+; Parameters:
+;   parser - Parser state pointer.
+;
+;   kind - Integer kind id.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       parser_match
       (params
         (parser ptr)
@@ -79,7 +154,20 @@
               parser_current_kind
               (param_get parser))
             (param_get kind)))))
-    (fn
+
+; parser_expect
+;
+; Provides parser behavior for expect.
+;
+; Parameters:
+;   parser - Parser state pointer.
+;
+;   kind - Integer kind id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       parser_expect
       (params
         (parser ptr)

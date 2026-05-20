@@ -1,11 +1,36 @@
 ; emit_declarations.wir
-; Local variable and function declaration emission.
-; Handles let, set, return statements, and function definitions.
+;
+; LLVM emission for declarations and local state changes.
+;
+; Responsibilities:
+;   - emit local allocation and assignment statements
+;   - emit return instructions
+;   - emit complete LLVM function definitions
+;   - populate parameter/local bindings used by expression emission
+;
+; This module connects statement-level AST nodes to function-level LLVM output.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Local declaration emission
+; =============================================================================
+
+; emit_let_stmt
+;
+; Emits or computes LLVM output for let stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_let_stmt
       (params
         (ctx ptr)
@@ -154,7 +179,24 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Local assignment emission
+; =============================================================================
+
+; emit_set_stmt
+;
+; Emits or computes LLVM output for set stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_set_stmt
       (params
         (ctx ptr)
@@ -257,7 +299,24 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Return emission
+; =============================================================================
+
+; emit_return_stmt
+;
+; Emits or computes LLVM output for return stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_return_stmt
       (params
         (ctx ptr)
@@ -360,7 +419,24 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Function emission
+; =============================================================================
+
+; emit_function
+;
+; Emits or computes LLVM output for function.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_function
       (params
         (ctx ptr)

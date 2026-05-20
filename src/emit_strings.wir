@@ -1,12 +1,36 @@
 ; emit_strings.wir
-; String literal collection and emission.
-; Handles string constant scanning, escape sequences,
-; and global string constant generation.
+;
+; LLVM string literal emission.
+;
+; Responsibilities:
+;   - assign deterministic string global names
+;   - decode WIR string escape sequences
+;   - emit LLVM byte arrays and string contents
+;   - emit all string globals referenced by the AST
+;
+; Escape handling is explicit to keep bootstrap behavior visible.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; String global names
+; =============================================================================
+
+; emit_string_global
+;
+; Emits or computes LLVM output for string global.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_string_global
       (params
         (ctx ptr)
@@ -66,7 +90,23 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; String decoding
+; =============================================================================
+
+; emit_string_decoded_length
+;
+; Emits or computes LLVM output for string decoded length.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_string_decoded_length
       (params
         (ctx ptr)
@@ -150,7 +190,21 @@
                 (const_i64 1)))))
         (return
           (local_get length))))
-    (fn
+
+; emit_escape_2
+;
+; Emits or computes LLVM output for escape 2.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   a - First AST payload field.
+;
+;   b - Second AST payload field.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_escape_2
       (params
         (ctx ptr)
@@ -191,7 +245,20 @@
             emit_byte
             (param_get ctx)
             (param_get b)))))
-    (fn
+
+; emit_string_byte
+;
+; Emits or computes LLVM output for string byte.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   byte - Byte value.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_string_byte
       (params
         (ctx ptr)
@@ -263,7 +330,20 @@
             emit_byte
             (param_get ctx)
             (param_get byte)))))
-    (fn
+
+; emit_string_escape
+;
+; Emits or computes LLVM output for string escape.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   byte - Byte value.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_string_escape
       (params
         (ctx ptr)
@@ -305,7 +385,20 @@
             emit_string_byte
             (param_get ctx)
             (param_get byte)))))
-    (fn
+
+; emit_string_contents
+;
+; Emits or computes LLVM output for string contents.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_string_contents
       (params
         (ctx ptr)
@@ -417,7 +510,23 @@
                       (const_i64 1))))))))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; String global emission
+; =============================================================================
+
+; emit_string_globals
+;
+; Emits or computes LLVM output for string globals.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_string_globals
       (params
         (ctx ptr))

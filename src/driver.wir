@@ -1,7 +1,35 @@
+; driver.wir
+;
+; Compiler driver orchestration.
+;
+; Responsibilities:
+;   - load source text when compiling files
+;   - create parser and output buffers
+;   - run parse and LLVM emission phases in order
+;   - expose file, buffer, and string compilation entry points
+;
+; This module owns phase sequencing, not parsing or emission details.
+
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Driver entry points
+; =============================================================================
+
+; driver_error
+;
+; Implements driver error for the weavec1 bootstrap compiler.
+;
+;
+; Parameters:
+;   message - Message string pointer or source offset.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       driver_error
       (params
         (message ptr))
@@ -12,7 +40,22 @@
           (param_get message))
         (return
           (const_i32 1))))
-    (fn
+
+; compile_buffer_to_buffer
+;
+; Runs the compiler pipeline for buffer to buffer.
+;
+; Parameters:
+;   source_data - ptr parameter.
+;   source_length_value - i64 parameter.
+;   source_path - ptr parameter.
+;
+;   output - Output buffer pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       compile_buffer_to_buffer
       (params
         (source_data ptr)
@@ -257,7 +300,20 @@
           (local_get source))
         (return
           (local_get emit_status))))
-    (fn
+
+; compile_file
+;
+; Runs the compiler pipeline for file.
+;
+; Parameters:
+;   input_path - Input path pointer.
+;
+;   output_path - Output path pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       compile_file
       (params
         (input_path ptr)
@@ -269,7 +325,20 @@
             compile_file_self_hosted
             (param_get input_path)
             (param_get output_path)))))
-    (fn
+
+; compile_file_self_hosted
+;
+; Runs the compiler pipeline for file self hosted.
+;
+; Parameters:
+;   input_path - Input path pointer.
+;
+;   output_path - Output path pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       compile_file_self_hosted
       (params
         (input_path ptr)
@@ -428,7 +497,19 @@
           (local_get source_data))
         (return
           (const_i32 0))))
-    (fn
+
+; compile_string
+;
+; Runs the compiler pipeline for string.
+;
+;
+; Parameters:
+;   source_text - Source text pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       compile_string
       (params
         (source_text ptr))

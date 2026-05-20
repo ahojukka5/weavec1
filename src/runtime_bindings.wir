@@ -1,3 +1,13 @@
+; runtime_bindings.wir
+;
+; Runtime function declarations used by generated LLVM.
+;
+; Responsibilities:
+;   - declare file IO and fatal error hooks
+;   - provide tiny pointer predicates used by WIR source
+;
+; Implementations are supplied by the runtime linked with emitted LLVM.
+
 (core-module
   (core-version 1)
   (decls
@@ -75,7 +85,24 @@
       (params
         (message ptr))
       (returns void))
-    (fn
+
+; =============================================================================
+; Runtime bindings
+; =============================================================================
+
+; read_file
+;
+; Implements read file for the weavec1 bootstrap compiler.
+;
+; Parameters:
+;   path - Path string pointer.
+;
+;   out_len - Output length pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       read_file
       (params
         (path ptr)
@@ -87,7 +114,20 @@
             weave_rt_read_file
             (param_get path)
             (param_get out_len)))))
-    (fn
+
+; write_file
+;
+; Implements write file for the weavec1 bootstrap compiler.
+;
+; Parameters:
+;   path - Path string pointer.
+;   data - Byte pointer.
+;
+;   length - Byte length.
+; Returns:
+;   i32 result value.
+
+(fn
       write_file
       (params
         (path ptr)
@@ -101,7 +141,18 @@
             (param_get path)
             (param_get data)
             (param_get length)))))
-    (fn
+
+; fatal
+;
+; Implements fatal for the weavec1 bootstrap compiler.
+;
+;
+; Parameters:
+;   message - Message string pointer or source offset.
+; Returns:
+;   i32 result value.
+
+(fn
       fatal
       (params
         (message ptr))
@@ -112,7 +163,19 @@
           (param_get message))
         (return
           (const_i32 1))))
-    (fn
+
+; is_null
+;
+; Returns whether a byte or value satisfies null.
+;
+;
+; Parameters:
+;   p - Pointer value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       is_null
       (params
         (p ptr))
@@ -122,7 +185,19 @@
           (eq_ptr
             (param_get p)
             (const_null)))))
-    (fn
+
+; not_null
+;
+; Implements not null for the weavec1 bootstrap compiler.
+;
+;
+; Parameters:
+;   p - Pointer value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       not_null
       (params
         (p ptr))

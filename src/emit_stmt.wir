@@ -1,12 +1,43 @@
 ; emit_stmt.wir
-; Basic statement emission.
-; Handles do blocks, debug markers, print, store,
-; and call statements.
+;
+; LLVM emission for statement AST nodes.
+;
+; Responsibilities:
+;   - emit sequential blocks
+;   - dispatch statement nodes to specialized emitters
+;   - lower returns, stores, calls, prints, and debug markers
+;   - delegate structured control flow to emit_control_flow.wir
+;
+; Statement emitters return integer status codes so callers can stop emission
+; immediately when a nested statement fails.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Block emission
+; =============================================================================
+
+; emit_block_stmt
+;
+; Emits each direct statement child of an AST block into LLVM IR.
+;
+; Invariants:
+;   - node must be AST_BLOCK.
+;   - ast_a_at(node) is the first child index.
+;   - ast_b_at(node) is the last child index.
+;   - branch child nodes are emitted by structured control-flow helpers.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_block_stmt
       (params
         (ctx ptr)
@@ -136,7 +167,27 @@
                 (const_i64 1)))))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Statement dispatch
+; =============================================================================
+
+; emit_stmt
+;
+; Dispatches one AST statement node to the matching LLVM statement emitter.
+;
+; Notes:
+;   Returns immediately on the first nested emission failure.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_stmt
       (params
         (ctx ptr)
@@ -316,7 +367,24 @@
             (do)))
         (return
           (const_i32 1))))
-    (fn
+
+; =============================================================================
+; Debug marker emission
+; =============================================================================
+
+; emit_debug_stmt
+;
+; Emits or computes LLVM output for debug stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_debug_stmt
       (params
         (ctx ptr)
@@ -390,7 +458,24 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Print emission
+; =============================================================================
+
+; emit_print_stmt
+;
+; Emits or computes LLVM output for print stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_print_stmt
       (params
         (ctx ptr)
@@ -468,7 +553,24 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Store emission
+; =============================================================================
+
+; emit_store_stmt
+;
+; Emits or computes LLVM output for store stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_store_stmt
       (params
         (ctx ptr)
@@ -661,7 +763,24 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Call statement emission
+; =============================================================================
+
+; emit_call_stmt
+;
+; Emits or computes LLVM output for call stmt.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_call_stmt
       (params
         (ctx ptr)

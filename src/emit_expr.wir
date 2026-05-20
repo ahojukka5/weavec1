@@ -1,12 +1,35 @@
 ; emit_expr.wir
-; LLVM IR emission for WIR expressions.
-; Handles constants, arithmetic, comparisons, casts, loads,
-; pointer arithmetic, logical operations, and expression operands.
+;
+; LLVM emission for expression AST nodes.
+;
+; Responsibilities:
+;   - dispatch expression nodes by AST kind
+;   - emit constants, unary expressions, binary expressions, loads, and calls
+;   - choose when operands can be printed directly versus stored in temporaries
+;   - determine LLVM expression text and types needed by statement emitters
+;
+; The emitter favors direct, readable LLVM text over compact abstraction.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Expression dispatch
+; =============================================================================
+
+; emit_expr
+;
+; Emits or computes LLVM output for expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_expr
       (params
         (ctx ptr)
@@ -199,7 +222,24 @@
             (do)))
         (return
           (const_i64 -1))))
-    (fn
+
+; =============================================================================
+; Operand classification
+; =============================================================================
+
+; emit_is_immediate_expr
+;
+; Emits or computes LLVM output for is immediate expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       emit_is_immediate_expr
       (params
         (ctx ptr)
@@ -256,7 +296,21 @@
                 (eq_i32
                   (local_get kind)
                   (call_i32 ast_param_get))))))))
-    (fn
+
+; emit_expr_operand
+;
+; Emits or computes LLVM output for expr operand.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   node - AST node index.
+;
+;   temp - Temporary id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_expr_operand
       (params
         (ctx ptr)
@@ -364,7 +418,23 @@
             emit_temp_name
             (param_get ctx)
             (param_get temp)))))
-    (fn
+
+; =============================================================================
+; Memory loads
+; =============================================================================
+
+; emit_load_expr
+;
+; Emits or computes LLVM output for load expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_load_expr
       (params
         (ctx ptr)
@@ -532,7 +602,23 @@
             (do)))
         (return
           (local_get temp))))
-    (fn
+
+; =============================================================================
+; Constant emission
+; =============================================================================
+
+; emit_const_i32_expr
+;
+; Emits or computes LLVM output for const i32 expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_const_i32_expr
       (params
         (ctx ptr)
@@ -571,7 +657,19 @@
           (param_get ctx))
         (return
           (local_get temp))))
-    (fn
+
+; emit_const_i64_expr
+;
+; Emits or computes LLVM output for const i64 expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_const_i64_expr
       (params
         (ctx ptr)
@@ -610,7 +708,23 @@
           (param_get ctx))
         (return
           (local_get temp))))
-    (fn
+
+; =============================================================================
+; Unary emission
+; =============================================================================
+
+; emit_unary_expr
+;
+; Emits or computes LLVM output for unary expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_unary_expr
       (params
         (ctx ptr)
@@ -754,7 +868,19 @@
             (do)))
         (return
           (const_i64 -1))))
-    (fn
+
+; emit_const_bool_expr
+;
+; Emits or computes LLVM output for const bool expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_const_bool_expr
       (params
         (ctx ptr)
@@ -806,7 +932,19 @@
           (param_get ctx))
         (return
           (local_get temp))))
-    (fn
+
+; emit_const_null_expr
+;
+; Emits or computes LLVM output for const null expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_const_null_expr
       (params
         (ctx ptr)
@@ -832,7 +970,19 @@
           (param_get ctx))
         (return
           (local_get temp))))
-    (fn
+
+; emit_const_string_expr
+;
+; Emits or computes LLVM output for const string expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_const_string_expr
       (params
         (ctx ptr)
@@ -885,7 +1035,24 @@
           (param_get ctx))
         (return
           (local_get temp))))
-    (fn
+
+; =============================================================================
+; Binary emission
+; =============================================================================
+
+; emit_binary_op_text
+;
+; Emits or computes LLVM output for binary op text.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   op - Operator id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_binary_op_text
       (params
         (ctx ptr)
@@ -1230,7 +1397,19 @@
             (do
               (return
                 (const_i32 1)))))))
-    (fn
+
+; emit_binary_expr
+;
+; Emits or computes LLVM output for binary expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_binary_expr
       (params
         (ctx ptr)

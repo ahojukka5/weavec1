@@ -1,12 +1,35 @@
 ; emit_module.wir
-; Top-level LLVM module emission orchestration.
-; Coordinates module sections: header, declarations,
-; string literals, and function definitions.
+;
+; Top-level LLVM module emission.
+;
+; Responsibilities:
+;   - emit module declarations and string globals
+;   - walk top-level AST declarations
+;   - emit external declarations and function definitions
+;
+; This is the final emission entry point after parsing has produced an AST.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Program emission
+; =============================================================================
+
+; emit_program
+;
+; Emits or computes LLVM output for program.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   program_node - Program AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_program
       (params
         (ctx ptr)
@@ -87,7 +110,26 @@
                 (const_i64 1)))))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; LLVM module entry point
+; =============================================================================
+
+; emit_llvm
+;
+; Emits or computes LLVM output for llvm.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   ast - AST container pointer.
+;   program_node - i64 parameter.
+;
+;   output - Output buffer pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_llvm
       (params
         (source ptr)

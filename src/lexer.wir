@@ -1,14 +1,52 @@
+; lexer.wir
+;
+; Source buffer and lexical analysis.
+;
+; Responsibilities:
+;   - own source text storage and path metadata
+;   - classify bytes used by the lexer
+;   - lex identifiers, integers, strings, comments, and punctuation
+;   - append token kinds and source spans to token storage
+;
+; The lexer works byte-by-byte by design so bootstrap behavior is predictable.
+
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Source storage
+; =============================================================================
+
+; source_size
+;
+; Provides source buffer behavior for size.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       source_size
       (params)
       (returns i64)
       (do
         (return
           (const_i64 24))))
-    (fn
+
+; source_new
+;
+; Provides source buffer behavior for new.
+;
+; Parameters:
+;   data - Byte pointer.
+;   length - Byte length.
+;
+;   path - Path string pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       source_new
       (params
         (data ptr)
@@ -48,7 +86,18 @@
           (param_get path))
         (return
           (local_get source))))
-    (fn
+
+; source_free
+;
+; Provides source buffer behavior for free.
+;
+;
+; Parameters:
+;   source - Source buffer pointer.
+; Returns:
+;   no value.
+
+(fn
       source_free
       (params
         (source ptr))
@@ -67,7 +116,19 @@
           (else
             (do)))
         (return_void)))
-    (fn
+
+; source_data
+;
+; Provides source buffer behavior for data.
+;
+;
+; Parameters:
+;   source - Source buffer pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       source_data
       (params
         (source ptr))
@@ -76,7 +137,18 @@
         (return
           (load_ptr
             (param_get source)))))
-    (fn
+
+; source_length
+;
+; Provides source buffer behavior for length.
+;
+;
+; Parameters:
+;   source - Source buffer pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       source_length
       (params
         (source ptr))
@@ -87,7 +159,19 @@
             (ptr_add
               (param_get source)
               (const_i64 8))))))
-    (fn
+
+; source_path
+;
+; Provides source buffer behavior for path.
+;
+;
+; Parameters:
+;   source - Source buffer pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       source_path
       (params
         (source ptr))
@@ -98,7 +182,19 @@
             (ptr_add
               (param_get source)
               (const_i64 16))))))
-    (fn
+
+; source_byte_at
+;
+; Provides source buffer behavior for byte at.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i32 result value.
+
+(fn
       source_byte_at
       (params
         (source ptr)
@@ -112,7 +208,23 @@
                 source_data
                 (param_get source))
               (param_get index))))))
-    (fn
+
+; =============================================================================
+; Byte classification
+; =============================================================================
+
+; is_whitespace
+;
+; Returns whether a byte or value satisfies whitespace.
+;
+;
+; Parameters:
+;   ch - Byte value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       is_whitespace
       (params
         (ch i32))
@@ -134,7 +246,19 @@
               (eq_i32
                 (param_get ch)
                 (const_i32 13)))))))
-    (fn
+
+; is_digit
+;
+; Returns whether a byte or value satisfies digit.
+;
+;
+; Parameters:
+;   ch - Byte value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       is_digit
       (params
         (ch i32))
@@ -148,7 +272,19 @@
             (le_i32
               (param_get ch)
               (const_i32 57))))))
-    (fn
+
+; is_alpha
+;
+; Returns whether a byte or value satisfies alpha.
+;
+;
+; Parameters:
+;   ch - Byte value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       is_alpha
       (params
         (ch i32))
@@ -170,7 +306,19 @@
               (le_i32
                 (param_get ch)
                 (const_i32 90)))))))
-    (fn
+
+; is_ident_start
+;
+; Returns whether a byte or value satisfies ident start.
+;
+;
+; Parameters:
+;   ch - Byte value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       is_ident_start
       (params
         (ch i32))
@@ -184,7 +332,19 @@
             (eq_i32
               (param_get ch)
               (const_i32 95))))))
-    (fn
+
+; is_ident_continue
+;
+; Returns whether a byte or value satisfies ident continue.
+;
+;
+; Parameters:
+;   ch - Byte value.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       is_ident_continue
       (params
         (ch i32))
@@ -202,7 +362,23 @@
             (eq_i32
               (param_get ch)
               (const_i32 45))))))
-    (fn
+
+; =============================================================================
+; Keyword lookup
+; =============================================================================
+
+; keyword_kind
+;
+; Implements keyword kind for the weavec1 bootstrap compiler.
+;
+; Parameters:
+;   text - ptr parameter.
+;
+;   length - Byte length.
+; Returns:
+;   i32 result value.
+
+(fn
       keyword_kind
       (params
         (text ptr)
@@ -463,7 +639,24 @@
             (do)))
         (return
           (call_i32 token_ident))))
-    (fn
+
+; =============================================================================
+; Token-specific lexing
+; =============================================================================
+
+; lex_integer
+;
+; Lexes integer into token storage.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   tokens - Token stream pointer.
+;
+;   start - Source byte offset.
+; Returns:
+;   i64 result value.
+
+(fn
       lex_integer
       (params
         (source ptr)
@@ -570,7 +763,20 @@
             (do)))
         (return
           (local_get index))))
-    (fn
+
+; lex_identifier
+;
+; Lexes identifier into token storage.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   tokens - Token stream pointer.
+;
+;   start - Source byte offset.
+; Returns:
+;   i64 result value.
+
+(fn
       lex_identifier
       (params
         (source ptr)
@@ -646,7 +852,20 @@
             (do)))
         (return
           (local_get index))))
-    (fn
+
+; lex_string
+;
+; Lexes string into token storage.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   tokens - Token stream pointer.
+;
+;   start - Source byte offset.
+; Returns:
+;   i64 result value.
+
+(fn
       lex_string
       (params
         (source ptr)
@@ -759,7 +978,19 @@
                       (const_i64 1))))))))
         (return
           (const_i64 -1))))
-    (fn
+
+; skip_comment
+;
+; Implements skip comment for the weavec1 bootstrap compiler.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;
+;   start - Source byte offset.
+; Returns:
+;   i64 result value.
+
+(fn
       skip_comment
       (params
         (source ptr)
@@ -807,7 +1038,21 @@
                 (const_i64 1)))))
         (return
           (local_get index))))
-    (fn
+
+; lex_punctuation
+;
+; Lexes punctuation into token storage.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;   tokens - Token stream pointer.
+;   index - AST node index.
+;
+;   ch - Byte value.
+; Returns:
+;   i64 result value.
+
+(fn
       lex_punctuation
       (params
         (source ptr)
@@ -878,7 +1123,23 @@
             (do)))
         (return
           (const_i64 -1))))
-    (fn
+
+; =============================================================================
+; Lexer entry point
+; =============================================================================
+
+; lex
+;
+; Lexes the source buffer into token storage.
+;
+; Parameters:
+;   source - Source buffer pointer.
+;
+;   tokens - Token stream pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       lex
       (params
         (source ptr)

@@ -1,519 +1,1208 @@
 ; ast_kinds.wir
+;
 ; AST node kind constants, type constants, and operator constants.
-; Defines the vocabulary of the abstract syntax tree used throughout
-; the compiler.
+;
+; Responsibilities:
+;   - define integer constants for every AST node kind
+;   - define integer constants for the WIR type system
+;   - define integer constants for every WIR operator
+;
+; Design note:
+;   WIR has no global constant declarations, so every constant is
+;   represented as a zero-argument function returning an i32.
+;   This is intentional: it keeps the language minimal and uniform.
+;   Constants are inlined by the emitter during compilation.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
-      ast_program
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 1))))
-    (fn
-      ast_extern
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 2))))
-    (fn
-      ast_function
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 3))))
-    (fn
-      ast_param
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 4))))
-    (fn
-      ast_block
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 5))))
-    (fn
-      ast_return
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 6))))
-    (fn
-      ast_return_void
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 7))))
-    (fn
-      ast_if
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 8))))
-    (fn
-      ast_while
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 9))))
-    (fn
-      ast_let
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 10))))
-    (fn
-      ast_set
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 11))))
-    (fn
-      ast_const_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 20))))
-    (fn
-      ast_const_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 21))))
-    (fn
-      ast_const_bool
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 22))))
-    (fn
-      ast_const_null
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 23))))
-    (fn
-      ast_const_string
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 24))))
-    (fn
-      ast_local_get
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 30))))
-    (fn
-      ast_param_get
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 31))))
-    (fn
-      ast_call
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 40))))
-    (fn
-      ast_unary
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 41))))
-    (fn
-      ast_binary
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 42))))
-    (fn
-      ast_store
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 43))))
-    (fn
-      ast_load
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 44))))
-    (fn
-      ast_print
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 45))))
-    (fn
-      ast_arg
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 46))))
-    (fn
-      ast_debug
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 47))))
-    (fn
-      type_void
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 0))))
-    (fn
-      type_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 1))))
-    (fn
-      type_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 2))))
-    (fn
-      type_bool
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 3))))
-    (fn
-      type_ptr
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 4))))
-    (fn
-      op_add_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 1))))
-    (fn
-      op_sub_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 2))))
-    (fn
-      op_mul_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 3))))
-    (fn
-      op_div_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 4))))
-    (fn
-      op_mod_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 5))))
-    (fn
-      op_eq_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 10))))
-    (fn
-      op_ne_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 11))))
-    (fn
-      op_lt_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 12))))
-    (fn
-      op_le_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 13))))
-    (fn
-      op_gt_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 14))))
-    (fn
-      op_ge_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 15))))
-    (fn
-      op_add_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 20))))
-    (fn
-      op_sub_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 21))))
-    (fn
-      op_mul_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 22))))
-    (fn
-      op_div_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 23))))
-    (fn
-      op_eq_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 30))))
-    (fn
-      op_ne_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 31))))
-    (fn
-      op_lt_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 32))))
-    (fn
-      op_le_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 33))))
-    (fn
-      op_gt_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 34))))
-    (fn
-      op_ge_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 35))))
-    (fn
-      op_eq_ptr
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 40))))
-    (fn
-      op_ne_ptr
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 41))))
-    (fn
-      op_and_bool
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 50))))
-    (fn
-      op_or_bool
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 51))))
-    (fn
-      op_not_bool
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 52))))
-    (fn
-      op_ptr_add
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 60))))
-    (fn
-      op_cast_i64_to_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 61))))
-    (fn
-      op_cast_i32_to_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 62))))
-    (fn
-      op_load_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 70))))
-    (fn
-      op_load_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 71))))
-    (fn
-      op_load_ptr
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 72))))
-    (fn
-      op_load_u8
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 73))))
-    (fn
-      op_store_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 80))))
-    (fn
-      op_store_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 81))))
-    (fn
-      op_store_ptr
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 82))))
-    (fn
-      op_store_i8
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 83))))
-    (fn
-      op_call_i32
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 90))))
-    (fn
-      op_call_i64
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 91))))
-    (fn
-      op_call_ptr
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 92))))
-    (fn
-      op_call_bool
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 93))))
-    (fn
-      op_call_void
-      (params)
-      (returns i32)
-      (do
-        (return
-          (const_i32 94))))))
+
+; =============================================================================
+; AST node kind constants
+; =============================================================================
+
+; ast_program
+;
+; Node kind for the top-level program node.
+; The program node holds references to the first/last function declarations.
+;
+; Returns:
+;   node kind constant 1.
+
+(fn
+  ast_program
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 1))))
+
+; ast_extern
+;
+; Node kind for an extern declaration.
+; Extern nodes declare external function signatures without a body.
+;
+; Returns:
+;   node kind constant 2.
+
+(fn
+  ast_extern
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 2))))
+
+; ast_function
+;
+; Node kind for a function definition.
+; Function nodes carry return type, parameter list, and a body block.
+;
+; Returns:
+;   node kind constant 3.
+
+(fn
+  ast_function
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 3))))
+
+; ast_param
+;
+; Node kind for a function parameter declaration.
+; Param nodes carry the parameter name and its type.
+;
+; Returns:
+;   node kind constant 4.
+
+(fn
+  ast_param
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 4))))
+
+; ast_block
+;
+; Node kind for a sequential statement block.
+; Block nodes reference a contiguous range of child nodes in the AST array.
+;
+; Returns:
+;   node kind constant 5.
+
+(fn
+  ast_block
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 5))))
+
+; ast_return
+;
+; Node kind for a return statement with a value.
+; The return expression is stored in field a.
+;
+; Returns:
+;   node kind constant 6.
+
+(fn
+  ast_return
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 6))))
+
+; ast_return_void
+;
+; Node kind for a void return statement.
+; No expression is associated.
+;
+; Returns:
+;   node kind constant 7.
+
+(fn
+  ast_return_void
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 7))))
+
+; ast_if
+;
+; Node kind for an if/then/else statement.
+; Fields: a=condition, b=then-branch, c=else-branch.
+;
+; Returns:
+;   node kind constant 8.
+
+(fn
+  ast_if
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 8))))
+
+; ast_while
+;
+; Node kind for a while loop.
+; Fields: a=condition, b=body.
+;
+; Returns:
+;   node kind constant 9.
+
+(fn
+  ast_while
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 9))))
+
+; ast_let
+;
+; Node kind for a local variable declaration (let).
+; Fields: op_type=type id, a=init expression, text=variable name.
+;
+; Returns:
+;   node kind constant 10.
+
+(fn
+  ast_let
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 10))))
+
+; ast_set
+;
+; Node kind for a local variable assignment (set).
+; Fields: a=new value expression, text=variable name.
+;
+; Returns:
+;   node kind constant 11.
+
+(fn
+  ast_set
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 11))))
+
+; =============================================================================
+; Constant expression node kinds
+; =============================================================================
+
+; ast_const_i32
+;
+; Node kind for a 32-bit integer constant expression.
+; The value is stored in field a (sign-extended to i64).
+;
+; Returns:
+;   node kind constant 20.
+
+(fn
+  ast_const_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 20))))
+
+; ast_const_i64
+;
+; Node kind for a 64-bit integer constant expression.
+; The value is stored in field a.
+;
+; Returns:
+;   node kind constant 21.
+
+(fn
+  ast_const_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 21))))
+
+; ast_const_bool
+;
+; Node kind for a boolean constant expression.
+; The value is stored in field a: 0=false, 1=true.
+;
+; Returns:
+;   node kind constant 22.
+
+(fn
+  ast_const_bool
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 22))))
+
+; ast_const_null
+;
+; Node kind for a null pointer constant expression.
+;
+; Returns:
+;   node kind constant 23.
+
+(fn
+  ast_const_null
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 23))))
+
+; ast_const_string
+;
+; Node kind for a string constant expression.
+; The text span fields (text_start, text_len) hold the source string content.
+;
+; Returns:
+;   node kind constant 24.
+
+(fn
+  ast_const_string
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 24))))
+
+; =============================================================================
+; Name reference node kinds
+; =============================================================================
+
+; ast_local_get
+;
+; Node kind for reading a local variable (let-bound).
+; The variable name is stored in the text span fields.
+;
+; Returns:
+;   node kind constant 30.
+
+(fn
+  ast_local_get
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 30))))
+
+; ast_param_get
+;
+; Node kind for reading a function parameter.
+; The parameter name is stored in the text span fields.
+;
+; Returns:
+;   node kind constant 31.
+
+(fn
+  ast_param_get
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 31))))
+
+; =============================================================================
+; Expression operation node kinds
+; =============================================================================
+
+; ast_call
+;
+; Node kind for a function call expression.
+; Fields: op_type=call variant (call_i32/i64/ptr/bool/void),
+;         a=last argument node, b=argument count, text=function name.
+;
+; Returns:
+;   node kind constant 40.
+
+(fn
+  ast_call
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 40))))
+
+; ast_unary
+;
+; Node kind for a unary operation expression.
+; Fields: op_type=operator id, a=operand.
+;
+; Returns:
+;   node kind constant 41.
+
+(fn
+  ast_unary
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 41))))
+
+; ast_binary
+;
+; Node kind for a binary operation expression.
+; Fields: op_type=operator id, a=left operand, b=right operand.
+;
+; Returns:
+;   node kind constant 42.
+
+(fn
+  ast_binary
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 42))))
+
+; ast_store
+;
+; Node kind for a memory store statement.
+; Fields: op_type=store variant, a=destination pointer, b=value.
+;
+; Returns:
+;   node kind constant 43.
+
+(fn
+  ast_store
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 43))))
+
+; ast_load
+;
+; Node kind for a memory load expression.
+; Fields: op_type=load variant, a=source pointer.
+;
+; Returns:
+;   node kind constant 44.
+
+(fn
+  ast_load
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 44))))
+
+; ast_print
+;
+; Node kind for a print statement (calls puts).
+; Fields: a=string expression to print.
+;
+; Returns:
+;   node kind constant 45.
+
+(fn
+  ast_print
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 45))))
+
+; ast_arg
+;
+; Node kind for a call argument node.
+; Arguments form a singly-linked list in reverse order.
+; Fields: a=expression, b=previous argument node (or -1 for first).
+;
+; Returns:
+;   node kind constant 46.
+
+(fn
+  ast_arg
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 46))))
+
+; ast_debug
+;
+; Node kind for a debug annotation wrapper.
+; Emits LLVM IR comments bracketing the wrapped statement.
+; Fields: a=body statement, text=debug message string.
+;
+; Returns:
+;   node kind constant 47.
+
+(fn
+  ast_debug
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 47))))
+
+; =============================================================================
+; Type constants
+; =============================================================================
+
+; type_void
+;
+; WIR type id for void (no value).
+; Used as return type for functions that return nothing.
+;
+; Returns:
+;   type constant 0.
+
+(fn
+  type_void
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 0))))
+
+; type_i32
+;
+; WIR type id for 32-bit signed integer.
+;
+; Returns:
+;   type constant 1.
+
+(fn
+  type_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 1))))
+
+; type_i64
+;
+; WIR type id for 64-bit signed integer.
+;
+; Returns:
+;   type constant 2.
+
+(fn
+  type_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 2))))
+
+; type_bool
+;
+; WIR type id for boolean (maps to i1 in LLVM IR).
+;
+; Returns:
+;   type constant 3.
+
+(fn
+  type_bool
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 3))))
+
+; type_ptr
+;
+; WIR type id for a pointer (opaque, maps to ptr in LLVM IR).
+;
+; Returns:
+;   type constant 4.
+
+(fn
+  type_ptr
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 4))))
+
+; =============================================================================
+; Arithmetic operator constants (i32)
+; =============================================================================
+
+; op_add_i32
+;
+; Operator id for 32-bit integer addition.
+;
+; Returns:
+;   operator constant 1.
+
+(fn
+  op_add_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 1))))
+
+; op_sub_i32
+;
+; Operator id for 32-bit integer subtraction.
+;
+; Returns:
+;   operator constant 2.
+
+(fn
+  op_sub_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 2))))
+
+; op_mul_i32
+;
+; Operator id for 32-bit integer multiplication.
+;
+; Returns:
+;   operator constant 3.
+
+(fn
+  op_mul_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 3))))
+
+; op_div_i32
+;
+; Operator id for 32-bit signed integer division.
+;
+; Returns:
+;   operator constant 4.
+
+(fn
+  op_div_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 4))))
+
+; op_mod_i32
+;
+; Operator id for 32-bit signed integer modulo.
+;
+; Returns:
+;   operator constant 5.
+
+(fn
+  op_mod_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 5))))
+
+; =============================================================================
+; Comparison operator constants (i32)
+; =============================================================================
+
+; op_eq_i32
+;
+; Operator id for 32-bit integer equality comparison.
+;
+; Returns:
+;   operator constant 10.
+
+(fn
+  op_eq_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 10))))
+
+; op_ne_i32
+;
+; Operator id for 32-bit integer inequality comparison.
+;
+; Returns:
+;   operator constant 11.
+
+(fn
+  op_ne_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 11))))
+
+; op_lt_i32
+;
+; Operator id for 32-bit signed less-than comparison.
+;
+; Returns:
+;   operator constant 12.
+
+(fn
+  op_lt_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 12))))
+
+; op_le_i32
+;
+; Operator id for 32-bit signed less-than-or-equal comparison.
+;
+; Returns:
+;   operator constant 13.
+
+(fn
+  op_le_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 13))))
+
+; op_gt_i32
+;
+; Operator id for 32-bit signed greater-than comparison.
+;
+; Returns:
+;   operator constant 14.
+
+(fn
+  op_gt_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 14))))
+
+; op_ge_i32
+;
+; Operator id for 32-bit signed greater-than-or-equal comparison.
+;
+; Returns:
+;   operator constant 15.
+
+(fn
+  op_ge_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 15))))
+
+; =============================================================================
+; Arithmetic operator constants (i64)
+; =============================================================================
+
+; op_add_i64
+;
+; Operator id for 64-bit integer addition.
+;
+; Returns:
+;   operator constant 20.
+
+(fn
+  op_add_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 20))))
+
+; op_sub_i64
+;
+; Operator id for 64-bit integer subtraction.
+;
+; Returns:
+;   operator constant 21.
+
+(fn
+  op_sub_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 21))))
+
+; op_mul_i64
+;
+; Operator id for 64-bit integer multiplication.
+;
+; Returns:
+;   operator constant 22.
+
+(fn
+  op_mul_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 22))))
+
+; op_div_i64
+;
+; Operator id for 64-bit signed integer division.
+;
+; Returns:
+;   operator constant 23.
+
+(fn
+  op_div_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 23))))
+
+; =============================================================================
+; Comparison operator constants (i64)
+; =============================================================================
+
+; op_eq_i64
+;
+; Operator id for 64-bit integer equality comparison.
+;
+; Returns:
+;   operator constant 30.
+
+(fn
+  op_eq_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 30))))
+
+; op_ne_i64
+;
+; Operator id for 64-bit integer inequality comparison.
+;
+; Returns:
+;   operator constant 31.
+
+(fn
+  op_ne_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 31))))
+
+; op_lt_i64
+;
+; Operator id for 64-bit signed less-than comparison.
+;
+; Returns:
+;   operator constant 32.
+
+(fn
+  op_lt_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 32))))
+
+; op_le_i64
+;
+; Operator id for 64-bit signed less-than-or-equal comparison.
+;
+; Returns:
+;   operator constant 33.
+
+(fn
+  op_le_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 33))))
+
+; op_gt_i64
+;
+; Operator id for 64-bit signed greater-than comparison.
+;
+; Returns:
+;   operator constant 34.
+
+(fn
+  op_gt_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 34))))
+
+; op_ge_i64
+;
+; Operator id for 64-bit signed greater-than-or-equal comparison.
+;
+; Returns:
+;   operator constant 35.
+
+(fn
+  op_ge_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 35))))
+
+; =============================================================================
+; Pointer comparison operator constants
+; =============================================================================
+
+; op_eq_ptr
+;
+; Operator id for pointer equality comparison.
+;
+; Returns:
+;   operator constant 40.
+
+(fn
+  op_eq_ptr
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 40))))
+
+; op_ne_ptr
+;
+; Operator id for pointer inequality comparison.
+;
+; Returns:
+;   operator constant 41.
+
+(fn
+  op_ne_ptr
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 41))))
+
+; =============================================================================
+; Boolean operator constants
+; =============================================================================
+
+; op_and_bool
+;
+; Operator id for boolean AND (logical conjunction).
+;
+; Returns:
+;   operator constant 50.
+
+(fn
+  op_and_bool
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 50))))
+
+; op_or_bool
+;
+; Operator id for boolean OR (logical disjunction).
+;
+; Returns:
+;   operator constant 51.
+
+(fn
+  op_or_bool
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 51))))
+
+; op_not_bool
+;
+; Operator id for boolean NOT (logical negation).
+;
+; Returns:
+;   operator constant 52.
+
+(fn
+  op_not_bool
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 52))))
+
+; =============================================================================
+; Pointer and cast operator constants
+; =============================================================================
+
+; op_ptr_add
+;
+; Operator id for pointer arithmetic (pointer + i64 byte offset).
+; Maps to LLVM getelementptr i8.
+;
+; Returns:
+;   operator constant 60.
+
+(fn
+  op_ptr_add
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 60))))
+
+; op_cast_i64_to_i32
+;
+; Operator id for narrowing cast from i64 to i32.
+; Maps to LLVM trunc.
+;
+; Returns:
+;   operator constant 61.
+
+(fn
+  op_cast_i64_to_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 61))))
+
+; op_cast_i32_to_i64
+;
+; Operator id for sign-extending cast from i32 to i64.
+; Maps to LLVM sext.
+;
+; Returns:
+;   operator constant 62.
+
+(fn
+  op_cast_i32_to_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 62))))
+
+; =============================================================================
+; Load operator constants
+; =============================================================================
+
+; op_load_i32
+;
+; Operator id for loading an i32 value from a pointer.
+;
+; Returns:
+;   operator constant 70.
+
+(fn
+  op_load_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 70))))
+
+; op_load_i64
+;
+; Operator id for loading an i64 value from a pointer.
+;
+; Returns:
+;   operator constant 71.
+
+(fn
+  op_load_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 71))))
+
+; op_load_ptr
+;
+; Operator id for loading a pointer value from a pointer.
+;
+; Returns:
+;   operator constant 72.
+
+(fn
+  op_load_ptr
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 72))))
+
+; op_load_u8
+;
+; Operator id for loading an unsigned byte and zero-extending to i32.
+; Maps to LLVM load i8 followed by zext to i32.
+;
+; Returns:
+;   operator constant 73.
+
+(fn
+  op_load_u8
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 73))))
+
+; =============================================================================
+; Store operator constants
+; =============================================================================
+
+; op_store_i32
+;
+; Operator id for storing an i32 value through a pointer.
+;
+; Returns:
+;   operator constant 80.
+
+(fn
+  op_store_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 80))))
+
+; op_store_i64
+;
+; Operator id for storing an i64 value through a pointer.
+;
+; Returns:
+;   operator constant 81.
+
+(fn
+  op_store_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 81))))
+
+; op_store_ptr
+;
+; Operator id for storing a pointer value through a pointer.
+;
+; Returns:
+;   operator constant 82.
+
+(fn
+  op_store_ptr
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 82))))
+
+; op_store_i8
+;
+; Operator id for storing a byte value through a pointer.
+; The value is truncated from i32 to i8 before storing.
+;
+; Returns:
+;   operator constant 83.
+
+(fn
+  op_store_i8
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 83))))
+
+; =============================================================================
+; Call operator constants
+; =============================================================================
+
+; op_call_i32
+;
+; Operator id for a function call returning i32.
+;
+; Returns:
+;   operator constant 90.
+
+(fn
+  op_call_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 90))))
+
+; op_call_i64
+;
+; Operator id for a function call returning i64.
+;
+; Returns:
+;   operator constant 91.
+
+(fn
+  op_call_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 91))))
+
+; op_call_ptr
+;
+; Operator id for a function call returning a pointer.
+;
+; Returns:
+;   operator constant 92.
+
+(fn
+  op_call_ptr
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 92))))
+
+; op_call_bool
+;
+; Operator id for a function call returning a boolean.
+;
+; Returns:
+;   operator constant 93.
+
+(fn
+  op_call_bool
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 93))))
+
+; op_call_void
+;
+; Operator id for a function call returning void.
+; Void calls are statements, not expressions.
+;
+; Returns:
+;   operator constant 94.
+
+(fn
+  op_call_void
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 94))))))

@@ -1,12 +1,36 @@
 ; emit_types.wir
-; WIR type analysis and LLVM type emission.
-; Handles type lookup from locals/params, expression type inference,
-; and conversion of WIR types to LLVM type syntax.
+;
+; Type lookup and LLVM type rendering.
+;
+; Responsibilities:
+;   - resolve local, parameter, call, and expression types
+;   - decide whether an AST node belongs to a block's direct emission range
+;   - identify branch-child nodes that are emitted by control-flow helpers
+;   - render WIR type ids as LLVM type names
+;
+; The compiler currently relies on explicit AST layout and simple lookup scans.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Binding type lookup
+; =============================================================================
+
+; emit_lookup_local_type
+;
+; Emits or computes LLVM output for lookup local type.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   name_node - AST node containing the referenced name.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_lookup_local_type
       (params
         (ctx ptr)
@@ -110,7 +134,20 @@
                 (const_i64 1)))))
         (return
           (call_i32 type_i32))))
-    (fn
+
+; emit_lookup_param_type
+;
+; Emits or computes LLVM output for lookup param type.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   name_node - AST node containing the referenced name.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_lookup_param_type
       (params
         (ctx ptr)
@@ -267,7 +304,23 @@
                 (const_i64 1)))))
         (return
           (call_i32 type_i32))))
-    (fn
+
+; =============================================================================
+; Call return type lookup
+; =============================================================================
+
+; emit_call_return_type
+;
+; Emits or computes LLVM output for call return type.
+;
+;
+; Parameters:
+;   op - Operator id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_call_return_type
       (params
         (op i32))
@@ -319,7 +372,24 @@
             (do)))
         (return
           (call_i32 type_i32))))
-    (fn
+
+; =============================================================================
+; Expression type inference
+; =============================================================================
+
+; emit_expr_type
+;
+; Emits or computes LLVM output for expr type.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_expr_type
       (params
         (ctx ptr)
@@ -609,7 +679,25 @@
             (do)))
         (return
           (call_i32 type_i32))))
-    (fn
+
+; =============================================================================
+; Block membership helpers
+; =============================================================================
+
+; emit_is_block_member
+;
+; Emits or computes LLVM output for is block member.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   block_node - i64 parameter.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_is_block_member
       (params
         (ast ptr)
@@ -655,7 +743,21 @@
             (do)))
         (return
           (const_i32 0))))
-    (fn
+
+; emit_is_branch_child
+;
+; Emits or computes LLVM output for is branch child.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   current_block - i64 parameter.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_is_branch_child
       (params
         (ctx ptr)
@@ -1028,7 +1130,24 @@
                 (const_i64 1)))))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; LLVM type rendering
+; =============================================================================
+
+; emit_type
+;
+; Emits or computes LLVM output for type.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   type_id - WIR type id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_type
       (params
         (ctx ptr)

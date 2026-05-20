@@ -1,12 +1,35 @@
 ; emit_calls.wir
-; Function call emission for all return types.
-; Handles call_i32, call_i64, call_ptr, call_bool, call_void,
-; argument emission, and parameter/local access.
+;
+; LLVM emission for calls and name-reference expressions.
+;
+; Responsibilities:
+;   - emit call argument operands
+;   - lower function calls to LLVM call instructions
+;   - resolve parameter and local references into LLVM values
+;
+; The helpers assume semantic validity from the parser and AST layout.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Call argument emission
+; =============================================================================
+
+; emit_call_arg_node
+;
+; Emits or computes LLVM output for call arg node.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   call_node - Call AST node index.
+;
+;   ordinal - Argument ordinal.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_call_arg_node
       (params
         (ctx ptr)
@@ -88,7 +111,23 @@
                 (const_i64 1)))))
         (return
           (local_get arg_node))))
-    (fn
+
+; =============================================================================
+; Call emission
+; =============================================================================
+
+; emit_call_expr
+;
+; Emits or computes LLVM output for call expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_call_expr
       (params
         (ctx ptr)
@@ -369,7 +408,23 @@
           (local_get arg_values))
         (return
           (local_get temp))))
-    (fn
+
+; =============================================================================
+; Name reference emission
+; =============================================================================
+
+; emit_param_get_expr
+;
+; Emits or computes LLVM output for param get expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_param_get_expr
       (params
         (ctx ptr)
@@ -468,7 +523,19 @@
           (param_get ctx))
         (return
           (local_get temp))))
-    (fn
+
+; emit_local_get_expr
+;
+; Emits or computes LLVM output for local get expr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   i64 result value.
+
+(fn
       emit_local_get_expr
       (params
         (ctx ptr)

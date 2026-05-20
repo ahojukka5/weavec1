@@ -1,12 +1,35 @@
 ; parser_decl.wir
-; WIR declaration parsing.
-; Handles parsing of extern declarations, function definitions,
-; and top-level program structure.
+;
+; Parsing for top-level declarations.
+;
+; Responsibilities:
+;   - parse function declarations and definitions
+;   - parse extern declarations
+;   - build the top-level program AST node
+;
+; This module owns declaration structure. Statement and expression parsing are
+; delegated to parser_stmt.wir and parser_expr.wir.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Function declaration parsing
+; =============================================================================
+
+; parser_parse_function
+;
+; Provides parser behavior for parse function.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       parser_parse_function
       (params
         (parser ptr))
@@ -353,7 +376,22 @@
             (local_get do_node)
             (local_get name_start)
             (local_get name_len)))))
-    (fn
+
+; =============================================================================
+; Extern declaration parsing
+; =============================================================================
+
+; parser_skip_extern_opened
+;
+; Provides parser behavior for skip extern opened.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       parser_skip_extern_opened
       (params
         (parser ptr))
@@ -567,7 +605,23 @@
             (do)))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Top-level parsing
+; =============================================================================
+
+; parser_parse_toplevel
+;
+; Provides parser behavior for parse toplevel.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       parser_parse_toplevel
       (params
         (parser ptr))

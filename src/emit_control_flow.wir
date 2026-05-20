@@ -1,12 +1,41 @@
 ; emit_control_flow.wir
-; Control flow emission.
-; Handles if, while, branches, labels,
-; and join/fallthrough logic.
+;
+; LLVM emission for structured control flow.
+;
+; Responsibilities:
+;   - lower if/then/else AST nodes to explicit labels and branches
+;   - lower while loops to condition, body, and exit blocks
+;   - detect statements that terminate the current block
+;
+; Control-flow lowering is deliberately explicit so generated branch structure
+; remains easy to audit against the source AST.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; While emission
+; =============================================================================
+
+; emit_while_stmt
+;
+; Lowers an AST while statement into explicit LLVM loop condition, body, and exit blocks.
+;
+; Invariants:
+;   - node must be AST_WHILE.
+;   - field a is the condition expression.
+;   - field b is the loop body block.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_while_stmt
       (params
         (ctx ptr)
@@ -175,7 +204,28 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Termination checks
+; =============================================================================
+
+; emit_stmt_terminates
+;
+; Returns whether a statement definitely terminates the current LLVM block.
+;
+; Notes:
+;   The result prevents duplicate fallthrough branches after returns or fully
+;   terminating structured control flow.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_stmt_terminates
       (params
         (ctx ptr)
@@ -306,7 +356,30 @@
             (do)))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; If emission
+; =============================================================================
+
+; emit_if_stmt
+;
+; Lowers an AST if statement into explicit LLVM condition, branch, and join blocks.
+;
+; Invariants:
+;   - node must be AST_IF.
+;   - field a is the condition expression.
+;   - field b is the then block.
+;   - field c is the else block.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   node - AST node index.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_if_stmt
       (params
         (ctx ptr)

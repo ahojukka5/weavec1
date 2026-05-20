@@ -1,11 +1,33 @@
 ; parser_types.wir
-; WIR type parsing.
-; Parses type annotations like i32, i64, bool, ptr, and void.
+;
+; Parser helpers for identifiers and WIR type names.
+;
+; Responsibilities:
+;   - expose current identifier source spans
+;   - parse textual type names into AST type ids
+;   - set parser errors for unknown types
+;
+; Type parsing is deliberately narrow and mirrors the constants in ast_kinds.wir.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Identifier spans
+; =============================================================================
+
+; parser_ident_start
+;
+; Provides parser behavior for ident start.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       parser_ident_start
       (params
         (parser ptr))
@@ -15,7 +37,18 @@
           (call_i64
             parser_current_start
             (param_get parser)))))
-    (fn
+
+; parser_ident_length
+;
+; Provides parser behavior for ident length.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       parser_ident_length
       (params
         (parser ptr))
@@ -25,7 +58,22 @@
           (call_i64
             parser_current_length
             (param_get parser)))))
-    (fn
+
+; =============================================================================
+; Type parsing
+; =============================================================================
+
+; parser_parse_type
+;
+; Provides parser behavior for parse type.
+;
+;
+; Parameters:
+;   parser - Parser state pointer.
+; Returns:
+;   i32 result value.
+
+(fn
       parser_parse_type
       (params
         (parser ptr))

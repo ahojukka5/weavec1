@@ -1,11 +1,35 @@
 ; emit_names.wir
-; SSA temporary naming and label generation.
-; Manages unique names for LLVM values, labels, and strings.
+;
+; LLVM name and small formatting helpers.
+;
+; Responsibilities:
+;   - emit temporary and label names with deterministic counters
+;   - emit indentation and comments used by generated LLVM
+;   - allocate the next temp or label id from the emission context
+;
+; Deterministic names keep golden LLVM comparisons stable.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Name formatting
+; =============================================================================
+
+; emit_temp_name
+;
+; Emits or computes LLVM output for temp name.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   id - Deterministic numeric id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_temp_name
       (params
         (ctx ptr)
@@ -21,7 +45,19 @@
             emit_i64_as_i32
             (param_get ctx)
             (param_get id)))))
-    (fn
+
+; emit_indent
+;
+; Emits or computes LLVM output for indent.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_indent
       (params
         (ctx ptr))
@@ -32,7 +68,20 @@
             emit_cstr
             (param_get ctx)
             (const_string_ptr "  ")))))
-    (fn
+
+; emit_temp_def_name
+;
+; Emits or computes LLVM output for temp def name.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   id - Deterministic numeric id.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_temp_def_name
       (params
         (ctx ptr)
@@ -47,7 +96,20 @@
             emit_temp_name
             (param_get ctx)
             (param_get id)))))
-    (fn
+
+; emit_comment
+;
+; Emits or computes LLVM output for comment.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   text - Text pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_comment
       (params
         (ctx ptr)
@@ -66,7 +128,22 @@
           (call_i32
             emit_newline
             (param_get ctx)))))
-    (fn
+
+; =============================================================================
+; Counter allocation
+; =============================================================================
+
+; next_temp
+;
+; Implements next temp for the weavec1 bootstrap compiler.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       next_temp
       (params
         (ctx ptr))
@@ -86,7 +163,18 @@
             (const_i64 1)))
         (return
           (local_get old))))
-    (fn
+
+; next_label
+;
+; Implements next label for the weavec1 bootstrap compiler.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       next_label
       (params
         (ctx ptr))

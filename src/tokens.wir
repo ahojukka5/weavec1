@@ -1,273 +1,613 @@
+; tokens.wir
+;
+; Token constants and token stream storage.
+;
+; Responsibilities:
+;   - define token kind integer constants
+;   - allocate, grow, and free token arrays
+;   - append token kind and source span triples
+;   - provide typed accessors for parser modules
+;
+; Token storage uses parallel arrays for kind, start offset, and length.
+
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Token kind constants
+; =============================================================================
+
+; token_eof
+;
+; Returns the token kind constant for `eof`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_eof
       (params)
       (returns i32)
       (do
         (return
           (const_i32 0))))
-    (fn
+
+; token_lparen
+;
+; Returns the token kind constant for `lparen`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_lparen
       (params)
       (returns i32)
       (do
         (return
           (const_i32 1))))
-    (fn
+
+; token_rparen
+;
+; Returns the token kind constant for `rparen`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_rparen
       (params)
       (returns i32)
       (do
         (return
           (const_i32 2))))
-    (fn
+
+; token_ident
+;
+; Returns the token kind constant for `ident`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_ident
       (params)
       (returns i32)
       (do
         (return
           (const_i32 3))))
-    (fn
+
+; token_int
+;
+; Returns the token kind constant for `int`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_int
       (params)
       (returns i32)
       (do
         (return
           (const_i32 4))))
-    (fn
+
+; token_string
+;
+; Returns the token kind constant for `string`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_string
       (params)
       (returns i32)
       (do
         (return
           (const_i32 5))))
-    (fn
+
+; token_fn
+;
+; Returns the token kind constant for `fn`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_fn
       (params)
       (returns i32)
       (do
         (return
           (const_i32 6))))
-    (fn
+
+; token_return
+;
+; Returns the token kind constant for `return`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_return
       (params)
       (returns i32)
       (do
         (return
           (const_i32 7))))
-    (fn
+
+; token_if
+;
+; Returns the token kind constant for `if`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_if
       (params)
       (returns i32)
       (do
         (return
           (const_i32 8))))
-    (fn
+
+; token_else
+;
+; Returns the token kind constant for `else`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_else
       (params)
       (returns i32)
       (do
         (return
           (const_i32 9))))
-    (fn
+
+; token_while
+;
+; Returns the token kind constant for `while`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_while
       (params)
       (returns i32)
       (do
         (return
           (const_i32 10))))
-    (fn
+
+; token_let
+;
+; Returns the token kind constant for `let`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_let
       (params)
       (returns i32)
       (do
         (return
           (const_i32 11))))
-    (fn
+
+; token_set
+;
+; Returns the token kind constant for `set`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_set
       (params)
       (returns i32)
       (do
         (return
           (const_i32 12))))
-    (fn
+
+; token_plus
+;
+; Returns the token kind constant for `plus`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_plus
       (params)
       (returns i32)
       (do
         (return
           (const_i32 13))))
-    (fn
+
+; token_minus
+;
+; Returns the token kind constant for `minus`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_minus
       (params)
       (returns i32)
       (do
         (return
           (const_i32 14))))
-    (fn
+
+; token_star
+;
+; Returns the token kind constant for `star`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_star
       (params)
       (returns i32)
       (do
         (return
           (const_i32 15))))
-    (fn
+
+; token_slash
+;
+; Returns the token kind constant for `slash`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_slash
       (params)
       (returns i32)
       (do
         (return
           (const_i32 16))))
-    (fn
+
+; token_eq
+;
+; Returns the token kind constant for `eq`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_eq
       (params)
       (returns i32)
       (do
         (return
           (const_i32 17))))
-    (fn
+
+; token_eqeq
+;
+; Returns the token kind constant for `eqeq`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_eqeq
       (params)
       (returns i32)
       (do
         (return
           (const_i32 18))))
-    (fn
+
+; token_ne
+;
+; Returns the token kind constant for `ne`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_ne
       (params)
       (returns i32)
       (do
         (return
           (const_i32 19))))
-    (fn
+
+; token_lt
+;
+; Returns the token kind constant for `lt`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_lt
       (params)
       (returns i32)
       (do
         (return
           (const_i32 20))))
-    (fn
+
+; token_le
+;
+; Returns the token kind constant for `le`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_le
       (params)
       (returns i32)
       (do
         (return
           (const_i32 21))))
-    (fn
+
+; token_gt
+;
+; Returns the token kind constant for `gt`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_gt
       (params)
       (returns i32)
       (do
         (return
           (const_i32 22))))
-    (fn
+
+; token_ge
+;
+; Returns the token kind constant for `ge`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_ge
       (params)
       (returns i32)
       (do
         (return
           (const_i32 23))))
-    (fn
+
+; token_core_module
+;
+; Returns the token kind constant for `core-module`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_core_module
       (params)
       (returns i32)
       (do
         (return
           (const_i32 24))))
-    (fn
+
+; token_core_version
+;
+; Returns the token kind constant for `core-version`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_core_version
       (params)
       (returns i32)
       (do
         (return
           (const_i32 25))))
-    (fn
+
+; token_decls
+;
+; Returns the token kind constant for `decls`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_decls
       (params)
       (returns i32)
       (do
         (return
           (const_i32 26))))
-    (fn
+
+; token_extern
+;
+; Returns the token kind constant for `extern`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_extern
       (params)
       (returns i32)
       (do
         (return
           (const_i32 27))))
-    (fn
+
+; token_params
+;
+; Returns the token kind constant for `params`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_params
       (params)
       (returns i32)
       (do
         (return
           (const_i32 28))))
-    (fn
+
+; token_returns
+;
+; Returns the token kind constant for `returns`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_returns
       (params)
       (returns i32)
       (do
         (return
           (const_i32 29))))
-    (fn
+
+; token_then
+;
+; Returns the token kind constant for `then`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_then
       (params)
       (returns i32)
       (do
         (return
           (const_i32 31))))
-    (fn
+
+; token_block
+;
+; Returns the token kind constant for `block`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_block
       (params)
       (returns i32)
       (do
         (return
           (const_i32 33))))
-    (fn
+
+; token_return_void
+;
+; Returns the token kind constant for `return-void`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_return_void
       (params)
       (returns i32)
       (do
         (return
           (const_i32 34))))
-    (fn
+
+; token_do
+;
+; Returns the token kind constant for `do`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_do
       (params)
       (returns i32)
       (do
         (return
           (const_i32 35))))
-    (fn
+
+; token_condition
+;
+; Returns the token kind constant for `condition`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_condition
       (params)
       (returns i32)
       (do
         (return
           (const_i32 36))))
-    (fn
+
+; token_debug
+;
+; Returns the token kind constant for `debug`.
+;
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_debug
       (params)
       (returns i32)
       (do
         (return
           (const_i32 37))))
-    (fn
+
+; =============================================================================
+; Token storage layout
+; =============================================================================
+
+; tokens_size
+;
+; Provides token storage behavior for size.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       tokens_size
       (params)
       (returns i64)
       (do
         (return
           (const_i64 48))))
-    (fn
+
+; tokens_initial_capacity
+;
+; Provides token storage behavior for initial capacity.
+;
+; Returns:
+;   i64 result value.
+
+(fn
       tokens_initial_capacity
       (params)
       (returns i64)
       (do
         (return
           (const_i64 256))))
-    (fn
+
+; =============================================================================
+; Token field accessors
+; =============================================================================
+
+; tokens_kinds_field
+;
+; Returns the address of the token storage `kinds` field.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_kinds_field
       (params
         (tokens ptr))
@@ -275,7 +615,19 @@
       (do
         (return
           (param_get tokens))))
-    (fn
+
+; tokens_starts_field
+;
+; Returns the address of the token storage `starts` field.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_starts_field
       (params
         (tokens ptr))
@@ -285,7 +637,19 @@
           (ptr_add
             (param_get tokens)
             (const_i64 8)))))
-    (fn
+
+; tokens_lengths_field
+;
+; Returns the address of the token storage `lengths` field.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_lengths_field
       (params
         (tokens ptr))
@@ -295,7 +659,19 @@
           (ptr_add
             (param_get tokens)
             (const_i64 16)))))
-    (fn
+
+; tokens_values_field
+;
+; Returns the address of the token storage `values` field.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_values_field
       (params
         (tokens ptr))
@@ -305,7 +681,19 @@
           (ptr_add
             (param_get tokens)
             (const_i64 24)))))
-    (fn
+
+; tokens_count_field
+;
+; Returns the address of the token storage `count` field.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_count_field
       (params
         (tokens ptr))
@@ -315,7 +703,19 @@
           (ptr_add
             (param_get tokens)
             (const_i64 32)))))
-    (fn
+
+; tokens_capacity_field
+;
+; Returns the address of the token storage `capacity` field.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_capacity_field
       (params
         (tokens ptr))
@@ -325,7 +725,23 @@
           (ptr_add
             (param_get tokens)
             (const_i64 40)))))
-    (fn
+
+; =============================================================================
+; Token value accessors
+; =============================================================================
+
+; tokens_kinds
+;
+; Provides token storage behavior for kinds.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_kinds
       (params
         (tokens ptr))
@@ -336,7 +752,19 @@
             (call_ptr
               tokens_kinds_field
               (param_get tokens))))))
-    (fn
+
+; tokens_starts
+;
+; Provides token storage behavior for starts.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_starts
       (params
         (tokens ptr))
@@ -347,7 +775,19 @@
             (call_ptr
               tokens_starts_field
               (param_get tokens))))))
-    (fn
+
+; tokens_lengths
+;
+; Provides token storage behavior for lengths.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_lengths
       (params
         (tokens ptr))
@@ -358,7 +798,19 @@
             (call_ptr
               tokens_lengths_field
               (param_get tokens))))))
-    (fn
+
+; tokens_values
+;
+; Provides token storage behavior for values.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_values
       (params
         (tokens ptr))
@@ -369,7 +821,18 @@
             (call_ptr
               tokens_values_field
               (param_get tokens))))))
-    (fn
+
+; tokens_count
+;
+; Provides token storage behavior for count.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       tokens_count
       (params
         (tokens ptr))
@@ -380,7 +843,18 @@
             (call_ptr
               tokens_count_field
               (param_get tokens))))))
-    (fn
+
+; tokens_capacity
+;
+; Provides token storage behavior for capacity.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   i64 result value.
+
+(fn
       tokens_capacity
       (params
         (tokens ptr))
@@ -391,7 +865,23 @@
             (call_ptr
               tokens_capacity_field
               (param_get tokens))))))
-    (fn
+
+; =============================================================================
+; Token mutators
+; =============================================================================
+
+; tokens_set_kinds
+;
+; Stores a new token storage `kinds` pointer or count value.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   kinds - Token kind array pointer.
+; Returns:
+;   no value.
+
+(fn
       tokens_set_kinds
       (params
         (tokens ptr)
@@ -404,7 +894,19 @@
             (param_get tokens))
           (param_get kinds))
         (return_void)))
-    (fn
+
+; tokens_set_starts
+;
+; Stores a new token storage `starts` pointer or count value.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   starts - Token start array pointer.
+; Returns:
+;   no value.
+
+(fn
       tokens_set_starts
       (params
         (tokens ptr)
@@ -417,7 +919,19 @@
             (param_get tokens))
           (param_get starts))
         (return_void)))
-    (fn
+
+; tokens_set_lengths
+;
+; Stores a new token storage `lengths` pointer or count value.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   lengths - Token length array pointer.
+; Returns:
+;   no value.
+
+(fn
       tokens_set_lengths
       (params
         (tokens ptr)
@@ -430,7 +944,19 @@
             (param_get tokens))
           (param_get lengths))
         (return_void)))
-    (fn
+
+; tokens_set_values
+;
+; Stores a new token storage `values` pointer or count value.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   values - Token value array pointer.
+; Returns:
+;   no value.
+
+(fn
       tokens_set_values
       (params
         (tokens ptr)
@@ -443,7 +969,19 @@
             (param_get tokens))
           (param_get values))
         (return_void)))
-    (fn
+
+; tokens_set_count
+;
+; Stores a new token storage `count` pointer or count value.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   count - Number of entries.
+; Returns:
+;   no value.
+
+(fn
       tokens_set_count
       (params
         (tokens ptr)
@@ -456,7 +994,19 @@
             (param_get tokens))
           (param_get count))
         (return_void)))
-    (fn
+
+; tokens_set_capacity
+;
+; Stores a new token storage `capacity` pointer or count value.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   capacity - Allocated capacity.
+; Returns:
+;   no value.
+
+(fn
       tokens_set_capacity
       (params
         (tokens ptr)
@@ -469,7 +1019,20 @@
             (param_get tokens))
           (param_get capacity))
         (return_void)))
-    (fn
+
+; =============================================================================
+; Token storage allocation
+; =============================================================================
+
+; tokens_new
+;
+; Provides token storage behavior for new.
+;
+; Returns:
+;   pointer result.
+;   null only when allocation or lookup fails.
+
+(fn
       tokens_new
       (params)
       (returns ptr)
@@ -627,7 +1190,18 @@
           (local_get capacity))
         (return
           (local_get tokens))))
-    (fn
+
+; tokens_free
+;
+; Provides token storage behavior for free.
+;
+;
+; Parameters:
+;   tokens - Token stream pointer.
+; Returns:
+;   no value.
+
+(fn
       tokens_free
       (params
         (tokens ptr))
@@ -719,7 +1293,23 @@
           free
           (param_get tokens))
         (return_void)))
-    (fn
+
+; =============================================================================
+; Token storage growth
+; =============================================================================
+
+; tokens_reserve
+;
+; Provides token storage behavior for reserve.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   needed - Required capacity.
+; Returns:
+;   i32 result value.
+
+(fn
       tokens_reserve
       (params
         (tokens ptr)
@@ -858,7 +1448,22 @@
           (local_get new_capacity))
         (return
           (const_i32 0))))
-    (fn
+
+; tokens_push
+;
+; Provides token storage behavior for push.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;   kind - Integer kind id.
+;   start - Source byte offset.
+;   length - Byte length.
+;
+;   value - Value to store or emit.
+; Returns:
+;   i32 result value.
+
+(fn
       tokens_push
       (params
         (tokens ptr)
@@ -936,7 +1541,19 @@
           (local_get needed))
         (return
           (const_i32 0))))
-    (fn
+
+; token_kind_at
+;
+; Returns the token kind constant for `kind-at`.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_kind_at
       (params
         (tokens ptr)
@@ -952,7 +1569,19 @@
               (mul_i64
                 (param_get index)
                 (const_i64 4)))))))
-    (fn
+
+; token_start_at
+;
+; Returns the token kind constant for `start-at`.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       token_start_at
       (params
         (tokens ptr)
@@ -968,7 +1597,19 @@
               (mul_i64
                 (param_get index)
                 (const_i64 8)))))))
-    (fn
+
+; token_length_at
+;
+; Returns the token kind constant for `length-at`.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   i64 result value.
+
+(fn
       token_length_at
       (params
         (tokens ptr)
@@ -984,7 +1625,19 @@
               (mul_i64
                 (param_get index)
                 (const_i64 8)))))))
-    (fn
+
+; token_value_at
+;
+; Returns the token kind constant for `value-at`.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   integer constant or field value.
+
+(fn
       token_value_at
       (params
         (tokens ptr)
@@ -1000,7 +1653,21 @@
               (mul_i64
                 (param_get index)
                 (const_i64 4)))))))
-    (fn
+
+; token_is
+;
+; Returns the token kind constant for `is`.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;   index - AST node index.
+;
+;   expected - Expected token kind.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       token_is
       (params
         (tokens ptr)
@@ -1015,7 +1682,20 @@
               (param_get tokens)
               (param_get index))
             (param_get expected)))))
-    (fn
+
+; token_is_eof
+;
+; Returns the token kind constant for `is-eof`.
+;
+; Parameters:
+;   tokens - Token stream pointer.
+;
+;   index - AST node index or token index.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       token_is_eof
       (params
         (tokens ptr)

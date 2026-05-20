@@ -1,7 +1,34 @@
+; stage0_bridge.wir
+;
+; Stage 0 compatibility bridge.
+;
+; Responsibilities:
+;   - expose the entry point expected by the stage 0 build path
+;   - forward execution to the normal compiler main function
+;
+; This file intentionally contains no compiler logic.
+
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Bridge entry point
+; =============================================================================
+
+; main
+;
+; Implements main for the weavec1 bootstrap compiler.
+;
+; Parameters:
+;   argc - Argument count.
+;
+;   argv - Argument vector pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       main
       (params
         (argc i32)

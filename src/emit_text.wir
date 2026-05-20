@@ -1,12 +1,35 @@
 ; emit_text.wir
-; Low-level LLVM IR text emission primitives.
-; Provides byte-level and formatted output functions.
-; No semantic LLVM logic - pure text manipulation.
+;
+; Low-level text emission helpers.
+;
+; Responsibilities:
+;   - append C strings and individual bytes to output buffers
+;   - emit integer values as text
+;   - copy source slices into generated LLVM text
+;
+; These helpers are intentionally small wrappers around buffer operations.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Text buffer emission
+; =============================================================================
+
+; emit_cstr
+;
+; Emits or computes LLVM output for cstr.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   text - Text pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_cstr
       (params
         (ctx ptr)
@@ -20,7 +43,20 @@
               ctx_output
               (param_get ctx))
             (param_get text)))))
-    (fn
+
+; emit_byte
+;
+; Emits or computes LLVM output for byte.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   byte - Byte value.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_byte
       (params
         (ctx ptr)
@@ -34,7 +70,20 @@
               ctx_output
               (param_get ctx))
             (param_get byte)))))
-    (fn
+
+; emit_i32
+;
+; Emits or computes LLVM output for i32.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   value - Value to store or emit.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_i32
       (params
         (ctx ptr)
@@ -48,7 +97,20 @@
               ctx_output
               (param_get ctx))
             (param_get value)))))
-    (fn
+
+; emit_i64_as_i32
+;
+; Emits or computes LLVM output for i64 as i32.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   value - Value to store or emit.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_i64_as_i32
       (params
         (ctx ptr)
@@ -61,7 +123,21 @@
             (param_get ctx)
             (cast_i64_to_i32
               (param_get value))))))
-    (fn
+
+; emit_source_slice
+;
+; Emits or computes LLVM output for source slice.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   start - Source byte offset.
+;
+;   length - Byte length.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_source_slice
       (params
         (ctx ptr)
@@ -83,7 +159,19 @@
                   (param_get ctx)))
               (param_get start))
             (param_get length)))))
-    (fn
+
+; emit_newline
+;
+; Emits or computes LLVM output for newline.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_newline
       (params
         (ctx ptr))

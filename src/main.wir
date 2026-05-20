@@ -1,7 +1,30 @@
+; main.wir
+;
+; Command-line entry point for weavec1.
+;
+; Responsibilities:
+;   - validate command-line arguments
+;   - print user-facing usage and banner text
+;   - invoke the compiler driver for input and output paths
+;
+; The compiler pipeline itself lives in driver.wir.
+
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; CLI entry point
+; =============================================================================
+
+; print_usage
+;
+; Implements print usage for the weavec1 bootstrap compiler.
+;
+; Returns:
+;   no value.
+
+(fn
       print_usage
       (params)
       (returns void)
@@ -10,7 +33,15 @@
           puts
           (const_string_ptr "usage: weavec1 <input.wir> <output.ll>"))
         (return_void)))
-    (fn
+
+; print_banner
+;
+; Implements print banner for the weavec1 bootstrap compiler.
+;
+; Returns:
+;   no value.
+
+(fn
       print_banner
       (params)
       (returns void)
@@ -19,7 +50,20 @@
           puts
           (const_string_ptr "weavec1 - Weave bootstrap compiler"))
         (return_void)))
-    (fn
+
+; main
+;
+; Implements main for the weavec1 bootstrap compiler.
+;
+; Parameters:
+;   argc - Argument count.
+;
+;   argv - Argument vector pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       main
       (params
         (argc i32)

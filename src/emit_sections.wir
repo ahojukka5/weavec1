@@ -1,12 +1,35 @@
 ; emit_sections.wir
-; Module header and declaration section formatting.
-; Handles LLVM module structure, target triple, runtime declarations,
-; and forward declaration emission.
+;
+; LLVM module section and declaration helpers.
+;
+; Responsibilities:
+;   - emit module headers
+;   - detect whether runtime declarations are needed
+;   - emit external runtime declarations on demand
+;
+; The declaration checks are simple AST scans so generated LLVM stays minimal
+; without adding a separate analysis phase.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; Module header emission
+; =============================================================================
+
+; emit_module_header
+;
+; Emits or computes LLVM output for module header.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_module_header
       (params
         (ctx ptr))
@@ -63,7 +86,25 @@
           (param_get ctx))
         (return
           (const_i32 0))))
-    (fn
+
+; =============================================================================
+; Runtime usage scans
+; =============================================================================
+
+; emit_uses_call_name
+;
+; Emits or computes LLVM output for uses call name.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   name - Name source pointer or id.
+;
+;   name_len - Name byte length.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       emit_uses_call_name
       (params
         (ctx ptr)
@@ -142,7 +183,26 @@
                 (const_i64 1)))))
         (return
           (const_bool false))))
-    (fn
+
+; =============================================================================
+; Runtime declaration emission
+; =============================================================================
+
+; emit_declare_if_used
+;
+; Emits or computes LLVM output for declare if used.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;   name - Name source pointer or id.
+;   name_len - i64 parameter.
+;
+;   decl - Runtime declaration text pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_declare_if_used
       (params
         (ctx ptr)
@@ -171,7 +231,20 @@
             (do)))
         (return
           (const_i32 0))))
-    (fn
+
+; emit_uses_node_kind
+;
+; Emits or computes LLVM output for uses node kind.
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+;
+;   kind - Integer kind id.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       emit_uses_node_kind
       (params
         (ctx ptr)
@@ -221,7 +294,19 @@
                 (const_i64 1)))))
         (return
           (const_bool false))))
-    (fn
+
+; emit_declare_puts_if_used
+;
+; Emits or computes LLVM output for declare puts if used.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_declare_puts_if_used
       (params
         (ctx ptr))
@@ -252,7 +337,19 @@
             (do)))
         (return
           (const_i32 0))))
-    (fn
+
+; emit_uses_runtime_declaration
+;
+; Emits or computes LLVM output for uses runtime declaration.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   true when the predicate matches.
+;   false otherwise.
+
+(fn
       emit_uses_runtime_declaration
       (params
         (ctx ptr))
@@ -357,7 +454,19 @@
             (do)))
         (return
           (const_bool false))))
-    (fn
+
+; emit_runtime_declarations
+;
+; Emits or computes LLVM output for runtime declarations.
+;
+;
+; Parameters:
+;   ctx - EmitContext pointer.
+; Returns:
+;   0 on success or a successful false/no result when documented by the caller.
+;   nonzero on failure or true/yes result depending on the predicate.
+
+(fn
       emit_runtime_declarations
       (params
         (ctx ptr))

@@ -1,12 +1,41 @@
 ; ast_constructors.wir
-; AST node constructor functions.
-; Each ast_make_* function creates a new typed node in the AST,
-; filling in the appropriate fields and returning the node index.
+;
+; AST node constructor helpers.
+;
+; Responsibilities:
+;   - append typed AST nodes to the shared storage array
+;   - encode each node kind's field layout in one place
+;   - preserve parser readability by hiding raw ast_push calls
+;
+; Constructors return node indices. They do not validate higher-level syntax.
 
 (core-module
   (core-version 1)
   (decls
-    (fn
+
+; =============================================================================
+; AST constructors
+; =============================================================================
+
+; ast_make_program
+;
+; Creates and appends an AST program node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   first - First node index in a contiguous range.
+;   last - Last node index in a contiguous range.
+;
+;   count - Number of entries.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_program
       (params
         (ast ptr)
@@ -27,7 +56,28 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_extern
+;
+; Creates and appends an AST extern node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   return_type - Function return type id.
+;   param_first - i64 parameter.
+;   param_count - Number of parameter bindings.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_extern
       (params
         (ast ptr)
@@ -51,7 +101,29 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_function
+;
+; Creates and appends an AST function node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   return_type - Function return type id.
+;   param_first - i64 parameter.
+;   param_count - Number of parameter bindings.
+;   do_node - i64 parameter.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_function
       (params
         (ast ptr)
@@ -76,7 +148,26 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_param
+;
+; Creates and appends an AST param node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   type_id - i32 parameter.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_param
       (params
         (ast ptr)
@@ -98,7 +189,26 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_block
+;
+; Creates and appends an AST block node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   first - First node index in a contiguous range.
+;   last - Last node index in a contiguous range.
+;
+;   count - Number of entries.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_block
       (params
         (ast ptr)
@@ -119,7 +229,24 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_return
+;
+; Creates and appends an AST return node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   expr - Expression node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_return
       (params
         (ast ptr)
@@ -138,7 +265,23 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_return_void
+;
+; Creates and appends an AST return void node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+;
+; Parameters:
+;   ast - AST container pointer.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_return_void
       (params
         (ast ptr))
@@ -156,7 +299,26 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_if
+;
+; Creates and appends an AST if node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   cond - i64 parameter.
+;   then_node - i64 parameter.
+;
+;   else_node - Else branch node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_if
       (params
         (ast ptr)
@@ -177,7 +339,25 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_while
+;
+; Creates and appends an AST while node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   cond - i64 parameter.
+;
+;   do_node - Body block node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_while
       (params
         (ast ptr)
@@ -197,7 +377,27 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_let
+;
+; Creates and appends an AST let node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   type_id - i32 parameter.
+;   expr - Expression node index.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_let
       (params
         (ast ptr)
@@ -220,7 +420,26 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_set
+;
+; Creates and appends an AST set node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   expr - Expression node index.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_set
       (params
         (ast ptr)
@@ -241,7 +460,24 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_const_i32
+;
+; Creates and appends an AST const i32 node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   value - Value to store or emit.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_const_i32
       (params
         (ast ptr)
@@ -261,7 +497,24 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_const_i64
+;
+; Creates and appends an AST const i64 node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   value - Value to store or emit.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_const_i64
       (params
         (ast ptr)
@@ -280,7 +533,24 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_const_bool
+;
+; Creates and appends an AST const bool node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   value - Value to store or emit.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_const_bool
       (params
         (ast ptr)
@@ -300,7 +570,23 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_const_null
+;
+; Creates and appends an AST const null node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+;
+; Parameters:
+;   ast - AST container pointer.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_const_null
       (params
         (ast ptr))
@@ -318,7 +604,25 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_const_string
+;
+; Creates and appends an AST const string node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   text_start - Source byte offset.
+;
+;   text_len - Source byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_const_string
       (params
         (ast ptr)
@@ -338,7 +642,26 @@
             (const_i64 0)
             (param_get text_start)
             (param_get text_len)))))
-    (fn
+
+; ast_make_name_ref
+;
+; Creates and appends an AST name ref node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   kind - Integer kind id.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_name_ref
       (params
         (ast ptr)
@@ -359,7 +682,28 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_call
+;
+; Creates and appends an AST call node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   op - Operator id.
+;   arg_first - i64 parameter.
+;   arg_count - i64 parameter.
+;   name_start - i64 parameter.
+;
+;   name_len - Name byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_call
       (params
         (ast ptr)
@@ -383,7 +727,25 @@
             (const_i64 0)
             (param_get name_start)
             (param_get name_len)))))
-    (fn
+
+; ast_make_unary
+;
+; Creates and appends an AST unary node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   op - Operator id.
+;
+;   arg - Argument expression node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_unary
       (params
         (ast ptr)
@@ -404,7 +766,26 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_binary
+;
+; Creates and appends an AST binary node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   op - Operator id.
+;   lhs - Left operand node or value.
+;
+;   rhs - Right operand node or value.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_binary
       (params
         (ast ptr)
@@ -426,7 +807,25 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_load
+;
+; Creates and appends an AST load node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   op - Operator id.
+;
+;   ptr_expr - Pointer expression node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_load
       (params
         (ast ptr)
@@ -447,7 +846,26 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_store
+;
+; Creates and appends an AST store node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   op - Operator id.
+;   ptr_expr - i64 parameter.
+;
+;   value_expr - Value expression node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_store
       (params
         (ast ptr)
@@ -469,7 +887,24 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_print
+;
+; Creates and appends an AST print node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;
+;   expr - Expression node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_print
       (params
         (ast ptr)
@@ -488,7 +923,25 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_arg
+;
+; Creates and appends an AST arg node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   expr - Expression node index.
+;
+;   previous - Previous argument node index.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_arg
       (params
         (ast ptr)
@@ -508,7 +961,26 @@
             (const_i64 0)
             (const_i64 0)
             (const_i64 0)))))
-    (fn
+
+; ast_make_debug
+;
+; Creates and appends an AST debug node using the shared node layout.
+;
+; Notes:
+;   This constructor centralizes field placement so parser code does not write
+;   raw AST storage slots directly.
+;
+; Parameters:
+;   ast - AST container pointer.
+;   body - Body block node index.
+;   message_start - i64 parameter.
+;
+;   message_len - Message byte length.
+; Returns:
+;   AST node index on success.
+;   -1 on parse or allocation failure.
+
+(fn
       ast_make_debug
       (params
         (ast ptr)
