@@ -228,6 +228,41 @@ run_case() {
   log "ok $name"
 }
 
+run_compile_fail_case() {
+  local compiler="$1"
+  local compiler_name="$2"
+  local test_ll_dir="$3"
+  local name="$4"
+
+  local src="$TEST_DIR/${name}.wir"
+  local ll="$test_ll_dir/${name}.ll"
+  local output="$test_ll_dir/${name}.compiler-output"
+
+  [[ -f "$src" ]] || fail "missing test source: $src"
+
+  log "compile-fail test $name"
+  set +e
+  "$compiler" "$src" "$ll" >"$output" 2>&1
+  local compile_status=$?
+  set -e
+
+  if [[ "$compile_status" == 0 ]]; then
+    printf '\n--- unexpected generated LLVM IR: %s ---\n' "$ll" >&2
+    sed -n '1,120p' "$ll" >&2 || true
+    printf '\n' >&2
+    fail "$name: expected $compiler_name compiler failure, got success"
+  fi
+
+  if ! grep -q "parse failed" "$output"; then
+    printf '\n--- compiler output: %s ---\n' "$output" >&2
+    sed -n '1,120p' "$output" >&2 || true
+    printf '\n' >&2
+    fail "$name: expected parse error diagnostic"
+  fi
+
+  log "ok $name"
+}
+
 run_tests() {
   local compiler="$1"
   local compiler_name="$2"
@@ -276,6 +311,16 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "38_i32_comparisons_full" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "39_i64_ge_gt" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "40_call_bool_direct" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "41_load_store_ptr" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "42_empty_do" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "43_if_fallthrough_join" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "44_while_zero_iterations" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "45_nested_while" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "46_forward_function_call" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "47_multiple_externs_used_subset" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "48_string_escape" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "49_negative_i32_literal" 42
+  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "50_parse_error_smoke"
 
   log "all $compiler_name tests passed"
 }

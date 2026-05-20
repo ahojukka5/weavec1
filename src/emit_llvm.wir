@@ -3376,8 +3376,8 @@
           (param_get ctx)
           (add_i64
             (call_i64
-              ast_text_len_at
-              (local_get ast)
+              emit_string_decoded_length
+              (param_get ctx)
               (param_get node))
             (const_i64 1)))
         (call_i32
