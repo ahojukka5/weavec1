@@ -417,6 +417,24 @@
         (let index i64
           (param_get start))
 
+        (if
+          (and_bool
+            (lt_i64
+              (local_get index)
+              (local_get length))
+            (eq_i32
+              (call_i32 source_byte_at
+                (param_get source)
+                (local_get index))
+              (const_i32 45)))
+          (then
+            (set index
+              (add_i64
+                (local_get index)
+                (const_i64 1))))
+          (else
+            (block)))
+
         (while
           (and_bool
             (lt_i64
@@ -888,6 +906,43 @@
                     (const_i32 0))
                   (call_bool is_digit
                     (local_get ch)))
+
+                (then
+                  (block
+                    (set index
+                      (call_i64 lex_integer
+                        (param_get source)
+                        (param_get tokens)
+                        (local_get index)))
+
+                    (set handled
+                      (const_i32 1))))
+
+                (else
+                  (block)))
+
+              (if
+                (and_bool
+                  (eq_i32
+                    (local_get handled)
+                    (const_i32 0))
+                  (and_bool
+                    (eq_i32
+                      (local_get ch)
+                      (const_i32 45))
+                    (and_bool
+                      (lt_i64
+                        (add_i64
+                          (local_get index)
+                          (const_i64 1))
+                        (call_i64 source_length
+                          (param_get source)))
+                      (call_bool is_digit
+                        (call_i32 source_byte_at
+                          (param_get source)
+                          (add_i64
+                            (local_get index)
+                            (const_i64 1)))))))
 
                 (then
                   (block

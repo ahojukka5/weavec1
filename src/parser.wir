@@ -449,6 +449,10 @@
           (then (return (call_i32 op_mul_i32)))
           (else (block)))
 
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "div_i32") (const_i64 7))
+          (then (return (call_i32 op_div_i32)))
+          (else (block)))
+
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "mod_i32") (const_i64 7))
           (then (return (call_i32 op_mod_i32)))
           (else (block)))
@@ -460,6 +464,10 @@
 
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "lt_i32") (const_i64 6))
           (then (return (call_i32 op_lt_i32)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "le_i32") (const_i64 6))
+          (then (return (call_i32 op_le_i32)))
           (else (block)))
 
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "lt_i64") (const_i64 6))
@@ -502,6 +510,10 @@
 
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "cast_i64_to_i32") (const_i64 15))
           (then (return (call_i32 op_cast_i64_to_i32)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "cast_i32_to_i64") (const_i64 15))
+          (then (return (call_i32 op_cast_i32_to_i64)))
           (else (block)))
 
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "load_i32") (const_i64 8))
@@ -1660,6 +1672,11 @@
           (else (block)))
 
         (if
+          (eq_i32 (local_get op_id) (call_i32 op_div_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
           (eq_i32 (local_get op_id) (call_i32 op_mod_i32))
           (then (set is_binary (const_i32 1)))
           (else (block)))
@@ -1681,6 +1698,11 @@
 
         (if
           (eq_i32 (local_get op_id) (call_i32 op_lt_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_le_i32))
           (then (set is_binary (const_i32 1)))
           (else (block)))
 
@@ -1794,7 +1816,9 @@
         (if
           (or_bool
             (or_bool
-              (eq_i32 (local_get op_id) (call_i32 op_load_i64))
+              (or_bool
+                (eq_i32 (local_get op_id) (call_i32 op_load_i32))
+                (eq_i32 (local_get op_id) (call_i32 op_load_i64)))
               (eq_i32 (local_get op_id) (call_i32 op_load_ptr)))
             (eq_i32 (local_get op_id) (call_i32 op_load_u8)))
 
@@ -1836,7 +1860,9 @@
         (if
           (or_bool
             (or_bool
-              (eq_i32 (local_get op_id) (call_i32 op_store_i64))
+              (or_bool
+                (eq_i32 (local_get op_id) (call_i32 op_store_i32))
+                (eq_i32 (local_get op_id) (call_i32 op_store_i64)))
               (eq_i32 (local_get op_id) (call_i32 op_store_ptr)))
             (eq_i32 (local_get op_id) (call_i32 op_store_i8)))
 
@@ -1888,9 +1914,13 @@
             (block)))
 
         (if
-          (eq_i32
-            (local_get op_id)
-            (call_i32 op_cast_i64_to_i32))
+          (or_bool
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_cast_i64_to_i32))
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_cast_i32_to_i64)))
 
           (then
             (block

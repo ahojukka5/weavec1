@@ -874,7 +874,9 @@
           (not_bool
             (or_bool
               (or_bool
-                (eq_i32 (local_get op) (call_i32 op_load_i64))
+                (or_bool
+                  (eq_i32 (local_get op) (call_i32 op_load_i32))
+                  (eq_i32 (local_get op) (call_i32 op_load_i64)))
                 (eq_i32 (local_get op) (call_i32 op_load_ptr)))
               (eq_i32 (local_get op) (call_i32 op_load_u8))))
           (then (return (const_i64 -1)))
@@ -882,16 +884,21 @@
 
         (call_i32 emit_temp_name (param_get ctx) (local_get temp))
         (if
-          (eq_i32 (local_get op) (call_i32 op_load_i64))
+          (eq_i32 (local_get op) (call_i32 op_load_i32))
           (then
-            (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load i64, ptr ")))
+            (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load i32, ptr ")))
           (else
             (if
-              (eq_i32 (local_get op) (call_i32 op_load_ptr))
+              (eq_i32 (local_get op) (call_i32 op_load_i64))
               (then
-                (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load ptr, ptr ")))
+                (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load i64, ptr ")))
               (else
-                (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load i8, ptr "))))))
+                (if
+                  (eq_i32 (local_get op) (call_i32 op_load_ptr))
+                  (then
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load ptr, ptr ")))
+                  (else
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = load i8, ptr "))))))))
         (call_i32 emit_temp_name (param_get ctx) (local_get ptr_value))
         (call_i32 emit_newline (param_get ctx))
 
@@ -1020,6 +1027,20 @@
         (if
           (eq_i32
             (local_get op)
+            (call_i32 op_cast_i32_to_i64))
+          (then
+            (block
+              (call_i32 emit_temp_name (param_get ctx) (local_get temp))
+              (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = sext i32 "))
+              (call_i32 emit_temp_name (param_get ctx) (local_get arg_value))
+              (call_i32 emit_cstr (param_get ctx) (const_string_ptr " to i64"))
+              (call_i32 emit_newline (param_get ctx))
+              (return (local_get temp))))
+          (else (block)))
+
+        (if
+          (eq_i32
+            (local_get op)
             (call_i32 op_not_bool))
           (then
             (block
@@ -1098,6 +1119,10 @@
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = mul i32 "))))
           (else (block)))
 
+        (if (eq_i32 (param_get op) (call_i32 op_div_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = sdiv i32 "))))
+          (else (block)))
+
         (if (eq_i32 (param_get op) (call_i32 op_mod_i32))
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = srem i32 "))))
           (else (block)))
@@ -1116,6 +1141,10 @@
 
         (if (eq_i32 (param_get op) (call_i32 op_lt_i32))
           (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp slt i32 "))))
+          (else (block)))
+
+        (if (eq_i32 (param_get op) (call_i32 op_le_i32))
+          (then (return (call_i32 emit_cstr (param_get ctx) (const_string_ptr " = icmp sle i32 "))))
           (else (block)))
 
         (if (eq_i32 (param_get op) (call_i32 op_lt_i64))
@@ -1685,7 +1714,9 @@
           (not_bool
             (or_bool
               (or_bool
-                (eq_i32 (local_get op) (call_i32 op_store_i64))
+                (or_bool
+                  (eq_i32 (local_get op) (call_i32 op_store_i32))
+                  (eq_i32 (local_get op) (call_i32 op_store_i64)))
                 (eq_i32 (local_get op) (call_i32 op_store_ptr)))
               (eq_i32 (local_get op) (call_i32 op_store_i8))))
           (then (return (const_i32 1)))
@@ -1740,16 +1771,21 @@
           (else (block)))
 
         (if
-          (eq_i32 (local_get op) (call_i32 op_store_i64))
+          (eq_i32 (local_get op) (call_i32 op_store_i32))
           (then
-            (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store i64 ")))
+            (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store i32 ")))
           (else
             (if
-              (eq_i32 (local_get op) (call_i32 op_store_ptr))
+              (eq_i32 (local_get op) (call_i32 op_store_i64))
               (then
-                (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store ptr ")))
+                (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store i64 ")))
               (else
-                (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store i8 "))))))
+                (if
+                  (eq_i32 (local_get op) (call_i32 op_store_ptr))
+                  (then
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store ptr ")))
+                  (else
+                    (call_i32 emit_cstr (param_get ctx) (const_string_ptr "  store i8 "))))))))
         (call_i32 emit_temp_name (param_get ctx) (local_get store_value))
         (call_i32 emit_cstr (param_get ctx) (const_string_ptr ", ptr "))
         (call_i32 emit_temp_name (param_get ctx) (local_get ptr_value))
