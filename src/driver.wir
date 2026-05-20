@@ -177,11 +177,50 @@
           (else
             (block)))
 
-        ; Parse
+        ; Parse the WIR module and keep the AST program node.
+        (let program_node i64
+          (call_i64 parse
+            (local_get parser)))
+
+        (if
+          (lt_i64
+            (local_get program_node)
+            (const_i64 0))
+
+          (then
+            (block
+              (call_void parser_free
+                (local_get parser))
+
+              (call_void ast_free
+                (local_get tree))
+
+              (call_void tokens_free
+                (local_get tokens))
+
+              (call_void source_free
+                (local_get source))
+
+              (call_i32 driver_error
+                (const_string_ptr "error: parse failed"))
+
+              (return
+                (const_i32 1))))
+
+          (else
+            (block)))
+
+        ; Emit LLVM
+        (let emit_status i32
+          (call_i32 emit_llvm
+            (local_get source)
+            (local_get tree)
+            (local_get program_node)
+            (param_get output)))
+
         (if
           (ne_i32
-            (call_i32 parse
-              (local_get parser))
+            (local_get emit_status)
             (const_i32 0))
 
           (then
@@ -198,28 +237,14 @@
               (call_void source_free
                 (local_get source))
 
+              (call_i32 driver_error
+                (const_string_ptr "error: emit llvm failed"))
+
               (return
                 (const_i32 1))))
 
           (else
             (block)))
-
-        ; In the current parser skeleton, parse() validates the token stream but
-        ; does not yet return/store a real program node. Until parser.wir grows
-        ; full AST construction, this value is a placeholder.
-        ;
-        ; Once parse_program returns an AST_PROGRAM node, replace this with that
-        ; value.
-        (let program_node i64
-          (const_i64 0))
-
-        ; Emit LLVM
-        (let emit_status i32
-          (call_i32 emit_llvm
-            (local_get source)
-            (local_get tree)
-            (local_get program_node)
-            (param_get output)))
 
         ; Cleanup
         (call_void parser_free
@@ -252,7 +277,7 @@
       (returns i32)
       (body
         (return
-          (call_i32 weave_compile_file
+          (call_i32 compile_file_self_hosted
             (param_get input_path)
             (param_get output_path)))))
 

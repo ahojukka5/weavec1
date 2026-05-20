@@ -437,6 +437,10 @@
           (then (return (call_i32 op_add_i64)))
           (else (block)))
 
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "mul_i64") (const_i64 7))
+          (then (return (call_i32 op_mul_i64)))
+          (else (block)))
+
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "sub_i32") (const_i64 7))
           (then (return (call_i32 op_sub_i32)))
           (else (block)))
@@ -450,8 +454,28 @@
           (then (return (call_i32 op_eq_i32)))
           (else (block)))
 
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "lt_i32") (const_i64 6))
+          (then (return (call_i32 op_lt_i32)))
+          (else (block)))
+
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "lt_i64") (const_i64 6))
           (then (return (call_i32 op_lt_i64)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "le_i64") (const_i64 6))
+          (then (return (call_i32 op_le_i64)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "ne_i64") (const_i64 6))
+          (then (return (call_i32 op_ne_i64)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "eq_ptr") (const_i64 6))
+          (then (return (call_i32 op_eq_ptr)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "ne_ptr") (const_i64 6))
+          (then (return (call_i32 op_ne_ptr)))
           (else (block)))
 
         ; boolean
@@ -459,9 +483,21 @@
           (then (return (call_i32 op_and_bool)))
           (else (block)))
 
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "or_bool") (const_i64 7))
+          (then (return (call_i32 op_or_bool)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "not_bool") (const_i64 8))
+          (then (return (call_i32 op_not_bool)))
+          (else (block)))
+
         ; memory
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "ptr_add") (const_i64 7))
           (then (return (call_i32 op_ptr_add)))
+          (else (block)))
+
+        (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "cast_i64_to_i32") (const_i64 15))
+          (then (return (call_i32 op_cast_i64_to_i32)))
           (else (block)))
 
         (if (call_bool bytes_equal (local_get text) (local_get length) (const_string_ptr "load_i32") (const_i64 8))
@@ -605,6 +641,558 @@
           (const_i64 -1))))
 
     ; -------------------------------------------------------------------------
+    ; Parse statement
+    ; -------------------------------------------------------------------------
+
+    (fn parser_parse_stmt
+      (params
+        (parser ptr))
+      (returns i64)
+      (body
+        (if
+          (ne_i32
+            (call_i32 parser_current_kind
+              (param_get parser))
+            (call_i32 token_lparen))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let tokens ptr
+          (call_ptr parser_tokens
+            (param_get parser)))
+
+        (let index i64
+          (call_i64 parser_index
+            (param_get parser)))
+
+        (let head_kind i32
+          (call_i32 token_eof))
+
+        (if
+          (lt_i64
+            (add_i64 (local_get index) (const_i64 1))
+            (call_i64 tokens_count
+              (local_get tokens)))
+
+          (then
+            (block
+              (set head_kind
+                (call_i32 token_kind_at
+                  (local_get tokens)
+                  (add_i64
+                    (local_get index)
+                    (const_i64 1))))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get head_kind)
+            (call_i32 token_return))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let expr i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get expr)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_return
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get expr)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get head_kind)
+            (call_i32 token_let))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let let_name_start i64
+                (call_i64 parser_current_start
+                  (param_get parser)))
+
+              (let let_name_len i64
+                (call_i64 parser_current_length
+                  (param_get parser)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let let_type i32
+                (call_i32 parser_parse_type
+                  (param_get parser)))
+
+              (if
+                (lt_i32
+                  (local_get let_type)
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let let_expr i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get let_expr)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_let
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get let_type)
+                  (local_get let_expr)
+                  (local_get let_name_start)
+                  (local_get let_name_len)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get head_kind)
+            (call_i32 token_set))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let set_name_start i64
+                (call_i64 parser_current_start
+                  (param_get parser)))
+
+              (let set_name_len i64
+                (call_i64 parser_current_length
+                  (param_get parser)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let set_expr i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get set_expr)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_set
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get set_expr)
+                  (local_get set_name_start)
+                  (local_get set_name_len)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get head_kind)
+            (call_i32 token_if))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let if_cond i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get if_cond)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_lparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_then))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (let then_stmt i64
+                (call_i64 parser_parse_stmt
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get then_stmt)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_lparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_ident))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (let else_stmt i64
+                (call_i64 parser_parse_stmt
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get else_stmt)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_if
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get if_cond)
+                  (local_get then_stmt)
+                  (local_get else_stmt)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get head_kind)
+            (call_i32 token_block))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let block_first i64
+                (call_i64 ast_count
+                  (call_ptr parser_ast
+                    (param_get parser))))
+
+              (let block_last i64
+                (const_i64 -1))
+
+              (let block_count i64
+                (const_i64 0))
+
+              (while
+                (not_bool
+                  (call_bool parser_match
+                    (param_get parser)
+                    (call_i32 token_rparen)))
+
+                (body
+                  (block
+                    (let block_stmt i64
+                      (call_i64 parser_parse_stmt
+                        (param_get parser)))
+
+                    (if
+                      (lt_i64
+                        (local_get block_stmt)
+                        (const_i64 0))
+                      (then (return (const_i64 -1)))
+                      (else (block)))
+
+                    (set block_last
+                      (local_get block_stmt))
+
+                    (set block_count
+                      (add_i64
+                        (local_get block_count)
+                        (const_i64 1))))))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_block
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get block_first)
+                  (local_get block_last)
+                  (local_get block_count)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get head_kind)
+            (call_i32 token_while))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let while_cond i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get while_cond)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_lparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_body))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (let while_body i64
+                (call_i64 parser_parse_stmt
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get while_body)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_while
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get while_cond)
+                  (local_get while_body)))))
+
+          (else
+            (block)))
+
+        (return
+          (call_i64 parser_parse_list_expression
+            (param_get parser)))))
+
+    ; -------------------------------------------------------------------------
     ; Parse list expression
     ; -------------------------------------------------------------------------
 
@@ -649,9 +1237,666 @@
           (call_i64 parser_ident_length
             (param_get parser)))
 
+        (let source ptr
+          (call_ptr parser_source
+            (param_get parser)))
+
+        (let op_text ptr
+          (ptr_add
+            (call_ptr source_data
+              (local_get source))
+            (local_get op_start)))
+
+        (if
+          (call_bool bytes_equal
+            (local_get op_text)
+            (local_get op_length)
+            (const_string_ptr "const_i32")
+            (const_i64 9))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_int))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let value i32
+                (call_i32 token_value_at
+                  (call_ptr parser_tokens
+                    (param_get parser))
+                  (call_i64 parser_index
+                    (param_get parser))))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_const_i32
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get value)))))
+
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (local_get op_text)
+            (local_get op_length)
+            (const_string_ptr "const_i64")
+            (const_i64 9))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_int))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (let value64 i32
+                (call_i32 token_value_at
+                  (call_ptr parser_tokens
+                    (param_get parser))
+                  (call_i64 parser_index
+                    (param_get parser))))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_const_i64
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (cast_i32_to_i64
+                    (local_get value64))))))
+
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (local_get op_text)
+            (local_get op_length)
+            (const_string_ptr "const_bool")
+            (const_i64 10))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (let bool_value i32
+                (const_i32 0))
+
+              (if
+                (call_bool bytes_equal
+                  (local_get op_text)
+                  (const_i64 0)
+                  (local_get op_text)
+                  (const_i64 0))
+                (then (set bool_value (const_i32 0)))
+                (else (block)))
+
+              (if
+                (call_bool bytes_equal
+                  (ptr_add
+                    (call_ptr source_data
+                      (local_get source))
+                    (call_i64 parser_current_start
+                      (param_get parser)))
+                  (call_i64 parser_current_length
+                    (param_get parser))
+                  (const_string_ptr "true")
+                  (const_i64 4))
+                (then (set bool_value (const_i32 1)))
+                (else (block)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_const_bool
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get bool_value)))))
+
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (local_get op_text)
+            (local_get op_length)
+            (const_string_ptr "const_null")
+            (const_i64 10))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_const_null
+                  (call_ptr parser_ast
+                    (param_get parser))))))
+
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (local_get op_text)
+            (local_get op_length)
+            (const_string_ptr "param_get")
+            (const_i64 9))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let name_start i64
+                (call_i64 parser_current_start
+                  (param_get parser)))
+
+              (let name_len i64
+                (call_i64 parser_current_length
+                  (param_get parser)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_name_ref
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (call_i32 ast_param_get)
+                  (local_get name_start)
+                  (local_get name_len)))))
+
+          (else
+            (block)))
+
+        (if
+          (call_bool bytes_equal
+            (local_get op_text)
+            (local_get op_length)
+            (const_string_ptr "local_get")
+            (const_i64 9))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let local_name_start i64
+                (call_i64 parser_current_start
+                  (param_get parser)))
+
+              (let local_name_len i64
+                (call_i64 parser_current_length
+                  (param_get parser)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_name_ref
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (call_i32 ast_local_get)
+                  (local_get local_name_start)
+                  (local_get local_name_len)))))
+
+          (else
+            (block)))
+
         (let op_id i32
           (call_i32 parser_lookup_op
             (param_get parser)))
+
+        (let is_binary i32
+          (const_i32 0))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_add_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_sub_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_mul_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_add_i64))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_mul_i64))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_eq_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_lt_i32))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_lt_i64))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_le_i64))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_ne_i64))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_and_bool))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_or_bool))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_eq_ptr))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (eq_i32 (local_get op_id) (call_i32 op_ne_ptr))
+          (then (set is_binary (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (local_get is_binary)
+            (const_i32 0))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (let lhs i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get lhs)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let rhs i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get rhs)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_binary
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get op_id)
+                  (local_get lhs)
+                  (local_get rhs)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get op_id)
+            (call_i32 op_cast_i64_to_i32))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (let unary_arg i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get unary_arg)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_unary
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get op_id)
+                  (local_get unary_arg)))))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (local_get op_id)
+            (call_i32 op_not_bool))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (let not_arg i64
+                (call_i64 parser_parse_expression
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get not_arg)
+                  (const_i64 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i64 -1)))
+                (else (block)))
+
+              (return
+                (call_i64 ast_make_unary
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get op_id)
+                  (local_get not_arg)))))
+
+          (else
+            (block)))
+
+        (if
+          (or_bool
+            (or_bool
+              (eq_i32 (local_get op_id) (call_i32 op_call_i32))
+              (eq_i32 (local_get op_id) (call_i32 op_call_i64)))
+            (or_bool
+              (eq_i32 (local_get op_id) (call_i32 op_call_ptr))
+              (eq_i32 (local_get op_id) (call_i32 op_call_void))))
+
+          (then
+            (block
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let call_name_start i64
+                (call_i64 parser_current_start
+                  (param_get parser)))
+
+              (let call_name_len i64
+                (call_i64 parser_current_length
+                  (param_get parser)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let call_arg_first i64
+                (call_i64 ast_count
+                  (call_ptr parser_ast
+                    (param_get parser))))
+
+              (let call_arg_count i64
+                (const_i64 0))
+
+              (while
+                (not_bool
+                  (call_bool parser_match
+                    (param_get parser)
+                    (call_i32 token_rparen)))
+
+                (body
+                  (block
+                    (let call_arg i64
+                      (call_i64 parser_parse_expression
+                        (param_get parser)))
+
+                    (if
+                      (lt_i64
+                        (local_get call_arg)
+                        (const_i64 0))
+
+                      (then
+                        (return
+                          (const_i64 -1)))
+
+                      (else
+                        (block)))
+
+                    (set call_arg_count
+                      (add_i64
+                        (local_get call_arg_count)
+                        (const_i64 1))))))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_call
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (local_get op_id)
+                  (local_get call_arg_first)
+                  (local_get call_arg_count)
+                  (local_get call_name_start)
+                  (local_get call_name_len)))))
+
+          (else
+            (block)))
 
         (call_void parser_advance
           (param_get parser))
@@ -728,25 +1973,800 @@
         (parser ptr))
       (returns i64)
       (body
-        ; placeholder implementation
-        ; enough to bootstrap structure first
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (eq_i32
+            (call_i32 parser_current_kind
+              (param_get parser))
+            (call_i32 token_extern))
+
+          (then
+            (block
+              (if
+                (ne_i32
+                  (call_i32 parser_skip_extern_opened
+                    (param_get parser))
+                  (const_i32 0))
+                (then
+                  (return
+                    (const_i64 -1)))
+                (else
+                  (block)))
+
+              (return
+                (call_i64 ast_make_extern
+                  (call_ptr parser_ast
+                    (param_get parser))
+                  (call_i32 type_void)
+                  (const_i64 0)
+                  (const_i64 0)
+                  (const_i64 0)
+                  (const_i64 0)))))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_fn))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_current_kind
+              (param_get parser))
+            (call_i32 token_ident))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let name_start i64
+          (call_i64 parser_current_start
+            (param_get parser)))
+
+        (let name_len i64
+          (call_i64 parser_current_length
+            (param_get parser)))
+
+        (call_void parser_advance
+          (param_get parser))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_params))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let param_first i64
+          (call_i64 ast_count
+            (call_ptr parser_ast
+              (param_get parser))))
+
+        (let param_count i64
+          (const_i64 0))
+
+        (while
+          (not_bool
+            (call_bool parser_match
+              (param_get parser)
+              (call_i32 token_rparen)))
+
+          (body
+            (block
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_lparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (let param_name_start i64
+                (call_i64 parser_current_start
+                  (param_get parser)))
+
+              (let param_name_len i64
+                (call_i64 parser_current_length
+                  (param_get parser)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (let type_id i32
+                (call_i32 parser_parse_type
+                  (param_get parser)))
+
+              (if
+                (lt_i32
+                  (local_get type_id)
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (call_i64 ast_make_param
+                (call_ptr parser_ast
+                  (param_get parser))
+                (local_get type_id)
+                (local_get param_name_start)
+                (local_get param_name_len))
+
+              (set param_count
+                (add_i64
+                  (local_get param_count)
+                  (const_i64 1))))))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_returns))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let return_type i32
+          (call_i32 parser_parse_type
+            (param_get parser)))
+
+        (if
+          (lt_i32
+            (local_get return_type)
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_body))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let body_first i64
+          (call_i64 ast_count
+            (call_ptr parser_ast
+              (param_get parser))))
+
+        (let body_last i64
+          (const_i64 -1))
+
+        (let body_count i64
+          (const_i64 0))
+
+        (while
+          (not_bool
+            (call_bool parser_match
+              (param_get parser)
+              (call_i32 token_rparen)))
+
+          (body
+            (block
+              (let body_stmt i64
+                (call_i64 parser_parse_stmt
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get body_stmt)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (set body_last
+                (local_get body_stmt))
+
+              (set body_count
+                (add_i64
+                  (local_get body_count)
+                  (const_i64 1))))))
+
+        (let body_node i64
+          (call_i64 ast_make_block
+            (call_ptr parser_ast
+              (param_get parser))
+            (local_get body_first)
+            (local_get body_last)
+            (local_get body_count)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
 
         (return
-          (const_i64 0))))
+          (call_i64 ast_make_function
+            (call_ptr parser_ast
+              (param_get parser))
+            (local_get return_type)
+            (local_get param_first)
+            (local_get param_count)
+            (local_get body_node)
+            (local_get name_start)
+            (local_get name_len)))))
 
     ; -------------------------------------------------------------------------
     ; Parse top-level form
     ; -------------------------------------------------------------------------
+
+    (fn parser_skip_extern_opened
+      (params
+        (parser ptr))
+      (returns i32)
+      (body
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_extern))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_current_kind
+              (param_get parser))
+            (call_i32 token_ident))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (call_void parser_advance
+          (param_get parser))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_params))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (while
+          (not_bool
+            (call_bool parser_match
+              (param_get parser)
+              (call_i32 token_rparen)))
+          (body
+            (block
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_lparen))
+                  (const_i32 0))
+                (then (return (const_i32 1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_current_kind
+                    (param_get parser))
+                  (call_i32 token_ident))
+                (then (return (const_i32 1)))
+                (else (block)))
+
+              (call_void parser_advance
+                (param_get parser))
+
+              (if
+                (lt_i32
+                  (call_i32 parser_parse_type
+                    (param_get parser))
+                  (const_i32 0))
+                (then (return (const_i32 1)))
+                (else (block)))
+
+              (if
+                (ne_i32
+                  (call_i32 parser_expect
+                    (param_get parser)
+                    (call_i32 token_rparen))
+                  (const_i32 0))
+                (then (return (const_i32 1)))
+                (else (block))))))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_returns))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (lt_i32
+            (call_i32 parser_parse_type
+              (param_get parser))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+          (then (return (const_i32 1)))
+          (else (block)))
+
+        (return
+          (const_i32 0))))
 
     (fn parser_parse_toplevel
       (params
         (parser ptr))
       (returns i64)
       (body
-        ; simplified bootstrap parser
+        (if
+          (ne_i32
+            (call_i32 parser_current_kind
+              (param_get parser))
+            (call_i32 token_lparen))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_core_module))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_core_version))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_current_kind
+              (param_get parser))
+            (call_i32 token_int))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let version i32
+          (call_i32 token_value_at
+            (call_ptr parser_tokens
+              (param_get parser))
+            (call_i64 parser_index
+              (param_get parser))))
+
+        (if
+          (ne_i32
+            (local_get version)
+            (const_i32 1))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (call_void parser_advance
+          (param_get parser))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_lparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_decls))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (let first i64
+          (call_i64 ast_count
+            (call_ptr parser_ast
+              (param_get parser))))
+
+        (let count i64
+          (const_i64 0))
+
+        (while
+          (not_bool
+            (call_bool parser_match
+              (param_get parser)
+              (call_i32 token_rparen)))
+
+          (body
+            (block
+              (let decl i64
+                (call_i64 parser_parse_function
+                  (param_get parser)))
+
+              (if
+                (lt_i64
+                  (local_get decl)
+                  (const_i64 0))
+
+                (then
+                  (return
+                    (const_i64 -1)))
+
+                (else
+                  (block)))
+
+              (if
+                (eq_i32
+                  (call_i32 ast_kind_at
+                    (call_ptr parser_ast
+                      (param_get parser))
+                    (local_get decl))
+                  (call_i32 ast_function))
+                (then
+                  (set count
+                    (add_i64
+                      (local_get count)
+                      (const_i64 1))))
+                (else
+                  (block))))))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_rparen))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
+
+        (if
+          (ne_i32
+            (call_i32 parser_expect
+              (param_get parser)
+              (call_i32 token_eof))
+            (const_i32 0))
+
+          (then
+            (return
+              (const_i64 -1)))
+
+          (else
+            (block)))
 
         (return
-          (const_i64 0))))
+          (call_i64 ast_make_program
+            (call_ptr parser_ast
+              (param_get parser))
+            (local_get first)
+            (add_i64
+              (local_get first)
+              (local_get count))
+            (local_get count)))))
 
     ; -------------------------------------------------------------------------
     ; Public entry point
@@ -755,7 +2775,7 @@
     (fn parse
       (params
         (parser ptr))
-      (returns i32)
+      (returns i64)
       (body
         (if
           (eq_ptr
@@ -764,24 +2784,11 @@
 
           (then
             (return
-              (const_i32 1)))
+              (const_i64 -1)))
 
           (else
             (block)))
 
-        ; Minimal bootstrap parser currently validates token stream shape.
-        ; Full AST construction will be expanded incrementally.
-
-        (while
-          (not_bool
-            (call_bool parser_match
-              (param_get parser)
-              (call_i32 token_eof)))
-
-          (body
-            (block
-              (call_void parser_advance
-                (param_get parser)))))
-
         (return
-          (const_i32 0))))))
+          (call_i64 parser_parse_toplevel
+            (param_get parser)))))))
