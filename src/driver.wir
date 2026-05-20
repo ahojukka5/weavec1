@@ -17,6 +17,7 @@
       (params
         (source_data ptr)
         (source_length_value i64)
+        (source_path ptr)
         (output ptr))
       (returns i32)
       (do
@@ -41,7 +42,8 @@
           (call_ptr
             source_new
             (param_get source_data)
-            (param_get source_length_value)))
+            (param_get source_length_value)
+            (param_get source_path)))
         (if
           (condition
             (eq_ptr
@@ -371,6 +373,7 @@
             compile_buffer_to_buffer
             (local_get source_data)
             (local_get source_length_value)
+            (param_get input_path)
             (local_get output)))
         (if
           (condition
@@ -470,6 +473,7 @@
             compile_buffer_to_buffer
             (param_get source_text)
             (local_get length)
+            (const_null)
             (local_get output)))
         (if
           (condition

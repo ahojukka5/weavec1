@@ -7,12 +7,13 @@
       (returns i64)
       (do
         (return
-          (const_i64 16))))
+          (const_i64 24))))
     (fn
       source_new
       (params
         (data ptr)
-        (length i64))
+        (length i64)
+        (path ptr))
       (returns ptr)
       (do
         (let
@@ -40,6 +41,11 @@
             (local_get source)
             (const_i64 8))
           (param_get length))
+        (store_ptr
+          (ptr_add
+            (local_get source)
+            (const_i64 16))
+          (param_get path))
         (return
           (local_get source))))
     (fn
@@ -81,6 +87,17 @@
             (ptr_add
               (param_get source)
               (const_i64 8))))))
+    (fn
+      source_path
+      (params
+        (source ptr))
+      (returns ptr)
+      (do
+        (return
+          (load_ptr
+            (ptr_add
+              (param_get source)
+              (const_i64 16))))))
     (fn
       source_byte_at
       (params

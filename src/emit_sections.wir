@@ -19,6 +19,45 @@
         (call_i32
           emit_newline
           (param_get ctx))
+        (let
+          source
+          ptr
+          (call_ptr
+            ctx_source
+            (param_get ctx)))
+        (let
+          source_path
+          ptr
+          (call_ptr
+            source_path
+            (local_get source)))
+        (if
+          (condition
+            (ne_ptr
+              (local_get source_path)
+              (const_null)))
+          (then
+            (do
+              (call_i32
+                emit_cstr
+                (param_get ctx)
+                (const_string_ptr "; source: "))
+              (call_i32
+                emit_cstr
+                (param_get ctx)
+                (local_get source_path))
+              (call_i32
+                emit_newline
+                (param_get ctx))))
+          (else
+            (do)))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "; core-version: 1"))
+        (call_i32
+          emit_newline
+          (param_get ctx))
         (call_i32
           emit_newline
           (param_get ctx))

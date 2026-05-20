@@ -413,6 +413,97 @@
         (call_i32
           emit_cstr
           (param_get ctx)
+          (const_string_ptr "; function: "))
+        (call_i32
+          emit_source_slice
+          (param_get ctx)
+          (call_i64
+            ast_text_start_at
+            (local_get ast)
+            (param_get node))
+          (call_i64
+            ast_text_len_at
+            (local_get ast)
+            (param_get node)))
+        (call_i32
+          emit_newline
+          (param_get ctx))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "; params: "))
+        (if
+          (condition
+            (eq_i64
+              (local_get param_count)
+              (const_i64 0)))
+          (then
+            (do
+              (call_i32
+                emit_cstr
+                (param_get ctx)
+                (const_string_ptr "none"))))
+          (else
+            (do
+              (let
+                param_meta_index
+                i64
+                (const_i64 0))
+              (while
+                (condition
+                  (lt_i64
+                    (local_get param_meta_index)
+                    (local_get param_count)))
+                (do
+                  (if
+                    (condition
+                      (ne_i64
+                        (local_get param_meta_index)
+                        (const_i64 0)))
+                    (then
+                      (do
+                        (call_i32
+                          emit_cstr
+                          (param_get ctx)
+                          (const_string_ptr ", "))))
+                    (else
+                      (do)))
+                  (let
+                    param_meta_node
+                    i64
+                    (add_i64
+                      (local_get param_first)
+                      (local_get param_meta_index)))
+                  (call_i32
+                    emit_type
+                    (param_get ctx)
+                    (cast_i64_to_i32
+                      (call_i64
+                        ast_op_type_at
+                        (local_get ast)
+                        (local_get param_meta_node))))
+                  (set
+                    param_meta_index
+                    (add_i64
+                      (local_get param_meta_index)
+                      (const_i64 1))))))))
+        (call_i32
+          emit_newline
+          (param_get ctx))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "; returns: "))
+        (call_i32
+          emit_type
+          (param_get ctx)
+          (local_get return_type))
+        (call_i32
+          emit_newline
+          (param_get ctx))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
           (const_string_ptr "define "))
         (call_i32
           emit_type
