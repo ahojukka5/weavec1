@@ -28,9 +28,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parser_parse_function
+(fn parser_parse_function
       (params
         (parser ptr))
       (returns i64)
@@ -390,9 +388,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      parser_skip_extern_opened
+(fn parser_skip_extern_opened
       (params
         (parser ptr))
       (returns i32)
@@ -620,9 +616,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parser_parse_toplevel
+(fn parser_parse_toplevel
       (params
         (parser ptr))
       (returns i64)

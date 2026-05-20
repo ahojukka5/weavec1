@@ -26,9 +26,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      parser_ident_start
+(fn parser_ident_start
       (params
         (parser ptr))
       (returns i64)
@@ -47,9 +45,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      parser_ident_length
+(fn parser_ident_length
       (params
         (parser ptr))
       (returns i64)
@@ -72,9 +68,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      parser_parse_type
+(fn parser_parse_type
       (params
         (parser ptr))
       (returns i32)

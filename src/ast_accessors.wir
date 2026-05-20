@@ -27,9 +27,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      ast_kind_at
+(fn ast_kind_at
       (params
         (ast ptr)
         (index i64))
@@ -54,9 +52,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_op_type_at
+(fn ast_op_type_at
       (params
         (ast ptr)
         (index i64))
@@ -81,9 +77,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_a_at
+(fn ast_a_at
       (params
         (ast ptr)
         (index i64))
@@ -108,9 +102,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_b_at
+(fn ast_b_at
       (params
         (ast ptr)
         (index i64))
@@ -135,9 +127,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_c_at
+(fn ast_c_at
       (params
         (ast ptr)
         (index i64))
@@ -162,9 +152,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_d_at
+(fn ast_d_at
       (params
         (ast ptr)
         (index i64))
@@ -189,9 +177,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_text_start_at
+(fn ast_text_start_at
       (params
         (ast ptr)
         (index i64))
@@ -216,9 +202,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ast_text_len_at
+(fn ast_text_len_at
       (params
         (ast ptr)
         (index i64))

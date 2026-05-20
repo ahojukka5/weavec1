@@ -28,9 +28,7 @@
 ;   ordinal - Argument ordinal.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_call_arg_node
+(fn emit_call_arg_node
       (params
         (ctx ptr)
         (call_node i64)
@@ -126,9 +124,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_call_expr
+(fn emit_call_expr
       (params
         (ctx ptr)
         (node i64))
@@ -423,9 +419,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_param_get_expr
+(fn emit_param_get_expr
       (params
         (ctx ptr)
         (node i64))
@@ -534,9 +528,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_local_get_expr
+(fn emit_local_get_expr
       (params
         (ctx ptr)
         (node i64))

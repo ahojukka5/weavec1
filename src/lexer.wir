@@ -24,9 +24,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      source_size
+(fn source_size
       (params)
       (returns i64)
       (do
@@ -45,9 +43,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      source_new
+(fn source_new
       (params
         (data ptr)
         (length i64)
@@ -96,9 +92,7 @@
 ;   source - Source buffer pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      source_free
+(fn source_free
       (params
         (source ptr))
       (returns void)
@@ -127,9 +121,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      source_data
+(fn source_data
       (params
         (source ptr))
       (returns ptr)
@@ -147,9 +139,7 @@
 ;   source - Source buffer pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      source_length
+(fn source_length
       (params
         (source ptr))
       (returns i64)
@@ -170,9 +160,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      source_path
+(fn source_path
       (params
         (source ptr))
       (returns ptr)
@@ -193,9 +181,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      source_byte_at
+(fn source_byte_at
       (params
         (source ptr)
         (index i64))
@@ -223,9 +209,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      is_whitespace
+(fn is_whitespace
       (params
         (ch i32))
       (returns bool)
@@ -257,9 +241,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      is_digit
+(fn is_digit
       (params
         (ch i32))
       (returns bool)
@@ -283,9 +265,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      is_alpha
+(fn is_alpha
       (params
         (ch i32))
       (returns bool)
@@ -317,9 +297,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      is_ident_start
+(fn is_ident_start
       (params
         (ch i32))
       (returns bool)
@@ -343,9 +321,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      is_ident_continue
+(fn is_ident_continue
       (params
         (ch i32))
       (returns bool)
@@ -377,9 +353,7 @@
 ;   length - Byte length.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      keyword_kind
+(fn keyword_kind
       (params
         (text ptr)
         (length i64))
@@ -655,9 +629,7 @@
 ;   start - Source byte offset.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      lex_integer
+(fn lex_integer
       (params
         (source ptr)
         (tokens ptr)
@@ -775,9 +747,7 @@
 ;   start - Source byte offset.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      lex_identifier
+(fn lex_identifier
       (params
         (source ptr)
         (tokens ptr)
@@ -864,9 +834,7 @@
 ;   start - Source byte offset.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      lex_string
+(fn lex_string
       (params
         (source ptr)
         (tokens ptr)
@@ -989,9 +957,7 @@
 ;   start - Source byte offset.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      skip_comment
+(fn skip_comment
       (params
         (source ptr)
         (start i64))
@@ -1051,9 +1017,7 @@
 ;   ch - Byte value.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      lex_punctuation
+(fn lex_punctuation
       (params
         (source ptr)
         (tokens ptr)
@@ -1138,9 +1102,7 @@
 ;   tokens - Token stream pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      lex
+(fn lex
       (params
         (source ptr)
         (tokens ptr))

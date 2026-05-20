@@ -47,9 +47,7 @@
 ;
 ; Returns:
 ;   64.
-
-(fn
-  ast_node_size
+(fn ast_node_size
   (params)
   (returns i64)
   (do
@@ -63,9 +61,7 @@
 ;
 ; Returns:
 ;   24.
-
-(fn
-  ast_size
+(fn ast_size
   (params)
   (returns i64)
   (do
@@ -79,9 +75,7 @@
 ;
 ; Returns:
 ;   512.
-
-(fn
-  ast_initial_capacity
+(fn ast_initial_capacity
   (params)
   (returns i64)
   (do
@@ -102,9 +96,7 @@
 ;
 ; Returns:
 ;   pointer to the nodes field (offset 0).
-
-(fn
-  ast_nodes_field
+(fn ast_nodes_field
   (params
     (ast ptr))
   (returns ptr)
@@ -122,9 +114,7 @@
 ;
 ; Returns:
 ;   pointer to the count field (offset 8).
-
-(fn
-  ast_count_field
+(fn ast_count_field
   (params
     (ast ptr))
   (returns ptr)
@@ -144,9 +134,7 @@
 ;
 ; Returns:
 ;   pointer to the capacity field (offset 16).
-
-(fn
-  ast_capacity_field
+(fn ast_capacity_field
   (params
     (ast ptr))
   (returns ptr)
@@ -169,9 +157,7 @@
 ;
 ; Returns:
 ;   pointer to the node array.
-
-(fn
-  ast_nodes
+(fn ast_nodes
   (params
     (ast ptr))
   (returns ptr)
@@ -191,9 +177,7 @@
 ;
 ; Returns:
 ;   node count as i64.
-
-(fn
-  ast_count
+(fn ast_count
   (params
     (ast ptr))
   (returns i64)
@@ -213,9 +197,7 @@
 ;
 ; Returns:
 ;   capacity as i64.
-
-(fn
-  ast_capacity
+(fn ast_capacity
   (params
     (ast ptr))
   (returns i64)
@@ -241,9 +223,7 @@
 ;
 ; Returns:
 ;   void.
-
-(fn
-  ast_set_nodes
+(fn ast_set_nodes
   (params
     (ast ptr)
     (nodes ptr))
@@ -267,9 +247,7 @@
 ;
 ; Returns:
 ;   void.
-
-(fn
-  ast_set_count
+(fn ast_set_count
   (params
     (ast ptr)
     (count i64))
@@ -293,9 +271,7 @@
 ;
 ; Returns:
 ;   void.
-
-(fn
-  ast_set_capacity
+(fn ast_set_capacity
   (params
     (ast ptr)
     (capacity i64))
@@ -326,9 +302,7 @@
 ;
 ; Invariants:
 ;   - index must be in [0, ast_count(ast)).
-
-(fn
-  ast_node_at
+(fn ast_node_at
   (params
     (ast ptr)
     (index i64))
@@ -353,9 +327,7 @@
 ;
 ; Returns:
 ;   pointer to the kind field (offset 0 within node).
-
-(fn
-  node_kind_field
+(fn node_kind_field
   (params
     (node ptr))
   (returns ptr)
@@ -373,9 +345,7 @@
 ;
 ; Returns:
 ;   pointer to the op_type field (offset 8 within node).
-
-(fn
-  node_op_type_field
+(fn node_op_type_field
   (params
     (node ptr))
   (returns ptr)
@@ -395,9 +365,7 @@
 ;
 ; Returns:
 ;   pointer to field a (offset 16 within node).
-
-(fn
-  node_a_field
+(fn node_a_field
   (params
     (node ptr))
   (returns ptr)
@@ -417,9 +385,7 @@
 ;
 ; Returns:
 ;   pointer to field b (offset 24 within node).
-
-(fn
-  node_b_field
+(fn node_b_field
   (params
     (node ptr))
   (returns ptr)
@@ -439,9 +405,7 @@
 ;
 ; Returns:
 ;   pointer to field c (offset 32 within node).
-
-(fn
-  node_c_field
+(fn node_c_field
   (params
     (node ptr))
   (returns ptr)
@@ -461,9 +425,7 @@
 ;
 ; Returns:
 ;   pointer to field d (offset 40 within node).
-
-(fn
-  node_d_field
+(fn node_d_field
   (params
     (node ptr))
   (returns ptr)
@@ -483,9 +445,7 @@
 ;
 ; Returns:
 ;   pointer to the text_start field (offset 48 within node).
-
-(fn
-  node_text_start_field
+(fn node_text_start_field
   (params
     (node ptr))
   (returns ptr)
@@ -505,9 +465,7 @@
 ;
 ; Returns:
 ;   pointer to the text_len field (offset 56 within node).
-
-(fn
-  node_text_len_field
+(fn node_text_len_field
   (params
     (node ptr))
   (returns ptr)
@@ -533,9 +491,7 @@
 ; Notes:
 ;   The initial capacity is ast_initial_capacity() nodes.
 ;   Both the header and node array are heap-allocated separately.
-
-(fn
-  ast_new
+(fn ast_new
   (params)
   (returns ptr)
   (do
@@ -607,9 +563,7 @@
 ;
 ; Returns:
 ;   void.
-
-(fn
-  ast_free
+(fn ast_free
   (params
     (ast ptr))
   (returns void)
@@ -668,9 +622,7 @@
 ; Notes:
 ;   Capacity is doubled on each growth step, not grown by exactly 'needed'.
 ;   This amortizes reallocation cost over many insertions.
-
-(fn
-  ast_reserve
+(fn ast_reserve
   (params
     (ast ptr)
     (needed i64))
@@ -768,9 +720,7 @@
 ; Notes:
 ;   The returned index is stable for the lifetime of the AST.
 ;   It is used as a reference to this node throughout the compiler.
-
-(fn
-  ast_push
+(fn ast_push
   (params
     (ast ptr)
     (kind i32)

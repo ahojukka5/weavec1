@@ -32,9 +32,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      parser_lookup_op
+(fn parser_lookup_op
       (params
         (parser ptr))
       (returns i32)
@@ -656,9 +654,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parser_parse_expression
+(fn parser_parse_expression
       (params
         (parser ptr))
       (returns i64)
@@ -796,9 +792,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parser_parse_condition_slot
+(fn parser_parse_condition_slot
       (params
         (parser ptr))
       (returns i64)

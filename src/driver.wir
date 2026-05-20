@@ -28,9 +28,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      driver_error
+(fn driver_error
       (params
         (message ptr))
       (returns i32)
@@ -54,9 +52,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      compile_buffer_to_buffer
+(fn compile_buffer_to_buffer
       (params
         (source_data ptr)
         (source_length_value i64)
@@ -312,9 +308,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      compile_file
+(fn compile_file
       (params
         (input_path ptr)
         (output_path ptr))
@@ -337,9 +331,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      compile_file_self_hosted
+(fn compile_file_self_hosted
       (params
         (input_path ptr)
         (output_path ptr))
@@ -508,9 +500,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      compile_string
+(fn compile_string
       (params
         (source_text ptr))
       (returns ptr)

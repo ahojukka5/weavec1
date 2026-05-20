@@ -29,9 +29,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_string_global
+(fn emit_string_global
       (params
         (ctx ptr)
         (node i64))
@@ -105,9 +103,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_string_decoded_length
+(fn emit_string_decoded_length
       (params
         (ctx ptr)
         (node i64))
@@ -203,9 +199,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_escape_2
+(fn emit_escape_2
       (params
         (ctx ptr)
         (a i32)
@@ -257,9 +251,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_string_byte
+(fn emit_string_byte
       (params
         (ctx ptr)
         (byte i32))
@@ -342,9 +334,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_string_escape
+(fn emit_string_escape
       (params
         (ctx ptr)
         (byte i32))
@@ -397,9 +387,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_string_contents
+(fn emit_string_contents
       (params
         (ctx ptr)
         (node i64))
@@ -525,9 +513,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_string_globals
+(fn emit_string_globals
       (params
         (ctx ptr))
       (returns i32)

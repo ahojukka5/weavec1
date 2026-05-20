@@ -34,9 +34,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_program
+(fn ast_make_program
       (params
         (ast ptr)
         (first i64)
@@ -76,9 +74,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_extern
+(fn ast_make_extern
       (params
         (ast ptr)
         (return_type i32)
@@ -122,9 +118,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_function
+(fn ast_make_function
       (params
         (ast ptr)
         (return_type i32)
@@ -166,9 +160,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_param
+(fn ast_make_param
       (params
         (ast ptr)
         (type_id i32)
@@ -207,9 +199,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_block
+(fn ast_make_block
       (params
         (ast ptr)
         (first i64)
@@ -245,9 +235,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_return
+(fn ast_make_return
       (params
         (ast ptr)
         (expr i64))
@@ -280,9 +268,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_return_void
+(fn ast_make_return_void
       (params
         (ast ptr))
       (returns i64)
@@ -317,9 +303,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_if
+(fn ast_make_if
       (params
         (ast ptr)
         (cond i64)
@@ -356,9 +340,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_while
+(fn ast_make_while
       (params
         (ast ptr)
         (cond i64)
@@ -396,9 +378,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_let
+(fn ast_make_let
       (params
         (ast ptr)
         (type_id i32)
@@ -438,9 +418,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_set
+(fn ast_make_set
       (params
         (ast ptr)
         (expr i64)
@@ -476,9 +454,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_const_i32
+(fn ast_make_const_i32
       (params
         (ast ptr)
         (value i32))
@@ -513,9 +489,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_const_i64
+(fn ast_make_const_i64
       (params
         (ast ptr)
         (value i64))
@@ -549,9 +523,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_const_bool
+(fn ast_make_const_bool
       (params
         (ast ptr)
         (value i32))
@@ -585,9 +557,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_const_null
+(fn ast_make_const_null
       (params
         (ast ptr))
       (returns i64)
@@ -621,9 +591,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_const_string
+(fn ast_make_const_string
       (params
         (ast ptr)
         (text_start i64)
@@ -660,9 +628,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_name_ref
+(fn ast_make_name_ref
       (params
         (ast ptr)
         (kind i32)
@@ -702,9 +668,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_call
+(fn ast_make_call
       (params
         (ast ptr)
         (op i32)
@@ -744,9 +708,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_unary
+(fn ast_make_unary
       (params
         (ast ptr)
         (op i32)
@@ -784,9 +746,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_binary
+(fn ast_make_binary
       (params
         (ast ptr)
         (op i32)
@@ -824,9 +784,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_load
+(fn ast_make_load
       (params
         (ast ptr)
         (op i32)
@@ -864,9 +822,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_store
+(fn ast_make_store
       (params
         (ast ptr)
         (op i32)
@@ -903,9 +859,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_print
+(fn ast_make_print
       (params
         (ast ptr)
         (expr i64))
@@ -940,9 +894,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_arg
+(fn ast_make_arg
       (params
         (ast ptr)
         (expr i64)
@@ -979,9 +931,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      ast_make_debug
+(fn ast_make_debug
       (params
         (ast ptr)
         (body i64)

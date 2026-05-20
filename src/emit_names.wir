@@ -28,9 +28,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_temp_name
+(fn emit_temp_name
       (params
         (ctx ptr)
         (id i64))
@@ -56,9 +54,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_indent
+(fn emit_indent
       (params
         (ctx ptr))
       (returns i32)
@@ -80,9 +76,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_temp_def_name
+(fn emit_temp_def_name
       (params
         (ctx ptr)
         (id i64))
@@ -108,9 +102,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_comment
+(fn emit_comment
       (params
         (ctx ptr)
         (text ptr))
@@ -142,9 +134,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      next_temp
+(fn next_temp
       (params
         (ctx ptr))
       (returns i64)
@@ -173,9 +163,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      next_label
+(fn next_label
       (params
         (ctx ptr))
       (returns i64)

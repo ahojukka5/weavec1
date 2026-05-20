@@ -101,9 +101,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      read_file
+(fn read_file
       (params
         (path ptr)
         (out_len ptr))
@@ -126,9 +124,7 @@
 ;   length - Byte length.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      write_file
+(fn write_file
       (params
         (path ptr)
         (data ptr)
@@ -151,9 +147,7 @@
 ;   message - Message string pointer or source offset.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      fatal
+(fn fatal
       (params
         (message ptr))
       (returns i32)
@@ -174,9 +168,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      is_null
+(fn is_null
       (params
         (p ptr))
       (returns bool)
@@ -196,9 +188,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      not_null
+(fn not_null
       (params
         (p ptr))
       (returns bool)

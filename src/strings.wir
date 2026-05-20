@@ -24,9 +24,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      buffer_size
+(fn buffer_size
       (params)
       (returns i64)
       (do
@@ -39,9 +37,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      buffer_initial_capacity
+(fn buffer_initial_capacity
       (params)
       (returns i64)
       (do
@@ -62,9 +58,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      buffer_data_field
+(fn buffer_data_field
       (params
         (buffer ptr))
       (returns ptr)
@@ -82,9 +76,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      buffer_length_field
+(fn buffer_length_field
       (params
         (buffer ptr))
       (returns ptr)
@@ -104,9 +96,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      buffer_capacity_field
+(fn buffer_capacity_field
       (params
         (buffer ptr))
       (returns ptr)
@@ -130,9 +120,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      buffer_data
+(fn buffer_data
       (params
         (buffer ptr))
       (returns ptr)
@@ -152,9 +140,7 @@
 ;   buffer - Growable byte buffer pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      buffer_length
+(fn buffer_length
       (params
         (buffer ptr))
       (returns i64)
@@ -174,9 +160,7 @@
 ;   buffer - Growable byte buffer pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      buffer_capacity
+(fn buffer_capacity
       (params
         (buffer ptr))
       (returns i64)
@@ -201,9 +185,7 @@
 ;   data - Byte pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      buffer_set_data
+(fn buffer_set_data
       (params
         (buffer ptr)
         (data ptr))
@@ -226,9 +208,7 @@
 ;   length - Byte length.
 ; Returns:
 ;   no value.
-
-(fn
-      buffer_set_length
+(fn buffer_set_length
       (params
         (buffer ptr)
         (length i64))
@@ -251,9 +231,7 @@
 ;   capacity - Allocated capacity.
 ; Returns:
 ;   no value.
-
-(fn
-      buffer_set_capacity
+(fn buffer_set_capacity
       (params
         (buffer ptr)
         (capacity i64))
@@ -277,9 +255,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      buffer_new
+(fn buffer_new
       (params)
       (returns ptr)
       (do
@@ -351,9 +327,7 @@
 ;   buffer - Growable byte buffer pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      buffer_free
+(fn buffer_free
       (params
         (buffer ptr))
       (returns void)
@@ -405,9 +379,7 @@
 ;   needed - Required capacity.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      buffer_reserve
+(fn buffer_reserve
       (params
         (buffer ptr)
         (needed i64))
@@ -505,9 +477,7 @@
 ;   byte - Byte value.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      buffer_append_byte
+(fn buffer_append_byte
       (params
         (buffer ptr)
         (byte i32))
@@ -579,9 +549,7 @@
 ;   count - Number of entries.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      buffer_append_bytes
+(fn buffer_append_bytes
       (params
         (buffer ptr)
         (src ptr)
@@ -679,9 +647,7 @@
 ;   text - Text pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      buffer_append_cstr
+(fn buffer_append_cstr
       (params
         (buffer ptr)
         (text ptr))
@@ -721,9 +687,7 @@
 ;   value - Value to store or emit.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      buffer_append_i32
+(fn buffer_append_i32
       (params
         (buffer ptr)
         (value i32))
@@ -826,9 +790,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      bytes_equal
+(fn bytes_equal
       (params
         (a ptr)
         (a_len i64)
@@ -900,9 +862,7 @@
 ;   buffer - Growable byte buffer pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      buffer_write_file
+(fn buffer_write_file
       (params
         (path ptr)
         (buffer ptr))

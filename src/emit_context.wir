@@ -25,9 +25,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_context_size
+(fn emit_context_size
       (params)
       (returns i64)
       (do
@@ -40,9 +38,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_binding_size
+(fn emit_binding_size
       (params)
       (returns i64)
       (do
@@ -55,9 +51,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_max_bindings
+(fn emit_max_bindings
       (params)
       (returns i64)
       (do
@@ -78,9 +72,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_source_field
+(fn ctx_source_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -98,9 +90,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_ast_field
+(fn ctx_ast_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -120,9 +110,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_output_field
+(fn ctx_output_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -142,9 +130,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_temp_field
+(fn ctx_temp_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -164,9 +150,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_label_field
+(fn ctx_label_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -186,9 +170,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_string_field
+(fn ctx_string_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -208,9 +190,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_locals_field
+(fn ctx_locals_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -230,9 +210,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_local_count_field
+(fn ctx_local_count_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -252,9 +230,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_params_field
+(fn ctx_params_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -274,9 +250,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_param_count_field
+(fn ctx_param_count_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -296,9 +270,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_return_type_field
+(fn ctx_return_type_field
       (params
         (ctx ptr))
       (returns ptr)
@@ -322,9 +294,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_source
+(fn ctx_source
       (params
         (ctx ptr))
       (returns ptr)
@@ -345,9 +315,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_ast
+(fn ctx_ast
       (params
         (ctx ptr))
       (returns ptr)
@@ -368,9 +336,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_output
+(fn ctx_output
       (params
         (ctx ptr))
       (returns ptr)
@@ -390,9 +356,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ctx_temp_counter
+(fn ctx_temp_counter
       (params
         (ctx ptr))
       (returns i64)
@@ -412,9 +376,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ctx_label_counter
+(fn ctx_label_counter
       (params
         (ctx ptr))
       (returns i64)
@@ -434,9 +396,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ctx_string_counter
+(fn ctx_string_counter
       (params
         (ctx ptr))
       (returns i64)
@@ -457,9 +417,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_locals
+(fn ctx_locals
       (params
         (ctx ptr))
       (returns ptr)
@@ -479,9 +437,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ctx_local_count
+(fn ctx_local_count
       (params
         (ctx ptr))
       (returns i64)
@@ -502,9 +458,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      ctx_params
+(fn ctx_params
       (params
         (ctx ptr))
       (returns ptr)
@@ -524,9 +478,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      ctx_param_count
+(fn ctx_param_count
       (params
         (ctx ptr))
       (returns i64)
@@ -546,9 +498,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      ctx_return_type
+(fn ctx_return_type
       (params
         (ctx ptr))
       (returns i32)
@@ -574,9 +524,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_source
+(fn ctx_set_source
       (params
         (ctx ptr)
         (v ptr))
@@ -599,9 +547,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_ast
+(fn ctx_set_ast
       (params
         (ctx ptr)
         (v ptr))
@@ -624,9 +570,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_output
+(fn ctx_set_output
       (params
         (ctx ptr)
         (v ptr))
@@ -649,9 +593,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_temp_counter
+(fn ctx_set_temp_counter
       (params
         (ctx ptr)
         (v i64))
@@ -674,9 +616,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_label_counter
+(fn ctx_set_label_counter
       (params
         (ctx ptr)
         (v i64))
@@ -699,9 +639,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_string_counter
+(fn ctx_set_string_counter
       (params
         (ctx ptr)
         (v i64))
@@ -724,9 +662,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_locals
+(fn ctx_set_locals
       (params
         (ctx ptr)
         (v ptr))
@@ -749,9 +685,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_local_count
+(fn ctx_set_local_count
       (params
         (ctx ptr)
         (v i64))
@@ -774,9 +708,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_params
+(fn ctx_set_params
       (params
         (ctx ptr)
         (v ptr))
@@ -799,9 +731,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_param_count
+(fn ctx_set_param_count
       (params
         (ctx ptr)
         (v i64))
@@ -824,9 +754,7 @@
 ;   v - Value to store.
 ; Returns:
 ;   no value.
-
-(fn
-      ctx_set_return_type
+(fn ctx_set_return_type
       (params
         (ctx ptr)
         (v i32))
@@ -856,9 +784,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      emit_context_new
+(fn emit_context_new
       (params
         (source ptr)
         (ast ptr)
@@ -985,9 +911,7 @@
 ;   ctx - EmitContext pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      emit_context_free
+(fn emit_context_free
       (params
         (ctx ptr))
       (returns void)

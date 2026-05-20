@@ -27,9 +27,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      main
+(fn main
       (params
         (argc i32)
         (argv ptr))

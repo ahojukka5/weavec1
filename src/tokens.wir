@@ -24,9 +24,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_eof
+(fn token_eof
       (params)
       (returns i32)
       (do
@@ -39,9 +37,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_lparen
+(fn token_lparen
       (params)
       (returns i32)
       (do
@@ -54,9 +50,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_rparen
+(fn token_rparen
       (params)
       (returns i32)
       (do
@@ -69,9 +63,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_ident
+(fn token_ident
       (params)
       (returns i32)
       (do
@@ -84,9 +76,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_int
+(fn token_int
       (params)
       (returns i32)
       (do
@@ -99,9 +89,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_string
+(fn token_string
       (params)
       (returns i32)
       (do
@@ -114,9 +102,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_fn
+(fn token_fn
       (params)
       (returns i32)
       (do
@@ -129,9 +115,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_return
+(fn token_return
       (params)
       (returns i32)
       (do
@@ -144,9 +128,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_if
+(fn token_if
       (params)
       (returns i32)
       (do
@@ -159,9 +141,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_else
+(fn token_else
       (params)
       (returns i32)
       (do
@@ -174,9 +154,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_while
+(fn token_while
       (params)
       (returns i32)
       (do
@@ -189,9 +167,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_let
+(fn token_let
       (params)
       (returns i32)
       (do
@@ -204,9 +180,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_set
+(fn token_set
       (params)
       (returns i32)
       (do
@@ -219,9 +193,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_plus
+(fn token_plus
       (params)
       (returns i32)
       (do
@@ -234,9 +206,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_minus
+(fn token_minus
       (params)
       (returns i32)
       (do
@@ -249,9 +219,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_star
+(fn token_star
       (params)
       (returns i32)
       (do
@@ -264,9 +232,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_slash
+(fn token_slash
       (params)
       (returns i32)
       (do
@@ -279,9 +245,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_eq
+(fn token_eq
       (params)
       (returns i32)
       (do
@@ -294,9 +258,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_eqeq
+(fn token_eqeq
       (params)
       (returns i32)
       (do
@@ -309,9 +271,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_ne
+(fn token_ne
       (params)
       (returns i32)
       (do
@@ -324,9 +284,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_lt
+(fn token_lt
       (params)
       (returns i32)
       (do
@@ -339,9 +297,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_le
+(fn token_le
       (params)
       (returns i32)
       (do
@@ -354,9 +310,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_gt
+(fn token_gt
       (params)
       (returns i32)
       (do
@@ -369,9 +323,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_ge
+(fn token_ge
       (params)
       (returns i32)
       (do
@@ -384,9 +336,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_core_module
+(fn token_core_module
       (params)
       (returns i32)
       (do
@@ -399,9 +349,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_core_version
+(fn token_core_version
       (params)
       (returns i32)
       (do
@@ -414,9 +362,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_decls
+(fn token_decls
       (params)
       (returns i32)
       (do
@@ -429,9 +375,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_extern
+(fn token_extern
       (params)
       (returns i32)
       (do
@@ -444,9 +388,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_params
+(fn token_params
       (params)
       (returns i32)
       (do
@@ -459,9 +401,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_returns
+(fn token_returns
       (params)
       (returns i32)
       (do
@@ -474,9 +414,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_then
+(fn token_then
       (params)
       (returns i32)
       (do
@@ -489,9 +427,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_block
+(fn token_block
       (params)
       (returns i32)
       (do
@@ -504,9 +440,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_return_void
+(fn token_return_void
       (params)
       (returns i32)
       (do
@@ -519,9 +453,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_do
+(fn token_do
       (params)
       (returns i32)
       (do
@@ -534,9 +466,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_condition
+(fn token_condition
       (params)
       (returns i32)
       (do
@@ -549,9 +479,7 @@
 ;
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_debug
+(fn token_debug
       (params)
       (returns i32)
       (do
@@ -568,9 +496,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      tokens_size
+(fn tokens_size
       (params)
       (returns i64)
       (do
@@ -583,9 +509,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      tokens_initial_capacity
+(fn tokens_initial_capacity
       (params)
       (returns i64)
       (do
@@ -606,9 +530,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_kinds_field
+(fn tokens_kinds_field
       (params
         (tokens ptr))
       (returns ptr)
@@ -626,9 +548,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_starts_field
+(fn tokens_starts_field
       (params
         (tokens ptr))
       (returns ptr)
@@ -648,9 +568,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_lengths_field
+(fn tokens_lengths_field
       (params
         (tokens ptr))
       (returns ptr)
@@ -670,9 +588,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_values_field
+(fn tokens_values_field
       (params
         (tokens ptr))
       (returns ptr)
@@ -692,9 +608,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_count_field
+(fn tokens_count_field
       (params
         (tokens ptr))
       (returns ptr)
@@ -714,9 +628,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_capacity_field
+(fn tokens_capacity_field
       (params
         (tokens ptr))
       (returns ptr)
@@ -740,9 +652,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_kinds
+(fn tokens_kinds
       (params
         (tokens ptr))
       (returns ptr)
@@ -763,9 +673,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_starts
+(fn tokens_starts
       (params
         (tokens ptr))
       (returns ptr)
@@ -786,9 +694,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_lengths
+(fn tokens_lengths
       (params
         (tokens ptr))
       (returns ptr)
@@ -809,9 +715,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_values
+(fn tokens_values
       (params
         (tokens ptr))
       (returns ptr)
@@ -831,9 +735,7 @@
 ;   tokens - Token stream pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      tokens_count
+(fn tokens_count
       (params
         (tokens ptr))
       (returns i64)
@@ -853,9 +755,7 @@
 ;   tokens - Token stream pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      tokens_capacity
+(fn tokens_capacity
       (params
         (tokens ptr))
       (returns i64)
@@ -880,9 +780,7 @@
 ;   kinds - Token kind array pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_set_kinds
+(fn tokens_set_kinds
       (params
         (tokens ptr)
         (kinds ptr))
@@ -905,9 +803,7 @@
 ;   starts - Token start array pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_set_starts
+(fn tokens_set_starts
       (params
         (tokens ptr)
         (starts ptr))
@@ -930,9 +826,7 @@
 ;   lengths - Token length array pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_set_lengths
+(fn tokens_set_lengths
       (params
         (tokens ptr)
         (lengths ptr))
@@ -955,9 +849,7 @@
 ;   values - Token value array pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_set_values
+(fn tokens_set_values
       (params
         (tokens ptr)
         (values ptr))
@@ -980,9 +872,7 @@
 ;   count - Number of entries.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_set_count
+(fn tokens_set_count
       (params
         (tokens ptr)
         (count i64))
@@ -1005,9 +895,7 @@
 ;   capacity - Allocated capacity.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_set_capacity
+(fn tokens_set_capacity
       (params
         (tokens ptr)
         (capacity i64))
@@ -1031,9 +919,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      tokens_new
+(fn tokens_new
       (params)
       (returns ptr)
       (do
@@ -1200,9 +1086,7 @@
 ;   tokens - Token stream pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      tokens_free
+(fn tokens_free
       (params
         (tokens ptr))
       (returns void)
@@ -1308,9 +1192,7 @@
 ;   needed - Required capacity.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      tokens_reserve
+(fn tokens_reserve
       (params
         (tokens ptr)
         (needed i64))
@@ -1462,9 +1344,7 @@
 ;   value - Value to store or emit.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      tokens_push
+(fn tokens_push
       (params
         (tokens ptr)
         (kind i32)
@@ -1552,9 +1432,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_kind_at
+(fn token_kind_at
       (params
         (tokens ptr)
         (index i64))
@@ -1580,9 +1458,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      token_start_at
+(fn token_start_at
       (params
         (tokens ptr)
         (index i64))
@@ -1608,9 +1484,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      token_length_at
+(fn token_length_at
       (params
         (tokens ptr)
         (index i64))
@@ -1636,9 +1510,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   integer constant or field value.
-
-(fn
-      token_value_at
+(fn token_value_at
       (params
         (tokens ptr)
         (index i64))
@@ -1666,9 +1538,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      token_is
+(fn token_is
       (params
         (tokens ptr)
         (index i64)
@@ -1694,9 +1564,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      token_is_eof
+(fn token_is_eof
       (params
         (tokens ptr)
         (index i64))

@@ -28,9 +28,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_cstr
+(fn emit_cstr
       (params
         (ctx ptr)
         (text ptr))
@@ -55,9 +53,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_byte
+(fn emit_byte
       (params
         (ctx ptr)
         (byte i32))
@@ -82,9 +78,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_i32
+(fn emit_i32
       (params
         (ctx ptr)
         (value i32))
@@ -109,9 +103,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_i64_as_i32
+(fn emit_i64_as_i32
       (params
         (ctx ptr)
         (value i64))
@@ -136,9 +128,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_source_slice
+(fn emit_source_slice
       (params
         (ctx ptr)
         (start i64)
@@ -170,9 +160,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_newline
+(fn emit_newline
       (params
         (ctx ptr))
       (returns i32)

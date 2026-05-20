@@ -28,9 +28,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_expr
+(fn emit_expr
       (params
         (ctx ptr)
         (node i64))
@@ -238,9 +236,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      emit_is_immediate_expr
+(fn emit_is_immediate_expr
       (params
         (ctx ptr)
         (node i64))
@@ -309,9 +305,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_expr_operand
+(fn emit_expr_operand
       (params
         (ctx ptr)
         (node i64)
@@ -433,9 +427,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_load_expr
+(fn emit_load_expr
       (params
         (ctx ptr)
         (node i64))
@@ -617,9 +609,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_const_i32_expr
+(fn emit_const_i32_expr
       (params
         (ctx ptr)
         (node i64))
@@ -668,9 +658,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_const_i64_expr
+(fn emit_const_i64_expr
       (params
         (ctx ptr)
         (node i64))
@@ -723,9 +711,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_unary_expr
+(fn emit_unary_expr
       (params
         (ctx ptr)
         (node i64))
@@ -879,9 +865,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_const_bool_expr
+(fn emit_const_bool_expr
       (params
         (ctx ptr)
         (node i64))
@@ -943,9 +927,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_const_null_expr
+(fn emit_const_null_expr
       (params
         (ctx ptr)
         (node i64))
@@ -981,9 +963,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_const_string_expr
+(fn emit_const_string_expr
       (params
         (ctx ptr)
         (node i64))
@@ -1051,9 +1031,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_binary_op_text
+(fn emit_binary_op_text
       (params
         (ctx ptr)
         (op i32))
@@ -1408,9 +1386,7 @@
 ;   node - AST node index.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      emit_binary_expr
+(fn emit_binary_expr
       (params
         (ctx ptr)
         (node i64))

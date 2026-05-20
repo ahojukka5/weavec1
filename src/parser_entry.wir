@@ -27,9 +27,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parse
+(fn parse
       (params
         (parser ptr))
       (returns i64)

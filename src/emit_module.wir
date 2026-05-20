@@ -28,9 +28,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_program
+(fn emit_program
       (params
         (ctx ptr)
         (program_node i64))
@@ -128,9 +126,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_llvm
+(fn emit_llvm
       (params
         (source ptr)
         (ast ptr)

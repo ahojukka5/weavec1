@@ -28,9 +28,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_module_header
+(fn emit_module_header
       (params
         (ctx ptr))
       (returns i32)
@@ -103,9 +101,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      emit_uses_call_name
+(fn emit_uses_call_name
       (params
         (ctx ptr)
         (name ptr)
@@ -201,9 +197,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_declare_if_used
+(fn emit_declare_if_used
       (params
         (ctx ptr)
         (name ptr)
@@ -243,9 +237,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      emit_uses_node_kind
+(fn emit_uses_node_kind
       (params
         (ctx ptr)
         (kind i32))
@@ -305,9 +297,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_declare_puts_if_used
+(fn emit_declare_puts_if_used
       (params
         (ctx ptr))
       (returns i32)
@@ -348,9 +338,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      emit_uses_runtime_declaration
+(fn emit_uses_runtime_declaration
       (params
         (ctx ptr))
       (returns bool)
@@ -465,9 +453,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_runtime_declarations
+(fn emit_runtime_declarations
       (params
         (ctx ptr))
       (returns i32)

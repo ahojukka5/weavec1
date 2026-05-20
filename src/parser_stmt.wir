@@ -32,9 +32,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parser_parse_stmt
+(fn parser_parse_stmt
       (params
         (parser ptr))
       (returns i64)
@@ -802,9 +800,7 @@
 ; Returns:
 ;   AST node index on success.
 ;   -1 on parse or allocation failure.
-
-(fn
-      parser_parse_list_expression
+(fn parser_parse_list_expression
       (params
         (parser ptr))
       (returns i64)

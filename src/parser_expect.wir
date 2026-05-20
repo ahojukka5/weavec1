@@ -26,9 +26,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      parser_current_kind
+(fn parser_current_kind
       (params
         (parser ptr))
       (returns i32)
@@ -52,9 +50,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      parser_current_start
+(fn parser_current_start
       (params
         (parser ptr))
       (returns i64)
@@ -78,9 +74,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      parser_current_length
+(fn parser_current_length
       (params
         (parser ptr))
       (returns i64)
@@ -108,9 +102,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      parser_advance
+(fn parser_advance
       (params
         (parser ptr))
       (returns void)
@@ -140,9 +132,7 @@
 ; Returns:
 ;   true when the predicate matches.
 ;   false otherwise.
-
-(fn
-      parser_match
+(fn parser_match
       (params
         (parser ptr)
         (kind i32))
@@ -166,9 +156,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      parser_expect
+(fn parser_expect
       (params
         (parser ptr)
         (kind i32))

@@ -34,9 +34,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_while_stmt
+(fn emit_while_stmt
       (params
         (ctx ptr)
         (node i64))
@@ -224,9 +222,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_stmt_terminates
+(fn emit_stmt_terminates
       (params
         (ctx ptr)
         (node i64))
@@ -378,9 +374,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_if_stmt
+(fn emit_if_stmt
       (params
         (ctx ptr)
         (node i64))

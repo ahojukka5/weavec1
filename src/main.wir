@@ -23,9 +23,7 @@
 ;
 ; Returns:
 ;   no value.
-
-(fn
-      print_usage
+(fn print_usage
       (params)
       (returns void)
       (do
@@ -40,9 +38,7 @@
 ;
 ; Returns:
 ;   no value.
-
-(fn
-      print_banner
+(fn print_banner
       (params)
       (returns void)
       (do
@@ -62,9 +58,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      main
+(fn main
       (params
         (argc i32)
         (argv ptr))

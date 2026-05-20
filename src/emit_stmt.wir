@@ -36,9 +36,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_block_stmt
+(fn emit_block_stmt
       (params
         (ctx ptr)
         (node i64))
@@ -186,9 +184,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_stmt
+(fn emit_stmt
       (params
         (ctx ptr)
         (node i64))
@@ -383,9 +379,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_debug_stmt
+(fn emit_debug_stmt
       (params
         (ctx ptr)
         (node i64))
@@ -474,9 +468,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_print_stmt
+(fn emit_print_stmt
       (params
         (ctx ptr)
         (node i64))
@@ -569,9 +561,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_store_stmt
+(fn emit_store_stmt
       (params
         (ctx ptr)
         (node i64))
@@ -779,9 +769,7 @@
 ; Returns:
 ;   0 on success or a successful false/no result when documented by the caller.
 ;   nonzero on failure or true/yes result depending on the predicate.
-
-(fn
-      emit_call_stmt
+(fn emit_call_stmt
       (params
         (ctx ptr)
         (node i64))

@@ -23,9 +23,7 @@
 ;
 ; Returns:
 ;   i64 result value.
-
-(fn
-      parser_size
+(fn parser_size
       (params)
       (returns i64)
       (do
@@ -48,9 +46,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      parser_new
+(fn parser_new
       (params
         (source ptr)
         (tokens ptr)
@@ -109,9 +105,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   no value.
-
-(fn
-      parser_free
+(fn parser_free
       (params
         (parser ptr))
       (returns void)
@@ -144,9 +138,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      parser_source
+(fn parser_source
       (params
         (parser ptr))
       (returns ptr)
@@ -165,9 +157,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      parser_tokens
+(fn parser_tokens
       (params
         (parser ptr))
       (returns ptr)
@@ -188,9 +178,7 @@
 ; Returns:
 ;   pointer result.
 ;   null only when allocation or lookup fails.
-
-(fn
-      parser_ast
+(fn parser_ast
       (params
         (parser ptr))
       (returns ptr)
@@ -210,9 +198,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i64 result value.
-
-(fn
-      parser_index
+(fn parser_index
       (params
         (parser ptr))
       (returns i64)
@@ -237,9 +223,7 @@
 ;   index - AST node index or token index.
 ; Returns:
 ;   no value.
-
-(fn
-      parser_set_index
+(fn parser_set_index
       (params
         (parser ptr)
         (index i64))
@@ -261,9 +245,7 @@
 ;   parser - Parser state pointer.
 ; Returns:
 ;   i32 result value.
-
-(fn
-      parser_error_code
+(fn parser_error_code
       (params
         (parser ptr))
       (returns i32)
@@ -284,9 +266,7 @@
 ;   code - Parser error code.
 ; Returns:
 ;   no value.
-
-(fn
-      parser_set_error_code
+(fn parser_set_error_code
       (params
         (parser ptr)
         (code i32))
