@@ -367,6 +367,53 @@ run_tests() {
   log "all $compiler_name tests passed"
 }
 
+compare_bootstrap_outputs() {
+  log "comparing weavec1 vs weavec2 LLVM output for bootstrap determinism"
+
+  local tests=(
+    01_return_constant 02_return_42 03_add 04_one_arg_function
+    05_let_local 06_set_local 07_if 08_while 09_two_arg_function
+    10_string_literal 11_const_i64 12_i64_arithmetic 13_i64_comparisons
+    14_bool_ops 15_ptr_null 16_extern_malloc_free 17_ptr_add_store_load_i64
+    18_store_load_i8 19_call_void 20_call_i64 21_call_ptr 22_return_void
+    23_mod_i32 24_buffer_like_smoke 25_ptr_params_call_i32 26_bool_return
+    27_three_arg_function 28_i32_memory_and_cast 29_const_string_ptr
+    30_i64_sub_eq 31_not_bool 32_codegen_join_and_i64_arg 33_store_i8_temp
+    34_ge_i32 35_sub_i32 36_mul_i32 37_div_i32 38_i32_comparisons_full
+    39_i64_ge_gt 40_call_bool_direct 41_load_store_ptr 42_empty_do
+    43_if_fallthrough_join 44_while_zero_iterations 45_nested_while
+    46_forward_function_call 47_multiple_externs_used_subset 48_string_escape
+    49_negative_i32_literal 54_debug_marker
+  )
+
+  local diverged=0
+  local diverged_tests=()
+
+  for test in "${tests[@]}"; do
+    local weavec1_ll="$TEST_LL_DIR/${test}.ll"
+    local weavec2_ll="$TEST2_LL_DIR/${test}.ll"
+
+    if ! diff -u "$weavec1_ll" "$weavec2_ll" >/dev/null 2>&1; then
+      printf '[bootstrap] DIVERGENCE: %s\n' "$test" >&2
+      diff -u "$weavec1_ll" "$weavec2_ll" | head -50 >&2
+      diverged=$((diverged + 1))
+      diverged_tests+=("$test")
+    fi
+  done
+
+  if [[ "$diverged" -gt 0 ]]; then
+    printf '\n[bootstrap] ERROR: %d test(s) produced different LLVM IR between weavec1 and weavec2:\n' "$diverged" >&2
+    for test in "${diverged_tests[@]}"; do
+      printf '  - %s\n' "$test" >&2
+    done
+    printf '\nThis breaks the bootstrap determinism guarantee.\n' >&2
+    printf 'weavec1 and weavec2 must produce identical LLVM IR.\n' >&2
+    exit 1
+  fi
+
+  log "bootstrap determinism validated: weavec1 and weavec2 produce identical LLVM IR"
+}
+
 main() {
   require_tool clang
   require_tool llvm-as
@@ -375,6 +422,7 @@ main() {
   run_tests "$WEAVEC1" "weavec1" "$TEST_LL_DIR" "$TEST_EXE_DIR"
   build_weavec2
   run_tests "$WEAVEC2" "weavec2" "$TEST2_LL_DIR" "$TEST2_EXE_DIR"
+  compare_bootstrap_outputs
 }
 
 main "$@"
