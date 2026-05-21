@@ -7,18 +7,18 @@
 ; returns: i32
 define i32 @main() {
 entry:
-  %t0 = icmp slt i64 1, 2
   ; if condition
+  %t0 = icmp slt i64 1, 2
   br i1 %t0, label %then0, label %else0
 then0:
   ; then
-  %t1 = icmp sle i64 2, 2
   ; if condition
+  %t1 = icmp sle i64 2, 2
   br i1 %t1, label %then1, label %else1
 then1:
   ; then
-  %t2 = icmp ne i64 3, 4
   ; if condition
+  %t2 = icmp ne i64 3, 4
   br i1 %t2, label %then2, label %else2
 then2:
   ; then

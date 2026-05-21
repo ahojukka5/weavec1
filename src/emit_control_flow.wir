@@ -412,6 +412,10 @@
             ast_c_at
             (local_get ast)
             (param_get node)))
+        (call_i32
+          emit_comment
+          (param_get ctx)
+          (const_string_ptr "if condition"))
         (let
           cond_value
           i64
@@ -419,10 +423,6 @@
             emit_expr
             (param_get ctx)
             (local_get cond_node)))
-        (call_i32
-          emit_comment
-          (param_get ctx)
-          (const_string_ptr "if condition"))
         (if
           (condition
             (lt_i64

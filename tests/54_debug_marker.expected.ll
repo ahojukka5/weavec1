@@ -12,9 +12,9 @@ entry:
   store i32 40, ptr %x.addr
   ; debug start: this is my debug zone
 
+  ; set x
   %t0 = load i32, ptr %x.addr
   %t1 = add i32 %t0, 2
-  ; set x
   store i32 %t1, ptr %x.addr
 
   ; debug end: this is my debug zone

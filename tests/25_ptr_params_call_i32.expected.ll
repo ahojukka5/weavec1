@@ -7,8 +7,8 @@
 ; returns: i32
 define i32 @same_ptr(ptr %a, ptr %b) {
 entry:
-  %t0 = icmp eq ptr %a, %b
   ; if condition
+  %t0 = icmp eq ptr %a, %b
   br i1 %t0, label %then0, label %else0
 then0:
   ; then

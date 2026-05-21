@@ -7,13 +7,13 @@
 ; returns: i32
 define i32 @main() {
 entry:
-  %t0 = icmp eq ptr null, null
   ; if condition
+  %t0 = icmp eq ptr null, null
   br i1 %t0, label %then0, label %else0
 then0:
   ; then
-  %t1 = icmp ne ptr null, null
   ; if condition
+  %t1 = icmp ne ptr null, null
   br i1 %t1, label %then1, label %else1
 then1:
   ; then

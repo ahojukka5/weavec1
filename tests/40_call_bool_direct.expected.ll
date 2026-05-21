@@ -17,8 +17,8 @@ entry:
 ; returns: i32
 define i32 @main() {
 entry:
-  %t1 = call i1 @is_answer(i32 42)
   ; if condition
+  %t1 = call i1 @is_answer(i32 42)
   br i1 %t1, label %then0, label %else0
 then0:
   ; then

@@ -16,8 +16,8 @@ entry:
 ; returns: i32
 define i32 @main() {
 entry:
-  %t0 = call i1 @same(i1 1)
   ; if condition
+  %t0 = call i1 @same(i1 1)
   br i1 %t0, label %then0, label %else0
 then0:
   ; then

@@ -16,9 +16,9 @@ entry:
   ; let p
   %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
+  ; if condition
   %t1 = load ptr, ptr %p.addr
   %t2 = icmp eq ptr %t1, null
-  ; if condition
   br i1 %t2, label %then0, label %else0
 then0:
   ; then
@@ -41,6 +41,7 @@ done0:
   ; call_void
   %t8 = load ptr, ptr %p.addr
   call void @free(ptr %t8)
+  ; if condition
   %t9 = load i32, ptr %x.addr
   %t10 = icmp eq i32 %t9, 42
   %t11 = add i32 0, -1
@@ -48,7 +49,6 @@ done0:
   %t13 = trunc i64 %t12 to i32
   %t14 = icmp sle i32 %t13, 0
   %t15 = and i1 %t10, %t14
-  ; if condition
   br i1 %t15, label %then1, label %else1
 then1:
   ; then

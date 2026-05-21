@@ -507,6 +507,10 @@
           value
           i64
           (const_i64 0))
+        (call_i32
+          emit_comment
+          (param_get ctx)
+          (const_string_ptr "print"))
         (if
           (condition
             (not_bool
@@ -532,10 +536,6 @@
                   (do)))))
           (else
             (do)))
-        (call_i32
-          emit_comment
-          (param_get ctx)
-          (const_string_ptr "print"))
         (call_i32
           emit_cstr
           (param_get ctx)

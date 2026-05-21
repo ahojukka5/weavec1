@@ -7,8 +7,8 @@
 ; returns: i32
 define i32 @main() {
 entry:
-  %t0 = icmp sge i32 42, 42
   ; if condition
+  %t0 = icmp sge i32 42, 42
   br i1 %t0, label %then0, label %else0
 then0:
   ; then

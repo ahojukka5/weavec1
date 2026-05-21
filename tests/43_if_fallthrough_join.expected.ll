@@ -10,19 +10,19 @@ entry:
   ; let x
   %x.addr = alloca i32
   store i32 0, ptr %x.addr
-  %t0 = icmp slt i32 1, 2
   ; if condition
+  %t0 = icmp slt i32 1, 2
   br i1 %t0, label %then0, label %else0
 then0:
   ; then
-  %t1 = add i32 0, 42
   ; set x
+  %t1 = add i32 0, 42
   store i32 %t1, ptr %x.addr
   br label %done0
 else0:
   ; else
-  %t2 = add i32 0, 0
   ; set x
+  %t2 = add i32 0, 0
   store i32 %t2, ptr %x.addr
   br label %done0
 done0:

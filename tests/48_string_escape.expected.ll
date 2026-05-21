@@ -17,14 +17,14 @@ declare i32 @puts(ptr)
 ; returns: i32
 define i32 @main() {
 entry:
+  ; print
   %t0 = getelementptr [12 x i8], ptr @.str1, i64 0, i64 0
-  ; print
   call i32 @puts(ptr %t0)
+  ; print
   %t1 = getelementptr [15 x i8], ptr @.str3, i64 0, i64 0
-  ; print
   call i32 @puts(ptr %t1)
-  %t2 = getelementptr [13 x i8], ptr @.str5, i64 0, i64 0
   ; print
+  %t2 = getelementptr [13 x i8], ptr @.str5, i64 0, i64 0
   call i32 @puts(ptr %t2)
   ; return
   ret i32 42

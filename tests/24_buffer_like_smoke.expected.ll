@@ -16,9 +16,9 @@ entry:
   ; let buffer
   %buffer.addr = alloca ptr
   store ptr %t0, ptr %buffer.addr
+  ; if condition
   %t1 = load ptr, ptr %buffer.addr
   %t2 = icmp eq ptr %t1, null
-  ; if condition
   br i1 %t2, label %then0, label %else0
 then0:
   ; then
@@ -32,9 +32,9 @@ done0:
   ; let data
   %data.addr = alloca ptr
   store ptr %t3, ptr %data.addr
+  ; if condition
   %t4 = load ptr, ptr %data.addr
   %t5 = icmp eq ptr %t4, null
-  ; if condition
   br i1 %t5, label %then1, label %else1
 then1:
   ; then

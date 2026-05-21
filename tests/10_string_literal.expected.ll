@@ -15,8 +15,8 @@ declare i32 @puts(ptr)
 ; returns: i32
 define i32 @main() {
 entry:
-  %t0 = getelementptr [17 x i8], ptr @.str0, i64 0, i64 0
   ; print
+  %t0 = getelementptr [17 x i8], ptr @.str0, i64 0, i64 0
   call i32 @puts(ptr %t0)
   ; return
   ret i32 42

@@ -7,8 +7,8 @@
 ; returns: i32
 define i32 @main() {
 entry:
-  %t0 = icmp eq i32 42, 42
   ; if condition
+  %t0 = icmp eq i32 42, 42
   br i1 %t0, label %then0, label %else0
 then0:
   ; then
@@ -18,8 +18,8 @@ else0:
   ; return
   ret i32 0
 done0:
-  %t1 = icmp ne i32 42, 0
   ; if condition
+  %t1 = icmp ne i32 42, 0
   br i1 %t1, label %then1, label %else1
 then1:
   ; then
@@ -29,8 +29,8 @@ else1:
   ; return
   ret i32 0
 done1:
-  %t2 = icmp slt i32 1, 2
   ; if condition
+  %t2 = icmp slt i32 1, 2
   br i1 %t2, label %then2, label %else2
 then2:
   ; then
@@ -40,8 +40,8 @@ else2:
   ; return
   ret i32 0
 done2:
-  %t3 = icmp sle i32 2, 2
   ; if condition
+  %t3 = icmp sle i32 2, 2
   br i1 %t3, label %then3, label %else3
 then3:
   ; then
@@ -51,8 +51,8 @@ else3:
   ; return
   ret i32 0
 done3:
-  %t4 = icmp sgt i32 3, 2
   ; if condition
+  %t4 = icmp sgt i32 3, 2
   br i1 %t4, label %then4, label %else4
 then4:
   ; then
@@ -62,8 +62,8 @@ else4:
   ; return
   ret i32 0
 done4:
-  %t5 = icmp sge i32 4, 4
   ; if condition
+  %t5 = icmp sge i32 4, 4
   br i1 %t5, label %then5, label %else5
 then5:
   ; then

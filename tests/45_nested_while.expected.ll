@@ -32,19 +32,19 @@ while.cond1:
   br i1 %t3, label %while.body1, label %while.end1
 while.body1:
   ; while body
+  ; set total
   %t4 = load i32, ptr %total.addr
   %t5 = add i32 %t4, 7
-  ; set total
   store i32 %t5, ptr %total.addr
+  ; set inner
   %t6 = load i32, ptr %inner.addr
   %t7 = add i32 %t6, 1
-  ; set inner
   store i32 %t7, ptr %inner.addr
   br label %while.cond1
 while.end1:
+  ; set outer
   %t8 = load i32, ptr %outer.addr
   %t9 = add i32 %t8, 1
-  ; set outer
   store i32 %t9, ptr %outer.addr
   br label %while.cond0
 while.end0:

@@ -21,13 +21,13 @@ while.cond0:
   br i1 %t1, label %while.body0, label %while.end0
 while.body0:
   ; while body
+  ; set sum
   %t2 = load i32, ptr %sum.addr
   %t3 = add i32 %t2, 6
-  ; set sum
   store i32 %t3, ptr %sum.addr
+  ; set i
   %t4 = load i32, ptr %i.addr
   %t5 = add i32 %t4, 1
-  ; set i
   store i32 %t5, ptr %i.addr
   br label %while.cond0
 while.end0:

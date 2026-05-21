@@ -7,9 +7,9 @@
 ; returns: i32
 define i32 @main() {
 entry:
+  ; if condition
   %t0 = or i1 false, false
   %t1 = xor i1 %t0, true
-  ; if condition
   br i1 %t1, label %then0, label %else0
 then0:
   ; then

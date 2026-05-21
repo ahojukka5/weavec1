@@ -218,24 +218,6 @@
             ast_a_at
             (local_get ast)
             (param_get node)))
-        (let
-          value
-          i64
-          (call_i64
-            emit_expr
-            (param_get ctx)
-            (local_get expr)))
-        (if
-          (condition
-            (lt_i64
-              (local_get value)
-              (const_i64 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
         (call_i32
           emit_cstr
           (param_get ctx)
@@ -254,6 +236,24 @@
         (call_i32
           emit_newline
           (param_get ctx))
+        (let
+          value
+          i64
+          (call_i64
+            emit_expr
+            (param_get ctx)
+            (local_get expr)))
+        (if
+          (condition
+            (lt_i64
+              (local_get value)
+              (const_i64 0)))
+          (then
+            (do
+              (return
+                (const_i32 1))))
+          (else
+            (do)))
         (let
           value_type
           i32

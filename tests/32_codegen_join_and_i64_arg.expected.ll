@@ -17,9 +17,9 @@ entry:
   ; let p
   %p.addr = alloca ptr
   store ptr %t0, ptr %p.addr
+  ; if condition
   %t2 = load ptr, ptr %p.addr
   %t3 = icmp eq ptr %t2, null
-  ; if condition
   br i1 %t3, label %then0, label %else0
 then0:
   ; then
