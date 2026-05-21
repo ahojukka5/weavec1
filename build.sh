@@ -309,6 +309,8 @@ run_tests() {
 
   mkdir -p "$test_ll_dir" "$test_exe_dir"
 
+  # ===== Unit Tests: Basic Features (01-10) =====
+  # Core primitives: return, arithmetic, functions, control flow, strings
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "01_return_constant" 0
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "02_return_42" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "03_add" 42
@@ -319,18 +321,32 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "08_while" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "09_two_arg_function" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "10_string_literal" 42
+
+  # ===== Unit Tests: i64 Operations (11-13) =====
+  # 64-bit integer support: constants, arithmetic, comparisons
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "11_const_i64" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "12_i64_arithmetic" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "13_i64_comparisons" 42
+
+  # ===== Unit Tests: Boolean and Pointer Basics (14-15) =====
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "14_bool_ops" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "15_ptr_null" 42
+
+  # ===== Unit Tests: Memory Operations (16-18) =====
+  # Pointers, memory allocation, load/store operations
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "16_extern_malloc_free" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "17_ptr_add_store_load_i64" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "18_store_load_i8" 42
+
+  # ===== Unit Tests: Function Calls (19-22) =====
+  # Different return types: void, i64, ptr
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "19_call_void" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "20_call_i64" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "21_call_ptr" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "22_return_void" 42
+
+  # ===== Unit Tests: i32 Arithmetic and Extended Features (23-33) =====
+  # Modulo, buffers, parameter passing, type casting
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "23_mod_i32" 2
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "24_buffer_like_smoke" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "25_ptr_params_call_i32" 42
@@ -342,6 +358,9 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "31_not_bool" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "32_codegen_join_and_i64_arg" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "33_store_i8_temp" 42
+
+  # ===== Unit Tests: Complete i32 Operator Coverage (34-40) =====
+  # All i32 comparisons and arithmetic operations
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "34_ge_i32" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "35_sub_i32" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "36_mul_i32" 42
@@ -349,6 +368,9 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "38_i32_comparisons_full" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "39_i64_ge_gt" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "40_call_bool_direct" 42
+
+  # ===== Unit Tests: Edge Cases and Control Flow (41-49) =====
+  # Pointer loads/stores, empty blocks, fallthrough, nested loops, forward refs, escapes
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "41_load_store_ptr" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "42_empty_do" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "43_if_fallthrough_join" 42
@@ -358,11 +380,22 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "47_multiple_externs_used_subset" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "48_string_escape" 42
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "49_negative_i32_literal" 42
+
+  # ===== Negative Tests: Error Handling (50-53) =====
+  # Tests that should fail to compile with specific error messages
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "50_parse_error_smoke" "parse failed"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "51_unknown_operator" "unknown operator"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "52_wrong_arity_add_i32_too_few" "arity"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "53_wrong_arity_add_i32_too_many" "arity"
+
+  # ===== Debug Features (54) =====
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "54_debug_marker" 42
+
+  # ===== Integration Tests: Multi-Feature Combinations (55-57) =====
+  # Tests combining multiple features to validate interactions
+  # 55: nested if + while + i64 arithmetic + mutable locals in loops
+  # 56: multi-function chains with forward declarations
+  # 57: memory flow (malloc → write → read → free)
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "55_integration_nested_control_flow" 75
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "56_integration_multi_function_chain" 35
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "57_integration_memory_flow" 100
