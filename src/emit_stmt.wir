@@ -19,23 +19,26 @@
 ; Block emission
 ; =============================================================================
 
+;
 ; emit_block_stmt
 ;
-; Emits each direct statement child of an AST block into LLVM IR.
+; Emits all direct statement children of an AST block into LLVM IR.
+; Branch-owned child blocks are skipped because control-flow emitters lower them separately.
 ;
 ; Invariants:
 ;   - node must be AST_BLOCK.
-;   - ast_a_at(node) is the first child index.
-;   - ast_b_at(node) is the last child index.
-;   - branch child nodes are emitted by structured control-flow helpers.
+;   - field a is the first child index.
+;   - field b is the last child index.
+;   - field c is the child count.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero when any child statement fails to emit.
+;
 (fn emit_block_stmt
       (params
         (ctx ptr)
@@ -170,20 +173,20 @@
 ; Statement dispatch
 ; =============================================================================
 
+;
 ; emit_stmt
 ;
-; Dispatches one AST statement node to the matching LLVM statement emitter.
-;
-; Notes:
-;   Returns immediately on the first nested emission failure.
+; Dispatches one AST statement node to its specialized LLVM emitter.
+; This is the common statement entry point used by blocks and control-flow bodies.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_stmt
       (params
         (ctx ptr)
@@ -368,17 +371,20 @@
 ; Debug marker emission
 ; =============================================================================
 
+;
 ; emit_debug_stmt
 ;
-; Emits or computes LLVM output for debug stmt.
+; Emits LLVM text for `debug stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_debug_stmt
       (params
         (ctx ptr)
@@ -457,17 +463,20 @@
 ; Print emission
 ; =============================================================================
 
+;
 ; emit_print_stmt
 ;
-; Emits or computes LLVM output for print stmt.
+; Emits LLVM text for `print stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_print_stmt
       (params
         (ctx ptr)
@@ -550,17 +559,20 @@
 ; Store emission
 ; =============================================================================
 
+;
 ; emit_store_stmt
 ;
-; Emits or computes LLVM output for store stmt.
+; Emits LLVM text for `store stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_store_stmt
       (params
         (ctx ptr)
@@ -758,17 +770,20 @@
 ; Call statement emission
 ; =============================================================================
 
+;
 ; emit_call_stmt
 ;
-; Emits or computes LLVM output for call stmt.
+; Emits LLVM text for `call stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_call_stmt
       (params
         (ctx ptr)

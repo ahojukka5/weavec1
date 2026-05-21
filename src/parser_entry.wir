@@ -17,16 +17,19 @@
 ; Parser entry point
 ; =============================================================================
 
+;
 ; parse
 ;
-; Implements parse for the weavec1 bootstrap compiler.
-;
+; Validates parser state and parses the top-level program.
+; This is the public parser entry point used by the compiler driver.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   AST_PROGRAM node index on success.
+;   -1 on parse failure.
+;
 (fn parse
       (params
         (parser ptr))

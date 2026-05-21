@@ -18,17 +18,20 @@
 ; String global names
 ; =============================================================================
 
+;
 ; emit_string_global
 ;
-; Emits or computes LLVM output for string global.
+; Emits LLVM text for `string global`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_string_global
       (params
         (ctx ptr)
@@ -93,16 +96,20 @@
 ; String decoding
 ; =============================================================================
 
+;
 ; emit_string_decoded_length
 ;
-; Emits or computes LLVM output for string decoded length.
+; Emits LLVM text for `string decoded length`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   i64 result value.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_string_decoded_length
       (params
         (ctx ptr)
@@ -187,18 +194,21 @@
         (return
           (local_get length))))
 
+;
 ; emit_escape_2
 ;
-; Emits or computes LLVM output for escape 2.
+; Emits LLVM text for `escape 2`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;   a - First AST payload field.
+;   ctx - emission context pointer.
+;   a - first AST payload field.
+;   b - second AST payload field.
 ;
-;   b - Second AST payload field.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_escape_2
       (params
         (ctx ptr)
@@ -240,17 +250,20 @@
             (param_get ctx)
             (param_get b)))))
 
+;
 ; emit_string_byte
 ;
-; Emits or computes LLVM output for string byte.
+; Emits LLVM text for `string byte`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   byte - byte value to emit or escape.
 ;
-;   byte - Byte value.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_string_byte
       (params
         (ctx ptr)
@@ -323,17 +336,20 @@
             (param_get ctx)
             (param_get byte)))))
 
+;
 ; emit_string_escape
 ;
-; Emits or computes LLVM output for string escape.
+; Emits LLVM text for `string escape`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   byte - byte value to emit or escape.
 ;
-;   byte - Byte value.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_string_escape
       (params
         (ctx ptr)
@@ -376,17 +392,20 @@
             (param_get ctx)
             (param_get byte)))))
 
+;
 ; emit_string_contents
 ;
-; Emits or computes LLVM output for string contents.
+; Emits LLVM text for `string contents`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_string_contents
       (params
         (ctx ptr)
@@ -503,16 +522,19 @@
 ; String global emission
 ; =============================================================================
 
+;
 ; emit_string_globals
 ;
-; Emits or computes LLVM output for string globals.
-;
+; Emits LLVM text for `string globals`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_string_globals
       (params
         (ctx ptr))

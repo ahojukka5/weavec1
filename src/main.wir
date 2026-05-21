@@ -17,12 +17,15 @@
 ; CLI entry point
 ; =============================================================================
 
+;
 ; print_usage
 ;
-; Implements print usage for the weavec1 bootstrap compiler.
+; Prints the command-line usage.
+; CLI text is isolated from compiler pipeline logic.
 ;
 ; Returns:
 ;   no value.
+;
 (fn print_usage
       (params)
       (returns void)
@@ -32,12 +35,15 @@
           (const_string_ptr "usage: weavec1 <input.wir> <output.ll>"))
         (return_void)))
 
+;
 ; print_banner
 ;
-; Implements print banner for the weavec1 bootstrap compiler.
+; Prints the command-line banner.
+; CLI text is isolated from compiler pipeline logic.
 ;
 ; Returns:
 ;   no value.
+;
 (fn print_banner
       (params)
       (returns void)
@@ -47,17 +53,19 @@
           (const_string_ptr "weavec1 - Weave bootstrap compiler"))
         (return_void)))
 
+;
 ; main
 ;
-; Implements main for the weavec1 bootstrap compiler.
+; Runs the command-line entry point for this executable.
+; Argument validation happens here before control passes to the driver.
 ;
 ; Parameters:
-;   argc - Argument count.
+;   argc - argument count passed to the executable.
+;   argv - argument vector passed to the executable.
 ;
-;   argv - Argument vector pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   process exit status.
+;
 (fn main
       (params
         (argc i32)

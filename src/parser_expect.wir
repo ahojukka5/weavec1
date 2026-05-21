@@ -17,15 +17,18 @@
 ; Token cursor reads
 ; =============================================================================
 
+;
 ; parser_current_kind
 ;
 ; Reads the current token kind from parser state.
-;
+; This keeps parser routines independent of token-array offsets.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i32 result value.
+;   current token kind id.
+;
 (fn parser_current_kind
       (params
         (parser ptr))
@@ -41,15 +44,18 @@
               parser_index
               (param_get parser))))))
 
+;
 ; parser_current_start
 ;
-; Reads the current token start from parser state.
-;
+; Reads the current token source start offset.
+; Parsers use this offset when constructing AST text spans.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i64 result value.
+;   current token kind id.
+;
 (fn parser_current_start
       (params
         (parser ptr))
@@ -65,15 +71,18 @@
               parser_index
               (param_get parser))))))
 
+;
 ; parser_current_length
 ;
-; Reads the current token length from parser state.
-;
+; Reads the current token source length.
+; Parsers store this length on AST nodes that carry names or strings.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i64 result value.
+;   current token source byte offset.
+;
 (fn parser_current_length
       (params
         (parser ptr))
@@ -93,15 +102,18 @@
 ; Token cursor movement
 ; =============================================================================
 
+;
 ; parser_advance
 ;
-; Provides parser behavior for advance.
-;
+; Advances the parser cursor by one token.
+; The cursor is the only mutable parser position shared across parse routines.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   no value.
+;   current token byte length.
+;
 (fn parser_advance
       (params
         (parser ptr))
@@ -121,17 +133,19 @@
 ; Expectation helpers
 ; =============================================================================
 
+;
 ; parser_match
 ;
-; Provides parser behavior for match.
+; Consumes the current token when it matches the requested kind.
+; Optional syntax uses this to branch without recording an error.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;   kind - token or AST kind id.
 ;
-;   kind - Integer kind id.
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   no value.
+;
 (fn parser_match
       (params
         (parser ptr)
@@ -145,17 +159,20 @@
               (param_get parser))
             (param_get kind)))))
 
+;
 ; parser_expect
 ;
-; Provides parser behavior for expect.
+; Consumes the requested token kind or records a parse error.
+; Required syntax uses this so parse failures share one error convention.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;   kind - token or AST kind id.
 ;
-;   kind - Integer kind id.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 when the expected token was consumed.
+;   nonzero after recording a parse error.
+;
 (fn parser_expect
       (params
         (parser ptr)

@@ -90,17 +90,19 @@
 ; Runtime bindings
 ; =============================================================================
 
+;
 ; read_file
 ;
-; Implements read file for the weavec1 bootstrap compiler.
+; Declares the runtime binding for `read_file`.
+; The implementation is supplied by the runtime linked with generated LLVM.
 ;
 ; Parameters:
-;   path - Path string pointer.
+;   path - source or output path pointer.
+;   out_len - output pointer receiving the read byte length.
 ;
-;   out_len - Output length pointer.
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to loaded bytes, or null on read failure.
+;
 (fn read_file
       (params
         (path ptr)
@@ -113,17 +115,20 @@
             (param_get path)
             (param_get out_len)))))
 
+;
 ; write_file
 ;
-; Implements write file for the weavec1 bootstrap compiler.
+; Declares the runtime binding for `write_file`.
+; The implementation is supplied by the runtime linked with generated LLVM.
 ;
 ; Parameters:
-;   path - Path string pointer.
-;   data - Byte pointer.
+;   path - source or output path pointer.
+;   data - byte array pointer.
+;   length - byte length.
 ;
-;   length - Byte length.
 ; Returns:
-;   i32 result value.
+;   pointer to loaded bytes, or null on read failure.
+;
 (fn write_file
       (params
         (path ptr)
@@ -138,15 +143,19 @@
             (param_get data)
             (param_get length)))))
 
+;
 ; fatal
 ;
-; Implements fatal for the weavec1 bootstrap compiler.
-;
+; Declares the runtime binding for `fatal`.
+; The implementation is supplied by the runtime linked with generated LLVM.
 ;
 ; Parameters:
-;   message - Message string pointer or source offset.
+;   message - message text pointer.
+;
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on write failure.
+;
 (fn fatal
       (params
         (message ptr))
@@ -158,16 +167,18 @@
         (return
           (const_i32 1))))
 
+;
 ; is_null
 ;
-; Returns whether a byte or value satisfies null.
-;
+; Returns whether the tested value satisfies `null`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   p - Pointer value.
+;   p - pointer value.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   no value; the runtime aborts execution.
+;
 (fn is_null
       (params
         (p ptr))
@@ -178,16 +189,19 @@
             (param_get p)
             (const_null)))))
 
+;
 ; not_null
 ;
-; Implements not null for the weavec1 bootstrap compiler.
-;
+; Returns whether the tested value satisfies `not null`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   p - Pointer value.
+;   p - pointer value.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn not_null
       (params
         (p ptr))

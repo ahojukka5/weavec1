@@ -18,12 +18,15 @@
 ; Source storage
 ; =============================================================================
 
+;
 ; source_size
 ;
-; Provides source buffer behavior for size.
+; Returns the size in bytes of a source record.
+; The record stores source bytes, length, and path metadata.
 ;
 ; Returns:
-;   i64 result value.
+;   source record byte size.
+;
 (fn source_size
       (params)
       (returns i64)
@@ -31,18 +34,23 @@
         (return
           (const_i64 24))))
 
+;
 ; source_new
 ;
-; Provides source buffer behavior for new.
+; Allocates and initializes a source record from file contents.
+; The source owns the loaded byte buffer used by lexer and parser spans.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   data - Byte pointer.
-;   length - Byte length.
+;   data - byte array pointer.
+;   length - byte length.
+;   path - source or output path pointer.
 ;
-;   path - Path string pointer.
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   source pointer, or null on allocation failure.
+;
 (fn source_new
       (params
         (data ptr)
@@ -83,15 +91,21 @@
         (return
           (local_get source))))
 
+;
 ; source_free
 ;
-; Provides source buffer behavior for free.
+; Releases a source record and owned file contents.
+; Token and AST spans become invalid after the source is freed.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;
 ; Returns:
 ;   no value.
+;
 (fn source_free
       (params
         (source ptr))
@@ -111,16 +125,18 @@
             (do)))
         (return_void)))
 
+;
 ; source_data
 ;
-; Provides source buffer behavior for data.
-;
+; Reads the source byte pointer.
+; Lexer and parser span helpers index into this byte array.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   source byte pointer.
+;
 (fn source_data
       (params
         (source ptr))
@@ -130,15 +146,18 @@
           (load_ptr
             (param_get source)))))
 
+;
 ; source_length
 ;
-; Provides source buffer behavior for length.
-;
+; Reads the source byte length.
+; Lexing stops when this length is reached.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;
 ; Returns:
-;   i64 result value.
+;   source byte length.
+;
 (fn source_length
       (params
         (source ptr))
@@ -150,16 +169,18 @@
               (param_get source)
               (const_i64 8))))))
 
+;
 ; source_path
 ;
-; Provides source buffer behavior for path.
-;
+; Reads the source path pointer.
+; Diagnostics can use this path when reporting source failures.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   source path pointer.
+;
 (fn source_path
       (params
         (source ptr))
@@ -171,16 +192,19 @@
               (param_get source)
               (const_i64 16))))))
 
+;
 ; source_byte_at
 ;
-; Provides source buffer behavior for byte at.
+; Reads one byte from source text by index.
+; The lexer uses this for deterministic byte-by-byte scanning.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i32 result value.
+;   byte value at the requested index.
+;
 (fn source_byte_at
       (params
         (source ptr)
@@ -199,16 +223,19 @@
 ; Byte classification
 ; =============================================================================
 
+;
 ; is_whitespace
 ;
-; Returns whether a byte or value satisfies whitespace.
-;
+; Returns whether the tested value satisfies `whitespace`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   ch - Byte value.
+;   ch - byte value being classified or lexed.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn is_whitespace
       (params
         (ch i32))
@@ -231,16 +258,19 @@
                 (param_get ch)
                 (const_i32 13)))))))
 
+;
 ; is_digit
 ;
-; Returns whether a byte or value satisfies digit.
-;
+; Returns whether the tested value satisfies `digit`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   ch - Byte value.
+;   ch - byte value being classified or lexed.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn is_digit
       (params
         (ch i32))
@@ -255,16 +285,19 @@
               (param_get ch)
               (const_i32 57))))))
 
+;
 ; is_alpha
 ;
-; Returns whether a byte or value satisfies alpha.
-;
+; Returns whether the tested value satisfies `alpha`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   ch - Byte value.
+;   ch - byte value being classified or lexed.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn is_alpha
       (params
         (ch i32))
@@ -287,16 +320,19 @@
                 (param_get ch)
                 (const_i32 90)))))))
 
+;
 ; is_ident_start
 ;
-; Returns whether a byte or value satisfies ident start.
-;
+; Returns whether the tested value satisfies `ident start`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   ch - Byte value.
+;   ch - byte value being classified or lexed.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn is_ident_start
       (params
         (ch i32))
@@ -311,16 +347,19 @@
               (param_get ch)
               (const_i32 95))))))
 
+;
 ; is_ident_continue
 ;
-; Returns whether a byte or value satisfies ident continue.
-;
+; Returns whether the tested value satisfies `ident continue`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   ch - Byte value.
+;   ch - byte value being classified or lexed.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn is_ident_continue
       (params
         (ch i32))
@@ -343,16 +382,20 @@
 ; Keyword lookup
 ; =============================================================================
 
+;
 ; keyword_kind
 ;
-; Implements keyword kind for the weavec1 bootstrap compiler.
+; Maps an identifier byte slice to a keyword token kind when it matches.
+; The linear keyword checks keep the lexer table-free and easy to inspect.
 ;
 ; Parameters:
-;   text - ptr parameter.
+;   text - text pointer.
+;   length - byte length.
 ;
-;   length - Byte length.
 ; Returns:
-;   i32 result value.
+;   keyword token id on match.
+;   token_ident when the slice is not a keyword.
+;
 (fn keyword_kind
       (params
         (text ptr)
@@ -618,17 +661,20 @@
 ; Token-specific lexing
 ; =============================================================================
 
+;
 ; lex_integer
 ;
-; Lexes integer into token storage.
+; Lexes integer and appends tokens to token storage.
+; The lexer records source spans instead of copying token text.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
-;   tokens - Token stream pointer.
+;   source - source buffer pointer.
+;   tokens - token stream pointer.
+;   start - source byte offset where lexing begins.
 ;
-;   start - Source byte offset.
 ; Returns:
-;   i64 result value.
+;   next source byte index on success, or 0 on fatal lexing failure.
+;
 (fn lex_integer
       (params
         (source ptr)
@@ -736,17 +782,20 @@
         (return
           (local_get index))))
 
+;
 ; lex_identifier
 ;
-; Lexes identifier into token storage.
+; Lexes identifier and appends tokens to token storage.
+; The lexer records source spans instead of copying token text.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
-;   tokens - Token stream pointer.
+;   source - source buffer pointer.
+;   tokens - token stream pointer.
+;   start - source byte offset where lexing begins.
 ;
-;   start - Source byte offset.
 ; Returns:
-;   i64 result value.
+;   next source byte index on success, or 0 on fatal lexing failure.
+;
 (fn lex_identifier
       (params
         (source ptr)
@@ -823,17 +872,20 @@
         (return
           (local_get index))))
 
+;
 ; lex_string
 ;
-; Lexes string into token storage.
+; Lexes string and appends tokens to token storage.
+; The lexer records source spans instead of copying token text.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
-;   tokens - Token stream pointer.
+;   source - source buffer pointer.
+;   tokens - token stream pointer.
+;   start - source byte offset where lexing begins.
 ;
-;   start - Source byte offset.
 ; Returns:
-;   i64 result value.
+;   next source byte index on success, or 0 on fatal lexing failure.
+;
 (fn lex_string
       (params
         (source ptr)
@@ -947,16 +999,19 @@
         (return
           (const_i64 -1))))
 
+;
 ; skip_comment
 ;
-; Implements skip comment for the weavec1 bootstrap compiler.
+; Skips a line comment and returns the first byte after it.
+; Comments do not produce tokens.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;   start - source byte offset where lexing begins.
 ;
-;   start - Source byte offset.
 ; Returns:
-;   i64 result value.
+;   source byte index after the comment.
+;
 (fn skip_comment
       (params
         (source ptr)
@@ -1005,18 +1060,21 @@
         (return
           (local_get index))))
 
+;
 ; lex_punctuation
 ;
-; Lexes punctuation into token storage.
+; Lexes punctuation and appends tokens to token storage.
+; The lexer records source spans instead of copying token text.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
-;   tokens - Token stream pointer.
-;   index - AST node index.
+;   source - source buffer pointer.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
+;   ch - byte value being classified or lexed.
 ;
-;   ch - Byte value.
 ; Returns:
-;   i64 result value.
+;   next source byte index on success, or 0 on fatal lexing failure.
+;
 (fn lex_punctuation
       (params
         (source ptr)
@@ -1092,16 +1150,19 @@
 ; Lexer entry point
 ; =============================================================================
 
+;
 ; lex
 ;
-; Lexes the source buffer into token storage.
+; Lexes full source buffer and appends tokens to token storage.
+; The lexer records source spans instead of copying token text.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
+;   tokens - token stream pointer.
 ;
-;   tokens - Token stream pointer.
 ; Returns:
-;   i32 result value.
+;   next source byte index on success, or 0 on fatal lexing failure.
+;
 (fn lex
       (params
         (source ptr)

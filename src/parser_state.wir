@@ -17,12 +17,15 @@
 ; Parser layout constants
 ; =============================================================================
 
+;
 ; parser_size
 ;
-; Provides parser behavior for size.
+; Returns the size in bytes of the parser state record.
+; The record stores source, tokens, AST, cursor, and error code.
 ;
 ; Returns:
-;   i64 result value.
+;   parser record size in bytes.
+;
 (fn parser_size
       (params)
       (returns i64)
@@ -34,18 +37,23 @@
 ; Parser allocation
 ; =============================================================================
 
+;
 ; parser_new
 ;
-; Provides parser behavior for new.
+; Allocates and initializes parser state for one source file.
+; The parser borrows source, token, and AST storage owned by the driver.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
-;   tokens - Token stream pointer.
-;
+;   source - source buffer pointer.
+;   tokens - token stream pointer.
 ;   ast - AST container pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   parser record size in bytes.
+;
 (fn parser_new
       (params
         (source ptr)
@@ -96,15 +104,21 @@
         (return
           (local_get parser))))
 
+;
 ; parser_free
 ;
-; Provides parser behavior for free.
+; Releases the parser state record.
+; Borrowed source, tokens, and AST storage are freed by their owners.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
 ;   no value.
+;
 (fn parser_free
       (params
         (parser ptr))
@@ -128,16 +142,18 @@
 ; Parser accessors
 ; =============================================================================
 
+;
 ; parser_source
 ;
-; Provides parser behavior for source.
-;
+; Reads the source pointer from parser state.
+; Parser helpers need source bytes for identifier and literal spans.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   source buffer pointer.
+;
 (fn parser_source
       (params
         (parser ptr))
@@ -147,16 +163,18 @@
           (load_ptr
             (param_get parser)))))
 
+;
 ; parser_tokens
 ;
-; Provides parser behavior for tokens.
-;
+; Reads the token stream pointer from parser state.
+; Cursor helpers index into this token stream.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   token stream pointer.
+;
 (fn parser_tokens
       (params
         (parser ptr))
@@ -168,16 +186,18 @@
               (param_get parser)
               (const_i64 8))))))
 
+;
 ; parser_ast
 ;
-; Provides parser behavior for ast.
-;
+; Reads the AST pointer from parser state.
+; Parse routines append nodes through this shared AST.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   AST container pointer.
+;
 (fn parser_ast
       (params
         (parser ptr))
@@ -189,15 +209,18 @@
               (param_get parser)
               (const_i64 16))))))
 
+;
 ; parser_index
 ;
-; Provides parser behavior for index.
-;
+; Reads the current token index from parser state.
+; All parser dispatch decisions are relative to this cursor.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i64 result value.
+;   AST container pointer.
+;
 (fn parser_index
       (params
         (parser ptr))
@@ -213,16 +236,19 @@
 ; Parser mutators
 ; =============================================================================
 
+;
 ; parser_set_index
 ;
-; Provides parser behavior for set index.
+; Writes the current token index in parser state.
+; Advance and recovery helpers use this single cursor mutator.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   no value.
+;   current token index.
+;
 (fn parser_set_index
       (params
         (parser ptr)
@@ -236,15 +262,18 @@
           (param_get index))
         (return_void)))
 
+;
 ; parser_error_code
 ;
-; Provides parser behavior for error code.
-;
+; Reads the parser error code.
+; A nonzero code marks a previous syntax failure.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i32 result value.
+;   no value.
+;
 (fn parser_error_code
       (params
         (parser ptr))
@@ -256,16 +285,19 @@
               (param_get parser)
               (const_i64 32))))))
 
+;
 ; parser_set_error_code
 ;
-; Provides parser behavior for set error code.
+; Writes the parser error code.
+; Expectation helpers use this to preserve the low-level failure convention.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;   code - parser error code.
 ;
-;   code - Parser error code.
 ; Returns:
-;   no value.
+;   current parser error code.
+;
 (fn parser_set_error_code
       (params
         (parser ptr)

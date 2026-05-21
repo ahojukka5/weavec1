@@ -33,11 +33,13 @@ points, operator lookup, block emission, AST storage, or token insertion.
 
 ## Function documentation
 
-Every `(fn ...)` definition must have a preceding comment block. The first line
-is the function name. The block explains why the function exists, its
+Every `(fn ...)` definition must have an attached comment block. The first
+comment line and final comment line are plain semicolon delimiters. The second
+line is the function name. The block explains why the function exists, its
 parameters, and its return contract.
 
 ```lisp
+;
 ; emit_stmt
 ;
 ; Dispatches one AST statement node to the matching LLVM statement emitter.
@@ -49,6 +51,7 @@ parameters, and its return contract.
 ; Returns:
 ;   0 on success.
 ;   nonzero on emission failure.
+;
 (fn emit_stmt
   ...)
 ```
@@ -76,12 +79,14 @@ Attach each documentation block directly to the following function. The
 function opener keeps the function name on the same line:
 
 ```lisp
+;
 ; ast_size
 ;
 ; Returns the size in bytes of the AST container header.
 ;
 ; Returns:
 ;   24.
+;
 (fn ast_size
   (params)
   ...)

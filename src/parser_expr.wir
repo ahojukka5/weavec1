@@ -19,19 +19,23 @@
 ; Operator lookup
 ; =============================================================================
 
+;
 ; parser_lookup_op
 ;
-; Looks up the WIR operator named by the parser's current identifier token.
+; Looks up the operator id named by the parser's current identifier token.
+; The current token must already be positioned on the operator identifier.
 ;
 ; Notes:
-;   This is intentionally implemented as a linear comparison chain. The bootstrap
-;   compiler prioritizes explicitness and auditability over compact dispatch tables.
-;
+;   The lookup is intentionally a linear comparison chain. The bootstrap
+;   compiler favors explicit, auditable dispatch over compact tables.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i32 result value.
+;   operator id on success.
+;   -1 when the identifier is not a supported WIR operator.
+;
 (fn parser_lookup_op
       (params
         (parser ptr))
@@ -640,20 +644,23 @@
 ; Expression entry points
 ; =============================================================================
 
+;
 ; parser_parse_expression
 ;
-; Parses one WIR expression subtree and appends the corresponding AST node.
+; Parses one expression subtree and appends the corresponding AST node.
+; This is the expression entry point used by statement and declaration parsers.
 ;
 ; Invariants:
-;   - parser must point at the first token of an expression form or literal.
-;   - returned node indices refer to nodes in parser_ast(parser).
-;
+;   - parser points at the first token of an expression form or literal.
+;   - returned indices refer to parser_ast(parser).
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
 ;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   -1 on parse failure.
+;
 (fn parser_parse_expression
       (params
         (parser ptr))
@@ -778,20 +785,22 @@
 ; Condition slot parsing
 ; =============================================================================
 
+;
 ; parser_parse_condition_slot
 ;
-; Parses a (condition ...) wrapper and returns the contained expression node.
+; Parses a `(condition ...)` wrapper and returns the contained expression node.
+; Control-flow parsers use this to keep condition syntax separate from branches.
 ;
 ; Invariants:
-;   - the current token must start the condition slot syntax.
-;   - the returned node is emitted by the surrounding control-flow helper.
-;
+;   - parser points at the opening condition slot syntax.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   condition expression node index on success.
+;   -1 on parse failure.
+;
 (fn parser_parse_condition_slot
       (params
         (parser ptr))

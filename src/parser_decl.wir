@@ -18,16 +18,19 @@
 ; Function declaration parsing
 ; =============================================================================
 
+;
 ; parser_parse_function
 ;
-; Provides parser behavior for parse function.
-;
+; Parses a top-level function declaration or definition.
+; Parameter, return type, and body ranges are encoded into one AST_FUNCTION node.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   AST_FUNCTION node index on success.
+;   -1 on parse failure.
+;
 (fn parser_parse_function
       (params
         (parser ptr))
@@ -379,15 +382,19 @@
 ; Extern declaration parsing
 ; =============================================================================
 
+;
 ; parser_skip_extern_opened
 ;
-; Provides parser behavior for skip extern opened.
-;
+; Parses an extern declaration after the opening form has been consumed.
+; Externs record callable signatures without a body block.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i32 result value.
+;   AST_FUNCTION node index on success.
+;   -1 on parse failure.
+;
 (fn parser_skip_extern_opened
       (params
         (parser ptr))
@@ -606,16 +613,19 @@
 ; Top-level parsing
 ; =============================================================================
 
+;
 ; parser_parse_toplevel
 ;
-; Provides parser behavior for parse toplevel.
-;
+; Parses all top-level declarations into an AST_PROGRAM node.
+; The program node records the declaration range consumed by module emission.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   AST_EXTERN node index on success.
+;   -1 on parse failure.
+;
 (fn parser_parse_toplevel
       (params
         (parser ptr))

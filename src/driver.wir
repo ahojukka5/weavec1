@@ -18,16 +18,18 @@
 ; Driver entry points
 ; =============================================================================
 
+;
 ; driver_error
 ;
-; Implements driver error for the weavec1 bootstrap compiler.
-;
+; Writes a driver-level error message and returns a failure code.
+; Driver helpers use this for file IO and pipeline failures.
 ;
 ; Parameters:
-;   message - Message string pointer or source offset.
+;   message - message text pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   nonzero failure status.
+;
 (fn driver_error
       (params
         (message ptr))
@@ -39,19 +41,22 @@
         (return
           (const_i32 1))))
 
+;
 ; compile_buffer_to_buffer
 ;
-; Runs the compiler pipeline for buffer to buffer.
+; Runs the compiler pipeline for `buffer to buffer`.
+; The driver owns phase order while parser and emitter modules own details.
 ;
 ; Parameters:
-;   source_data - ptr parameter.
-;   source_length_value - i64 parameter.
-;   source_path - ptr parameter.
+;   source_data - function parameter.
+;   source_length_value - function parameter.
+;   source_path - function parameter.
+;   output - output buffer pointer.
 ;
-;   output - Output buffer pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on compile or IO failure.
+;
 (fn compile_buffer_to_buffer
       (params
         (source_data ptr)
@@ -297,17 +302,20 @@
         (return
           (local_get emit_status))))
 
+;
 ; compile_file
 ;
-; Runs the compiler pipeline for file.
+; Runs the compiler pipeline for `file`.
+; The driver owns phase order while parser and emitter modules own details.
 ;
 ; Parameters:
-;   input_path - Input path pointer.
+;   input_path - input file path pointer.
+;   output_path - output file path pointer.
 ;
-;   output_path - Output path pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on compile or IO failure.
+;
 (fn compile_file
       (params
         (input_path ptr)
@@ -320,17 +328,20 @@
             (param_get input_path)
             (param_get output_path)))))
 
+;
 ; compile_file_self_hosted
 ;
-; Runs the compiler pipeline for file self hosted.
+; Runs the compiler pipeline for `file self hosted`.
+; The driver owns phase order while parser and emitter modules own details.
 ;
 ; Parameters:
-;   input_path - Input path pointer.
+;   input_path - input file path pointer.
+;   output_path - output file path pointer.
 ;
-;   output_path - Output path pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on compile or IO failure.
+;
 (fn compile_file_self_hosted
       (params
         (input_path ptr)
@@ -490,16 +501,19 @@
         (return
           (const_i32 0))))
 
+;
 ; compile_string
 ;
-; Runs the compiler pipeline for string.
-;
+; Runs the compiler pipeline for `string`.
+; The driver owns phase order while parser and emitter modules own details.
 ;
 ; Parameters:
-;   source_text - Source text pointer.
+;   source_text - null-terminated source text pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   0 on success.
+;   nonzero on compile or IO failure.
+;
 (fn compile_string
       (params
         (source_text ptr))

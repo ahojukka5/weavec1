@@ -19,12 +19,15 @@
 ; Context layout constants
 ; =============================================================================
 
+;
 ; emit_context_size
 ;
-; Emits or computes LLVM output for context size.
+; Returns the context size used by emission context storage.
+; These constants document the manual context and binding record layout.
 ;
 ; Returns:
-;   i64 result value.
+;   emission context record size in bytes.
+;
 (fn emit_context_size
       (params)
       (returns i64)
@@ -32,12 +35,15 @@
         (return
           (const_i64 88))))
 
+;
 ; emit_binding_size
 ;
-; Emits or computes LLVM output for binding size.
+; Returns the binding size used by emission context storage.
+; These constants document the manual context and binding record layout.
 ;
 ; Returns:
-;   i64 result value.
+;   emission context record size in bytes.
+;
 (fn emit_binding_size
       (params)
       (returns i64)
@@ -45,12 +51,15 @@
         (return
           (const_i64 24))))
 
+;
 ; emit_max_bindings
 ;
-; Emits or computes LLVM output for max bindings.
+; Returns the max bindings used by emission context storage.
+; These constants document the manual context and binding record layout.
 ;
 ; Returns:
-;   i64 result value.
+;   binding record size in bytes.
+;
 (fn emit_max_bindings
       (params)
       (returns i64)
@@ -62,16 +71,21 @@
 ; Context field address accessors
 ; =============================================================================
 
+;
 ; ctx_source_field
 ;
-; Returns the address of the `source` field inside an emission context.
+; Returns the address of the emission context `source` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   maximum local or parameter binding count.
+;
 (fn ctx_source_field
       (params
         (ctx ptr))
@@ -80,16 +94,21 @@
         (return
           (param_get ctx))))
 
+;
 ; ctx_ast_field
 ;
-; Returns the address of the `ast` field inside an emission context.
+; Returns the address of the emission context `ast` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `ast` field.
+;
 (fn ctx_ast_field
       (params
         (ctx ptr))
@@ -100,16 +119,21 @@
             (param_get ctx)
             (const_i64 8)))))
 
+;
 ; ctx_output_field
 ;
-; Returns the address of the `output` field inside an emission context.
+; Returns the address of the emission context `output` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `output` field.
+;
 (fn ctx_output_field
       (params
         (ctx ptr))
@@ -120,16 +144,21 @@
             (param_get ctx)
             (const_i64 16)))))
 
+;
 ; ctx_temp_field
 ;
-; Returns the address of the `temp` field inside an emission context.
+; Returns the address of the emission context `temp` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `temp` field.
+;
 (fn ctx_temp_field
       (params
         (ctx ptr))
@@ -140,16 +169,21 @@
             (param_get ctx)
             (const_i64 24)))))
 
+;
 ; ctx_label_field
 ;
-; Returns the address of the `label` field inside an emission context.
+; Returns the address of the emission context `label` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `label` field.
+;
 (fn ctx_label_field
       (params
         (ctx ptr))
@@ -160,16 +194,21 @@
             (param_get ctx)
             (const_i64 32)))))
 
+;
 ; ctx_string_field
 ;
-; Returns the address of the `string` field inside an emission context.
+; Returns the address of the emission context `string` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `string` field.
+;
 (fn ctx_string_field
       (params
         (ctx ptr))
@@ -180,16 +219,21 @@
             (param_get ctx)
             (const_i64 40)))))
 
+;
 ; ctx_locals_field
 ;
-; Returns the address of the `locals` field inside an emission context.
+; Returns the address of the emission context `locals` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `locals` field.
+;
 (fn ctx_locals_field
       (params
         (ctx ptr))
@@ -200,16 +244,21 @@
             (param_get ctx)
             (const_i64 48)))))
 
+;
 ; ctx_local_count_field
 ;
-; Returns the address of the `local_count` field inside an emission context.
+; Returns the address of the emission context `local_count` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `local_count` field.
+;
 (fn ctx_local_count_field
       (params
         (ctx ptr))
@@ -220,16 +269,21 @@
             (param_get ctx)
             (const_i64 56)))))
 
+;
 ; ctx_params_field
 ;
-; Returns the address of the `params` field inside an emission context.
+; Returns the address of the emission context `params` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `params` field.
+;
 (fn ctx_params_field
       (params
         (ctx ptr))
@@ -240,16 +294,21 @@
             (param_get ctx)
             (const_i64 64)))))
 
+;
 ; ctx_param_count_field
 ;
-; Returns the address of the `param_count` field inside an emission context.
+; Returns the address of the emission context `param_count` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `param_count` field.
+;
 (fn ctx_param_count_field
       (params
         (ctx ptr))
@@ -260,16 +319,21 @@
             (param_get ctx)
             (const_i64 72)))))
 
+;
 ; ctx_return_type_field
 ;
-; Returns the address of the `return_type` field inside an emission context.
+; Returns the address of the emission context `return_type` field.
+; Context field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `return_type` field.
+;
 (fn ctx_return_type_field
       (params
         (ctx ptr))
@@ -284,16 +348,18 @@
 ; Context value accessors
 ; =============================================================================
 
+;
 ; ctx_source
 ;
 ; Reads the emission context `source` field.
-;
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   context `source` field value.
+;
 (fn ctx_source
       (params
         (ctx ptr))
@@ -305,16 +371,18 @@
               ctx_source_field
               (param_get ctx))))))
 
+;
 ; ctx_ast
 ;
 ; Reads the emission context `ast` field.
-;
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   context `ast` field value.
+;
 (fn ctx_ast
       (params
         (ctx ptr))
@@ -326,16 +394,18 @@
               ctx_ast_field
               (param_get ctx))))))
 
+;
 ; ctx_output
 ;
 ; Reads the emission context `output` field.
-;
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   context `output` field value.
+;
 (fn ctx_output
       (params
         (ctx ptr))
@@ -347,15 +417,18 @@
               ctx_output_field
               (param_get ctx))))))
 
+;
 ; ctx_temp_counter
 ;
-; Reads the emission context `temp_counter` field.
-;
+; Reads the emission context `temp counter` field.
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   context `temp counter` field value.
+;
 (fn ctx_temp_counter
       (params
         (ctx ptr))
@@ -367,15 +440,18 @@
               ctx_temp_field
               (param_get ctx))))))
 
+;
 ; ctx_label_counter
 ;
-; Reads the emission context `label_counter` field.
-;
+; Reads the emission context `label counter` field.
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   context `label counter` field value.
+;
 (fn ctx_label_counter
       (params
         (ctx ptr))
@@ -387,15 +463,18 @@
               ctx_label_field
               (param_get ctx))))))
 
+;
 ; ctx_string_counter
 ;
-; Reads the emission context `string_counter` field.
-;
+; Reads the emission context `string counter` field.
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   context `string counter` field value.
+;
 (fn ctx_string_counter
       (params
         (ctx ptr))
@@ -407,16 +486,18 @@
               ctx_string_field
               (param_get ctx))))))
 
+;
 ; ctx_locals
 ;
 ; Reads the emission context `locals` field.
-;
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   context `locals` field value.
+;
 (fn ctx_locals
       (params
         (ctx ptr))
@@ -428,15 +509,18 @@
               ctx_locals_field
               (param_get ctx))))))
 
+;
 ; ctx_local_count
 ;
-; Reads the emission context `local_count` field.
-;
+; Reads the emission context `local count` field.
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   context `local count` field value.
+;
 (fn ctx_local_count
       (params
         (ctx ptr))
@@ -448,16 +532,18 @@
               ctx_local_count_field
               (param_get ctx))))))
 
+;
 ; ctx_params
 ;
 ; Reads the emission context `params` field.
-;
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   context `params` field value.
+;
 (fn ctx_params
       (params
         (ctx ptr))
@@ -469,15 +555,18 @@
               ctx_params_field
               (param_get ctx))))))
 
+;
 ; ctx_param_count
 ;
-; Reads the emission context `param_count` field.
-;
+; Reads the emission context `param count` field.
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   context `param count` field value.
+;
 (fn ctx_param_count
       (params
         (ctx ptr))
@@ -489,15 +578,18 @@
               ctx_param_count_field
               (param_get ctx))))))
 
+;
 ; ctx_return_type
 ;
-; Reads the emission context `return_type` field.
-;
+; Reads the emission context `return type` field.
+; Accessors keep the manual context layout hidden from emitters.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i32 result value.
+;   context `return type` field value.
+;
 (fn ctx_return_type
       (params
         (ctx ptr))
@@ -514,16 +606,19 @@
 ; Context mutators
 ; =============================================================================
 
+;
 ; ctx_set_source
 ;
-; Stores a new value in the emission context `source` field.
+; Writes the emission context `source` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_source
       (params
         (ctx ptr)
@@ -537,16 +632,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_ast
 ;
-; Stores a new value in the emission context `ast` field.
+; Writes the emission context `ast` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_ast
       (params
         (ctx ptr)
@@ -560,16 +658,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_output
 ;
-; Stores a new value in the emission context `output` field.
+; Writes the emission context `output` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_output
       (params
         (ctx ptr)
@@ -583,16 +684,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_temp_counter
 ;
-; Stores a new value in the emission context `temp_counter` field.
+; Writes the emission context `temp counter` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_temp_counter
       (params
         (ctx ptr)
@@ -606,16 +710,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_label_counter
 ;
-; Stores a new value in the emission context `label_counter` field.
+; Writes the emission context `label counter` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_label_counter
       (params
         (ctx ptr)
@@ -629,16 +736,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_string_counter
 ;
-; Stores a new value in the emission context `string_counter` field.
+; Writes the emission context `string counter` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_string_counter
       (params
         (ctx ptr)
@@ -652,16 +762,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_locals
 ;
-; Stores a new value in the emission context `locals` field.
+; Writes the emission context `locals` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_locals
       (params
         (ctx ptr)
@@ -675,16 +788,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_local_count
 ;
-; Stores a new value in the emission context `local_count` field.
+; Writes the emission context `local count` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_local_count
       (params
         (ctx ptr)
@@ -698,16 +814,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_params
 ;
-; Stores a new value in the emission context `params` field.
+; Writes the emission context `params` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_params
       (params
         (ctx ptr)
@@ -721,16 +840,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_param_count
 ;
-; Stores a new value in the emission context `param_count` field.
+; Writes the emission context `param count` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_param_count
       (params
         (ctx ptr)
@@ -744,16 +866,19 @@
           (param_get v))
         (return_void)))
 
+;
 ; ctx_set_return_type
 ;
-; Stores a new value in the emission context `return_type` field.
+; Writes the emission context `return type` field.
+; Emitters use mutators instead of writing context offsets inline.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
 ;
-;   v - Value to store.
 ; Returns:
 ;   no value.
+;
 (fn ctx_set_return_type
       (params
         (ctx ptr)
@@ -772,18 +897,23 @@
 ; Context allocation
 ; =============================================================================
 
+;
 ; emit_context_new
 ;
-; Emits or computes LLVM output for context new.
+; Allocates and initializes an emission context for one LLVM module.
+; The context owns counters and binding tables used throughout emission.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
 ;   ast - AST container pointer.
+;   output - output buffer pointer.
 ;
-;   output - Output buffer pointer.
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   context pointer, or null on allocation failure.
+;
 (fn emit_context_new
       (params
         (source ptr)
@@ -902,15 +1032,21 @@
         (return
           (local_get ctx))))
 
+;
 ; emit_context_free
 ;
-; Emits or computes LLVM output for context free.
+; Releases heap storage owned by an emission context.
+; The source, AST, and output buffers are owned by the caller.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
 ;   no value.
+;
 (fn emit_context_free
       (params
         (ctx ptr))

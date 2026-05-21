@@ -21,13 +21,15 @@
 ; AST node kind constants
 ; =============================================================================
 
+;
 ; ast_program
 ;
-; Node kind for the top-level program node.
-; The program node holds references to the first/last function declarations.
+; Returns the AST node kind id for `program` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 1.
+;   AST node kind id.
+;
 (fn ast_program
   (params)
   (returns i32)
@@ -35,13 +37,15 @@
     (return
       (const_i32 1))))
 
+;
 ; ast_extern
 ;
-; Node kind for an extern declaration.
-; Extern nodes declare external function signatures without a body.
+; Returns the AST node kind id for `extern` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 2.
+;   AST node kind id.
+;
 (fn ast_extern
   (params)
   (returns i32)
@@ -49,13 +53,15 @@
     (return
       (const_i32 2))))
 
+;
 ; ast_function
 ;
-; Node kind for a function definition.
-; Function nodes carry return type, parameter list, and a body block.
+; Returns the AST node kind id for `function` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 3.
+;   AST node kind id.
+;
 (fn ast_function
   (params)
   (returns i32)
@@ -63,13 +69,15 @@
     (return
       (const_i32 3))))
 
+;
 ; ast_param
 ;
-; Node kind for a function parameter declaration.
-; Param nodes carry the parameter name and its type.
+; Returns the AST node kind id for `param` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 4.
+;   AST node kind id.
+;
 (fn ast_param
   (params)
   (returns i32)
@@ -77,13 +85,15 @@
     (return
       (const_i32 4))))
 
+;
 ; ast_block
 ;
-; Node kind for a sequential statement block.
-; Block nodes reference a contiguous range of child nodes in the AST array.
+; Returns the AST node kind id for `block` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 5.
+;   AST node kind id.
+;
 (fn ast_block
   (params)
   (returns i32)
@@ -91,13 +101,15 @@
     (return
       (const_i32 5))))
 
+;
 ; ast_return
 ;
-; Node kind for a return statement with a value.
-; The return expression is stored in field a.
+; Returns the AST node kind id for `return` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 6.
+;   AST node kind id.
+;
 (fn ast_return
   (params)
   (returns i32)
@@ -105,13 +117,15 @@
     (return
       (const_i32 6))))
 
+;
 ; ast_return_void
 ;
-; Node kind for a void return statement.
-; No expression is associated.
+; Returns the AST node kind id for `return void` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 7.
+;   AST node kind id.
+;
 (fn ast_return_void
   (params)
   (returns i32)
@@ -119,13 +133,15 @@
     (return
       (const_i32 7))))
 
+;
 ; ast_if
 ;
-; Node kind for an if/then/else statement.
-; Fields: a=condition, b=then-branch, c=else-branch.
+; Returns the AST node kind id for `if` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 8.
+;   AST node kind id.
+;
 (fn ast_if
   (params)
   (returns i32)
@@ -133,13 +149,15 @@
     (return
       (const_i32 8))))
 
+;
 ; ast_while
 ;
-; Node kind for a while loop.
-; Fields: a=condition, b=body.
+; Returns the AST node kind id for `while` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 9.
+;   AST node kind id.
+;
 (fn ast_while
   (params)
   (returns i32)
@@ -147,13 +165,15 @@
     (return
       (const_i32 9))))
 
+;
 ; ast_let
 ;
-; Node kind for a local variable declaration (let).
-; Fields: op_type=type id, a=init expression, text=variable name.
+; Returns the AST node kind id for `let` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 10.
+;   AST node kind id.
+;
 (fn ast_let
   (params)
   (returns i32)
@@ -161,13 +181,15 @@
     (return
       (const_i32 10))))
 
+;
 ; ast_set
 ;
-; Node kind for a local variable assignment (set).
-; Fields: a=new value expression, text=variable name.
+; Returns the AST node kind id for `set` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 11.
+;   AST node kind id.
+;
 (fn ast_set
   (params)
   (returns i32)
@@ -179,13 +201,15 @@
 ; Constant expression node kinds
 ; =============================================================================
 
+;
 ; ast_const_i32
 ;
-; Node kind for a 32-bit integer constant expression.
-; The value is stored in field a (sign-extended to i64).
+; Returns the AST node kind id for `const i32` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 20.
+;   AST node kind id.
+;
 (fn ast_const_i32
   (params)
   (returns i32)
@@ -193,13 +217,15 @@
     (return
       (const_i32 20))))
 
+;
 ; ast_const_i64
 ;
-; Node kind for a 64-bit integer constant expression.
-; The value is stored in field a.
+; Returns the AST node kind id for `const i64` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 21.
+;   AST node kind id.
+;
 (fn ast_const_i64
   (params)
   (returns i32)
@@ -207,13 +233,15 @@
     (return
       (const_i32 21))))
 
+;
 ; ast_const_bool
 ;
-; Node kind for a boolean constant expression.
-; The value is stored in field a: 0=false, 1=true.
+; Returns the AST node kind id for `const bool` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 22.
+;   AST node kind id.
+;
 (fn ast_const_bool
   (params)
   (returns i32)
@@ -221,12 +249,15 @@
     (return
       (const_i32 22))))
 
+;
 ; ast_const_null
 ;
-; Node kind for a null pointer constant expression.
+; Returns the AST node kind id for `const null` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 23.
+;   AST node kind id.
+;
 (fn ast_const_null
   (params)
   (returns i32)
@@ -234,13 +265,15 @@
     (return
       (const_i32 23))))
 
+;
 ; ast_const_string
 ;
-; Node kind for a string constant expression.
-; The text span fields (text_start, text_len) hold the source string content.
+; Returns the AST node kind id for `const string` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 24.
+;   AST node kind id.
+;
 (fn ast_const_string
   (params)
   (returns i32)
@@ -252,13 +285,15 @@
 ; Name reference node kinds
 ; =============================================================================
 
+;
 ; ast_local_get
 ;
-; Node kind for reading a local variable (let-bound).
-; The variable name is stored in the text span fields.
+; Returns the AST node kind id for `local get` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 30.
+;   AST node kind id.
+;
 (fn ast_local_get
   (params)
   (returns i32)
@@ -266,13 +301,15 @@
     (return
       (const_i32 30))))
 
+;
 ; ast_param_get
 ;
-; Node kind for reading a function parameter.
-; The parameter name is stored in the text span fields.
+; Returns the AST node kind id for `param get` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 31.
+;   AST node kind id.
+;
 (fn ast_param_get
   (params)
   (returns i32)
@@ -284,14 +321,15 @@
 ; Expression operation node kinds
 ; =============================================================================
 
+;
 ; ast_call
 ;
-; Node kind for a function call expression.
-; Fields: op_type=call variant (call_i32/i64/ptr/bool/void),
-;         a=last argument node, b=argument count, text=function name.
+; Returns the AST node kind id for `call` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 40.
+;   AST node kind id.
+;
 (fn ast_call
   (params)
   (returns i32)
@@ -299,13 +337,15 @@
     (return
       (const_i32 40))))
 
+;
 ; ast_unary
 ;
-; Node kind for a unary operation expression.
-; Fields: op_type=operator id, a=operand.
+; Returns the AST node kind id for `unary` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 41.
+;   AST node kind id.
+;
 (fn ast_unary
   (params)
   (returns i32)
@@ -313,13 +353,15 @@
     (return
       (const_i32 41))))
 
+;
 ; ast_binary
 ;
-; Node kind for a binary operation expression.
-; Fields: op_type=operator id, a=left operand, b=right operand.
+; Returns the AST node kind id for `binary` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 42.
+;   AST node kind id.
+;
 (fn ast_binary
   (params)
   (returns i32)
@@ -327,13 +369,15 @@
     (return
       (const_i32 42))))
 
+;
 ; ast_store
 ;
-; Node kind for a memory store statement.
-; Fields: op_type=store variant, a=destination pointer, b=value.
+; Returns the AST node kind id for `store` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 43.
+;   AST node kind id.
+;
 (fn ast_store
   (params)
   (returns i32)
@@ -341,13 +385,15 @@
     (return
       (const_i32 43))))
 
+;
 ; ast_load
 ;
-; Node kind for a memory load expression.
-; Fields: op_type=load variant, a=source pointer.
+; Returns the AST node kind id for `load` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 44.
+;   AST node kind id.
+;
 (fn ast_load
   (params)
   (returns i32)
@@ -355,13 +401,15 @@
     (return
       (const_i32 44))))
 
+;
 ; ast_print
 ;
-; Node kind for a print statement (calls puts).
-; Fields: a=string expression to print.
+; Returns the AST node kind id for `print` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 45.
+;   AST node kind id.
+;
 (fn ast_print
   (params)
   (returns i32)
@@ -369,14 +417,15 @@
     (return
       (const_i32 45))))
 
+;
 ; ast_arg
 ;
-; Node kind for a call argument node.
-; Arguments form a singly-linked list in reverse order.
-; Fields: a=expression, b=previous argument node (or -1 for first).
+; Returns the AST node kind id for `arg` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 46.
+;   AST node kind id.
+;
 (fn ast_arg
   (params)
   (returns i32)
@@ -384,14 +433,15 @@
     (return
       (const_i32 46))))
 
+;
 ; ast_debug
 ;
-; Node kind for a debug annotation wrapper.
-; Emits LLVM IR comments bracketing the wrapped statement.
-; Fields: a=body statement, text=debug message string.
+; Returns the AST node kind id for `debug` nodes.
+; Parser constructors store this id in each node kind field for emitter dispatch.
 ;
 ; Returns:
-;   node kind constant 47.
+;   AST node kind id.
+;
 (fn ast_debug
   (params)
   (returns i32)
@@ -403,13 +453,15 @@
 ; Type constants
 ; =============================================================================
 
+;
 ; type_void
 ;
-; WIR type id for void (no value).
-; Used as return type for functions that return nothing.
+; Returns the WIR type id for `void`.
+; Type ids are shared between AST nodes and LLVM type rendering.
 ;
 ; Returns:
-;   type constant 0.
+;   WIR type id.
+;
 (fn type_void
   (params)
   (returns i32)
@@ -417,12 +469,15 @@
     (return
       (const_i32 0))))
 
+;
 ; type_i32
 ;
-; WIR type id for 32-bit signed integer.
+; Returns the WIR type id for `i32`.
+; Type ids are shared between AST nodes and LLVM type rendering.
 ;
 ; Returns:
-;   type constant 1.
+;   WIR type id.
+;
 (fn type_i32
   (params)
   (returns i32)
@@ -430,12 +485,15 @@
     (return
       (const_i32 1))))
 
+;
 ; type_i64
 ;
-; WIR type id for 64-bit signed integer.
+; Returns the WIR type id for `i64`.
+; Type ids are shared between AST nodes and LLVM type rendering.
 ;
 ; Returns:
-;   type constant 2.
+;   WIR type id.
+;
 (fn type_i64
   (params)
   (returns i32)
@@ -443,12 +501,15 @@
     (return
       (const_i32 2))))
 
+;
 ; type_bool
 ;
-; WIR type id for boolean (maps to i1 in LLVM IR).
+; Returns the WIR type id for `bool`.
+; Type ids are shared between AST nodes and LLVM type rendering.
 ;
 ; Returns:
-;   type constant 3.
+;   WIR type id.
+;
 (fn type_bool
   (params)
   (returns i32)
@@ -456,12 +517,15 @@
     (return
       (const_i32 3))))
 
+;
 ; type_ptr
 ;
-; WIR type id for a pointer (opaque, maps to ptr in LLVM IR).
+; Returns the WIR type id for `ptr`.
+; Type ids are shared between AST nodes and LLVM type rendering.
 ;
 ; Returns:
-;   type constant 4.
+;   WIR type id.
+;
 (fn type_ptr
   (params)
   (returns i32)
@@ -473,12 +537,15 @@
 ; Arithmetic operator constants (i32)
 ; =============================================================================
 
+;
 ; op_add_i32
 ;
-; Operator id for 32-bit integer addition.
+; Returns the WIR operator id for `add i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 1.
+;   WIR operator id.
+;
 (fn op_add_i32
   (params)
   (returns i32)
@@ -486,12 +553,15 @@
     (return
       (const_i32 1))))
 
+;
 ; op_sub_i32
 ;
-; Operator id for 32-bit integer subtraction.
+; Returns the WIR operator id for `sub i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 2.
+;   WIR operator id.
+;
 (fn op_sub_i32
   (params)
   (returns i32)
@@ -499,12 +569,15 @@
     (return
       (const_i32 2))))
 
+;
 ; op_mul_i32
 ;
-; Operator id for 32-bit integer multiplication.
+; Returns the WIR operator id for `mul i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 3.
+;   WIR operator id.
+;
 (fn op_mul_i32
   (params)
   (returns i32)
@@ -512,12 +585,15 @@
     (return
       (const_i32 3))))
 
+;
 ; op_div_i32
 ;
-; Operator id for 32-bit signed integer division.
+; Returns the WIR operator id for `div i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 4.
+;   WIR operator id.
+;
 (fn op_div_i32
   (params)
   (returns i32)
@@ -525,12 +601,15 @@
     (return
       (const_i32 4))))
 
+;
 ; op_mod_i32
 ;
-; Operator id for 32-bit signed integer modulo.
+; Returns the WIR operator id for `mod i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 5.
+;   WIR operator id.
+;
 (fn op_mod_i32
   (params)
   (returns i32)
@@ -542,12 +621,15 @@
 ; Comparison operator constants (i32)
 ; =============================================================================
 
+;
 ; op_eq_i32
 ;
-; Operator id for 32-bit integer equality comparison.
+; Returns the WIR operator id for `eq i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 10.
+;   WIR operator id.
+;
 (fn op_eq_i32
   (params)
   (returns i32)
@@ -555,12 +637,15 @@
     (return
       (const_i32 10))))
 
+;
 ; op_ne_i32
 ;
-; Operator id for 32-bit integer inequality comparison.
+; Returns the WIR operator id for `ne i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 11.
+;   WIR operator id.
+;
 (fn op_ne_i32
   (params)
   (returns i32)
@@ -568,12 +653,15 @@
     (return
       (const_i32 11))))
 
+;
 ; op_lt_i32
 ;
-; Operator id for 32-bit signed less-than comparison.
+; Returns the WIR operator id for `lt i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 12.
+;   WIR operator id.
+;
 (fn op_lt_i32
   (params)
   (returns i32)
@@ -581,12 +669,15 @@
     (return
       (const_i32 12))))
 
+;
 ; op_le_i32
 ;
-; Operator id for 32-bit signed less-than-or-equal comparison.
+; Returns the WIR operator id for `le i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 13.
+;   WIR operator id.
+;
 (fn op_le_i32
   (params)
   (returns i32)
@@ -594,12 +685,15 @@
     (return
       (const_i32 13))))
 
+;
 ; op_gt_i32
 ;
-; Operator id for 32-bit signed greater-than comparison.
+; Returns the WIR operator id for `gt i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 14.
+;   WIR operator id.
+;
 (fn op_gt_i32
   (params)
   (returns i32)
@@ -607,12 +701,15 @@
     (return
       (const_i32 14))))
 
+;
 ; op_ge_i32
 ;
-; Operator id for 32-bit signed greater-than-or-equal comparison.
+; Returns the WIR operator id for `ge i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 15.
+;   WIR operator id.
+;
 (fn op_ge_i32
   (params)
   (returns i32)
@@ -624,12 +721,15 @@
 ; Arithmetic operator constants (i64)
 ; =============================================================================
 
+;
 ; op_add_i64
 ;
-; Operator id for 64-bit integer addition.
+; Returns the WIR operator id for `add i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 20.
+;   WIR operator id.
+;
 (fn op_add_i64
   (params)
   (returns i32)
@@ -637,12 +737,15 @@
     (return
       (const_i32 20))))
 
+;
 ; op_sub_i64
 ;
-; Operator id for 64-bit integer subtraction.
+; Returns the WIR operator id for `sub i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 21.
+;   WIR operator id.
+;
 (fn op_sub_i64
   (params)
   (returns i32)
@@ -650,12 +753,15 @@
     (return
       (const_i32 21))))
 
+;
 ; op_mul_i64
 ;
-; Operator id for 64-bit integer multiplication.
+; Returns the WIR operator id for `mul i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 22.
+;   WIR operator id.
+;
 (fn op_mul_i64
   (params)
   (returns i32)
@@ -663,12 +769,15 @@
     (return
       (const_i32 22))))
 
+;
 ; op_div_i64
 ;
-; Operator id for 64-bit signed integer division.
+; Returns the WIR operator id for `div i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 23.
+;   WIR operator id.
+;
 (fn op_div_i64
   (params)
   (returns i32)
@@ -680,12 +789,15 @@
 ; Comparison operator constants (i64)
 ; =============================================================================
 
+;
 ; op_eq_i64
 ;
-; Operator id for 64-bit integer equality comparison.
+; Returns the WIR operator id for `eq i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 30.
+;   WIR operator id.
+;
 (fn op_eq_i64
   (params)
   (returns i32)
@@ -693,12 +805,15 @@
     (return
       (const_i32 30))))
 
+;
 ; op_ne_i64
 ;
-; Operator id for 64-bit integer inequality comparison.
+; Returns the WIR operator id for `ne i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 31.
+;   WIR operator id.
+;
 (fn op_ne_i64
   (params)
   (returns i32)
@@ -706,12 +821,15 @@
     (return
       (const_i32 31))))
 
+;
 ; op_lt_i64
 ;
-; Operator id for 64-bit signed less-than comparison.
+; Returns the WIR operator id for `lt i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 32.
+;   WIR operator id.
+;
 (fn op_lt_i64
   (params)
   (returns i32)
@@ -719,12 +837,15 @@
     (return
       (const_i32 32))))
 
+;
 ; op_le_i64
 ;
-; Operator id for 64-bit signed less-than-or-equal comparison.
+; Returns the WIR operator id for `le i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 33.
+;   WIR operator id.
+;
 (fn op_le_i64
   (params)
   (returns i32)
@@ -732,12 +853,15 @@
     (return
       (const_i32 33))))
 
+;
 ; op_gt_i64
 ;
-; Operator id for 64-bit signed greater-than comparison.
+; Returns the WIR operator id for `gt i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 34.
+;   WIR operator id.
+;
 (fn op_gt_i64
   (params)
   (returns i32)
@@ -745,12 +869,15 @@
     (return
       (const_i32 34))))
 
+;
 ; op_ge_i64
 ;
-; Operator id for 64-bit signed greater-than-or-equal comparison.
+; Returns the WIR operator id for `ge i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 35.
+;   WIR operator id.
+;
 (fn op_ge_i64
   (params)
   (returns i32)
@@ -762,12 +889,15 @@
 ; Pointer comparison operator constants
 ; =============================================================================
 
+;
 ; op_eq_ptr
 ;
-; Operator id for pointer equality comparison.
+; Returns the WIR operator id for `eq ptr`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 40.
+;   WIR operator id.
+;
 (fn op_eq_ptr
   (params)
   (returns i32)
@@ -775,12 +905,15 @@
     (return
       (const_i32 40))))
 
+;
 ; op_ne_ptr
 ;
-; Operator id for pointer inequality comparison.
+; Returns the WIR operator id for `ne ptr`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 41.
+;   WIR operator id.
+;
 (fn op_ne_ptr
   (params)
   (returns i32)
@@ -792,12 +925,15 @@
 ; Boolean operator constants
 ; =============================================================================
 
+;
 ; op_and_bool
 ;
-; Operator id for boolean AND (logical conjunction).
+; Returns the WIR operator id for `and bool`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 50.
+;   WIR operator id.
+;
 (fn op_and_bool
   (params)
   (returns i32)
@@ -805,12 +941,15 @@
     (return
       (const_i32 50))))
 
+;
 ; op_or_bool
 ;
-; Operator id for boolean OR (logical disjunction).
+; Returns the WIR operator id for `or bool`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 51.
+;   WIR operator id.
+;
 (fn op_or_bool
   (params)
   (returns i32)
@@ -818,12 +957,15 @@
     (return
       (const_i32 51))))
 
+;
 ; op_not_bool
 ;
-; Operator id for boolean NOT (logical negation).
+; Returns the WIR operator id for `not bool`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 52.
+;   WIR operator id.
+;
 (fn op_not_bool
   (params)
   (returns i32)
@@ -835,13 +977,15 @@
 ; Pointer and cast operator constants
 ; =============================================================================
 
+;
 ; op_ptr_add
 ;
-; Operator id for pointer arithmetic (pointer + i64 byte offset).
-; Maps to LLVM getelementptr i8.
+; Returns the WIR operator id for `ptr add`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 60.
+;   WIR operator id.
+;
 (fn op_ptr_add
   (params)
   (returns i32)
@@ -849,13 +993,15 @@
     (return
       (const_i32 60))))
 
+;
 ; op_cast_i64_to_i32
 ;
-; Operator id for narrowing cast from i64 to i32.
-; Maps to LLVM trunc.
+; Returns the WIR operator id for `cast i64 to i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 61.
+;   WIR operator id.
+;
 (fn op_cast_i64_to_i32
   (params)
   (returns i32)
@@ -863,13 +1009,15 @@
     (return
       (const_i32 61))))
 
+;
 ; op_cast_i32_to_i64
 ;
-; Operator id for sign-extending cast from i32 to i64.
-; Maps to LLVM sext.
+; Returns the WIR operator id for `cast i32 to i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 62.
+;   WIR operator id.
+;
 (fn op_cast_i32_to_i64
   (params)
   (returns i32)
@@ -881,12 +1029,15 @@
 ; Load operator constants
 ; =============================================================================
 
+;
 ; op_load_i32
 ;
-; Operator id for loading an i32 value from a pointer.
+; Returns the WIR operator id for `load i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 70.
+;   WIR operator id.
+;
 (fn op_load_i32
   (params)
   (returns i32)
@@ -894,12 +1045,15 @@
     (return
       (const_i32 70))))
 
+;
 ; op_load_i64
 ;
-; Operator id for loading an i64 value from a pointer.
+; Returns the WIR operator id for `load i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 71.
+;   WIR operator id.
+;
 (fn op_load_i64
   (params)
   (returns i32)
@@ -907,12 +1061,15 @@
     (return
       (const_i32 71))))
 
+;
 ; op_load_ptr
 ;
-; Operator id for loading a pointer value from a pointer.
+; Returns the WIR operator id for `load ptr`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 72.
+;   WIR operator id.
+;
 (fn op_load_ptr
   (params)
   (returns i32)
@@ -920,13 +1077,15 @@
     (return
       (const_i32 72))))
 
+;
 ; op_load_u8
 ;
-; Operator id for loading an unsigned byte and zero-extending to i32.
-; Maps to LLVM load i8 followed by zext to i32.
+; Returns the WIR operator id for `load u8`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 73.
+;   WIR operator id.
+;
 (fn op_load_u8
   (params)
   (returns i32)
@@ -938,12 +1097,15 @@
 ; Store operator constants
 ; =============================================================================
 
+;
 ; op_store_i32
 ;
-; Operator id for storing an i32 value through a pointer.
+; Returns the WIR operator id for `store i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 80.
+;   WIR operator id.
+;
 (fn op_store_i32
   (params)
   (returns i32)
@@ -951,12 +1113,15 @@
     (return
       (const_i32 80))))
 
+;
 ; op_store_i64
 ;
-; Operator id for storing an i64 value through a pointer.
+; Returns the WIR operator id for `store i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 81.
+;   WIR operator id.
+;
 (fn op_store_i64
   (params)
   (returns i32)
@@ -964,12 +1129,15 @@
     (return
       (const_i32 81))))
 
+;
 ; op_store_ptr
 ;
-; Operator id for storing a pointer value through a pointer.
+; Returns the WIR operator id for `store ptr`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 82.
+;   WIR operator id.
+;
 (fn op_store_ptr
   (params)
   (returns i32)
@@ -977,13 +1145,15 @@
     (return
       (const_i32 82))))
 
+;
 ; op_store_i8
 ;
-; Operator id for storing a byte value through a pointer.
-; The value is truncated from i32 to i8 before storing.
+; Returns the WIR operator id for `store i8`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 83.
+;   WIR operator id.
+;
 (fn op_store_i8
   (params)
   (returns i32)
@@ -995,12 +1165,15 @@
 ; Call operator constants
 ; =============================================================================
 
+;
 ; op_call_i32
 ;
-; Operator id for a function call returning i32.
+; Returns the WIR operator id for `call i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 90.
+;   WIR operator id.
+;
 (fn op_call_i32
   (params)
   (returns i32)
@@ -1008,12 +1181,15 @@
     (return
       (const_i32 90))))
 
+;
 ; op_call_i64
 ;
-; Operator id for a function call returning i64.
+; Returns the WIR operator id for `call i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 91.
+;   WIR operator id.
+;
 (fn op_call_i64
   (params)
   (returns i32)
@@ -1021,12 +1197,15 @@
     (return
       (const_i32 91))))
 
+;
 ; op_call_ptr
 ;
-; Operator id for a function call returning a pointer.
+; Returns the WIR operator id for `call ptr`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 92.
+;   WIR operator id.
+;
 (fn op_call_ptr
   (params)
   (returns i32)
@@ -1034,12 +1213,15 @@
     (return
       (const_i32 92))))
 
+;
 ; op_call_bool
 ;
-; Operator id for a function call returning a boolean.
+; Returns the WIR operator id for `call bool`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 93.
+;   WIR operator id.
+;
 (fn op_call_bool
   (params)
   (returns i32)
@@ -1047,13 +1229,15 @@
     (return
       (const_i32 93))))
 
+;
 ; op_call_void
 ;
-; Operator id for a function call returning void.
-; Void calls are statements, not expressions.
+; Returns the WIR operator id for `call void`.
+; Operator ids connect parser lookup with expression emission dispatch.
 ;
 ; Returns:
-;   operator constant 94.
+;   WIR operator id.
+;
 (fn op_call_void
   (params)
   (returns i32)

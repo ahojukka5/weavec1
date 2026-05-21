@@ -18,12 +18,15 @@
 ; Buffer layout constants
 ; =============================================================================
 
+;
 ; buffer_size
 ;
-; Provides growable buffer behavior for size.
+; Returns the size in bytes of a buffer header.
+; The header stores data pointer, length, and capacity.
 ;
 ; Returns:
-;   i64 result value.
+;   buffer header size in bytes.
+;
 (fn buffer_size
       (params)
       (returns i64)
@@ -31,12 +34,15 @@
         (return
           (const_i64 24))))
 
+;
 ; buffer_initial_capacity
 ;
-; Provides growable buffer behavior for initial capacity.
+; Returns the initial byte capacity for new buffers.
+; This avoids immediate allocation churn for short generated strings.
 ;
 ; Returns:
-;   i64 result value.
+;   buffer header size in bytes.
+;
 (fn buffer_initial_capacity
       (params)
       (returns i64)
@@ -48,16 +54,21 @@
 ; Buffer field accessors
 ; =============================================================================
 
+;
 ; buffer_data_field
 ;
 ; Returns the address of the buffer `data` field.
+; Buffer field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   initial byte capacity.
+;
 (fn buffer_data_field
       (params
         (buffer ptr))
@@ -66,16 +77,21 @@
         (return
           (param_get buffer))))
 
+;
 ; buffer_length_field
 ;
 ; Returns the address of the buffer `length` field.
+; Buffer field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `length` field.
+;
 (fn buffer_length_field
       (params
         (buffer ptr))
@@ -86,16 +102,21 @@
             (param_get buffer)
             (const_i64 8)))))
 
+;
 ; buffer_capacity_field
 ;
 ; Returns the address of the buffer `capacity` field.
+; Buffer field helpers centralize offsets in the manual record layout.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `capacity` field.
+;
 (fn buffer_capacity_field
       (params
         (buffer ptr))
@@ -110,16 +131,18 @@
 ; Buffer value accessors
 ; =============================================================================
 
+;
 ; buffer_data
 ;
-; Provides growable buffer behavior for data.
-;
+; Reads the buffer data pointer.
+; Emitters append bytes through this backing storage.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   buffer data pointer.
+;
 (fn buffer_data
       (params
         (buffer ptr))
@@ -131,15 +154,18 @@
               buffer_data_field
               (param_get buffer))))))
 
+;
 ; buffer_length
 ;
-; Provides growable buffer behavior for length.
-;
+; Reads the number of bytes currently stored in a buffer.
+; The length is the next append offset.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
-;   i64 result value.
+;   buffer data pointer.
+;
 (fn buffer_length
       (params
         (buffer ptr))
@@ -151,15 +177,18 @@
               buffer_length_field
               (param_get buffer))))))
 
+;
 ; buffer_capacity
 ;
-; Provides growable buffer behavior for capacity.
-;
+; Reads the allocated byte capacity of a buffer.
+; Reserve compares this against requested output length.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
-;   i64 result value.
+;   current buffer length in bytes.
+;
 (fn buffer_capacity
       (params
         (buffer ptr))
@@ -175,16 +204,19 @@
 ; Buffer mutators
 ; =============================================================================
 
+;
 ; buffer_set_data
 ;
-; Stores a new value in the buffer `data` field.
+; Writes the buffer `data` field.
+; Mutators keep raw buffer record writes localized.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   data - byte array pointer.
 ;
-;   data - Byte pointer.
 ; Returns:
-;   no value.
+;   allocated byte capacity.
+;
 (fn buffer_set_data
       (params
         (buffer ptr)
@@ -198,16 +230,19 @@
           (param_get data))
         (return_void)))
 
+;
 ; buffer_set_length
 ;
-; Stores a new value in the buffer `length` field.
+; Writes the buffer `length` field.
+; Mutators keep raw buffer record writes localized.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   length - byte length.
 ;
-;   length - Byte length.
 ; Returns:
 ;   no value.
+;
 (fn buffer_set_length
       (params
         (buffer ptr)
@@ -221,16 +256,19 @@
           (param_get length))
         (return_void)))
 
+;
 ; buffer_set_capacity
 ;
-; Stores a new value in the buffer `capacity` field.
+; Writes the buffer `capacity` field.
+; Mutators keep raw buffer record writes localized.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   capacity - allocated entry capacity.
 ;
-;   capacity - Allocated capacity.
 ; Returns:
 ;   no value.
+;
 (fn buffer_set_capacity
       (params
         (buffer ptr)
@@ -248,13 +286,18 @@
 ; Buffer allocation
 ; =============================================================================
 
+;
 ; buffer_new
 ;
-; Provides growable buffer behavior for new.
+; Allocates and initializes a growable byte buffer.
+; The buffer starts empty with an allocated backing array.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   buffer pointer, or null on allocation failure.
+;
 (fn buffer_new
       (params)
       (returns ptr)
@@ -318,15 +361,21 @@
         (return
           (local_get buffer))))
 
+;
 ; buffer_free
 ;
-; Provides growable buffer behavior for free.
+; Releases a buffer and its backing byte array.
+; Callers must not use the buffer pointer after this call.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;
 ; Returns:
 ;   no value.
+;
 (fn buffer_free
       (params
         (buffer ptr))
@@ -369,16 +418,23 @@
 ; Buffer growth
 ; =============================================================================
 
+;
 ; buffer_reserve
 ;
-; Provides growable buffer behavior for reserve.
+; Ensures a buffer can hold the requested byte count.
+; Manual growth keeps output emission independent of libc string builders.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   needed - minimum required capacity.
 ;
-;   needed - Required capacity.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn buffer_reserve
       (params
         (buffer ptr)
@@ -467,16 +523,20 @@
 ; Buffer append helpers
 ; =============================================================================
 
+;
 ; buffer_append_byte
 ;
-; Appends byte data to a growable buffer.
+; Appends byte to a growable byte buffer.
+; The helper grows capacity before writing so callers can emit text incrementally.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   byte - byte value to emit or escape.
 ;
-;   byte - Byte value.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn buffer_append_byte
       (params
         (buffer ptr)
@@ -538,17 +598,21 @@
         (return
           (const_i32 0))))
 
+;
 ; buffer_append_bytes
 ;
-; Appends bytes data to a growable buffer.
+; Appends bytes to a growable byte buffer.
+; The helper grows capacity before writing so callers can emit text incrementally.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
-;   src - ptr parameter.
+;   buffer - growable byte buffer pointer.
+;   src - function parameter.
+;   count - number of nodes, bytes, or entries.
 ;
-;   count - Number of entries.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn buffer_append_bytes
       (params
         (buffer ptr)
@@ -637,16 +701,20 @@
         (return
           (const_i32 0))))
 
+;
 ; buffer_append_cstr
 ;
-; Appends cstr data to a growable buffer.
+; Appends cstr to a growable byte buffer.
+; The helper grows capacity before writing so callers can emit text incrementally.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   text - text pointer.
 ;
-;   text - Text pointer.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn buffer_append_cstr
       (params
         (buffer ptr)
@@ -677,16 +745,20 @@
             (param_get text)
             (local_get length)))))
 
+;
 ; buffer_append_i32
 ;
-; Appends i32 data to a growable buffer.
+; Appends i32 to a growable byte buffer.
+; The helper grows capacity before writing so callers can emit text incrementally.
 ;
 ; Parameters:
-;   buffer - Growable byte buffer pointer.
+;   buffer - growable byte buffer pointer.
+;   value - value to store, emit, or compare.
 ;
-;   value - Value to store or emit.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn buffer_append_i32
       (params
         (buffer ptr)
@@ -777,19 +849,22 @@
 ; Byte comparison
 ; =============================================================================
 
+;
 ; bytes_equal
 ;
-; Implements bytes equal for the weavec1 bootstrap compiler.
+; Returns whether the tested value satisfies `bytes equal`.
+; The predicate is kept small so parser, lexer, and runtime checks stay readable.
 ;
 ; Parameters:
-;   a - First AST payload field.
-;   a_len - i64 parameter.
-;   b - Second AST payload field.
+;   a - first AST payload field.
+;   a_len - function parameter.
+;   b - second AST payload field.
+;   b_len - length of the second byte slice.
 ;
-;   b_len - Second byte string length.
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when true.
+;   0 when false.
+;
 (fn bytes_equal
       (params
         (a ptr)
@@ -852,16 +927,20 @@
 ; Buffer file output
 ; =============================================================================
 
+;
 ; buffer_write_file
 ;
-; Provides growable buffer behavior for write file.
+; Writes the current buffer contents to a file path.
+; The path is passed to the runtime file-writing binding.
 ;
 ; Parameters:
-;   path - Path string pointer.
+;   path - source or output path pointer.
+;   buffer - growable byte buffer pointer.
 ;
-;   buffer - Growable byte buffer pointer.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on file write failure.
+;
 (fn buffer_write_file
       (params
         (path ptr)

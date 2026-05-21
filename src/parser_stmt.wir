@@ -18,20 +18,23 @@
 ; Statement parsing
 ; =============================================================================
 
+;
 ; parser_parse_stmt
 ;
-; Parses one WIR statement form and appends its AST representation.
+; Parses one statement form and appends its AST representation.
+; The dispatcher recognizes WIR statement names explicitly so each supported form is visible.
 ;
 ; Notes:
-;   Dispatch is intentionally spelled out as token and identifier checks so each
-;   supported statement form is easy to audit.
-;
+;   The long dispatch chain is intentional in this bootstrap stage; it keeps
+;   syntax support easy to audit without an extra table abstraction.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
 ;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   -1 on parse failure.
+;
 (fn parser_parse_stmt
       (params
         (parser ptr))
@@ -786,20 +789,22 @@
 ; List expression parsing
 ; =============================================================================
 
+;
 ; parser_parse_list_expression
 ;
 ; Parses a parenthesized expression form whose operator is an identifier.
+; Call, arithmetic, comparison, logical, load, and pointer operations share this path.
 ;
 ; Invariants:
-;   - current token is the opening parenthesis of the expression form.
-;   - supported operators are resolved through parser_lookup_op.
-;
+;   - parser points at the opening parenthesis of the list expression.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
 ;   AST node index on success.
-;   -1 on parse or allocation failure.
+;   -1 on parse failure.
+;
 (fn parser_parse_list_expression
       (params
         (parser ptr))

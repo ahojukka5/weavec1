@@ -18,12 +18,15 @@
 ; Token kind constants
 ; =============================================================================
 
+;
 ; token_eof
 ;
-; Returns the token kind constant for `eof`.
+; Returns the token kind id for `eof`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_eof
       (params)
       (returns i32)
@@ -31,12 +34,15 @@
         (return
           (const_i32 0))))
 
+;
 ; token_lparen
 ;
-; Returns the token kind constant for `lparen`.
+; Returns the token kind id for `lparen`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_lparen
       (params)
       (returns i32)
@@ -44,12 +50,15 @@
         (return
           (const_i32 1))))
 
+;
 ; token_rparen
 ;
-; Returns the token kind constant for `rparen`.
+; Returns the token kind id for `rparen`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_rparen
       (params)
       (returns i32)
@@ -57,12 +66,15 @@
         (return
           (const_i32 2))))
 
+;
 ; token_ident
 ;
-; Returns the token kind constant for `ident`.
+; Returns the token kind id for `ident`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_ident
       (params)
       (returns i32)
@@ -70,12 +82,15 @@
         (return
           (const_i32 3))))
 
+;
 ; token_int
 ;
-; Returns the token kind constant for `int`.
+; Returns the token kind id for `int`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_int
       (params)
       (returns i32)
@@ -83,12 +98,15 @@
         (return
           (const_i32 4))))
 
+;
 ; token_string
 ;
-; Returns the token kind constant for `string`.
+; Returns the token kind id for `string`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_string
       (params)
       (returns i32)
@@ -96,12 +114,15 @@
         (return
           (const_i32 5))))
 
+;
 ; token_fn
 ;
-; Returns the token kind constant for `fn`.
+; Returns the token kind id for `fn`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_fn
       (params)
       (returns i32)
@@ -109,12 +130,15 @@
         (return
           (const_i32 6))))
 
+;
 ; token_return
 ;
-; Returns the token kind constant for `return`.
+; Returns the token kind id for `return`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_return
       (params)
       (returns i32)
@@ -122,12 +146,15 @@
         (return
           (const_i32 7))))
 
+;
 ; token_if
 ;
-; Returns the token kind constant for `if`.
+; Returns the token kind id for `if`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_if
       (params)
       (returns i32)
@@ -135,12 +162,15 @@
         (return
           (const_i32 8))))
 
+;
 ; token_else
 ;
-; Returns the token kind constant for `else`.
+; Returns the token kind id for `else`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_else
       (params)
       (returns i32)
@@ -148,12 +178,15 @@
         (return
           (const_i32 9))))
 
+;
 ; token_while
 ;
-; Returns the token kind constant for `while`.
+; Returns the token kind id for `while`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_while
       (params)
       (returns i32)
@@ -161,12 +194,15 @@
         (return
           (const_i32 10))))
 
+;
 ; token_let
 ;
-; Returns the token kind constant for `let`.
+; Returns the token kind id for `let`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_let
       (params)
       (returns i32)
@@ -174,12 +210,15 @@
         (return
           (const_i32 11))))
 
+;
 ; token_set
 ;
-; Returns the token kind constant for `set`.
+; Returns the token kind id for `set`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_set
       (params)
       (returns i32)
@@ -187,12 +226,15 @@
         (return
           (const_i32 12))))
 
+;
 ; token_plus
 ;
-; Returns the token kind constant for `plus`.
+; Returns the token kind id for `plus`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_plus
       (params)
       (returns i32)
@@ -200,12 +242,15 @@
         (return
           (const_i32 13))))
 
+;
 ; token_minus
 ;
-; Returns the token kind constant for `minus`.
+; Returns the token kind id for `minus`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_minus
       (params)
       (returns i32)
@@ -213,12 +258,15 @@
         (return
           (const_i32 14))))
 
+;
 ; token_star
 ;
-; Returns the token kind constant for `star`.
+; Returns the token kind id for `star`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_star
       (params)
       (returns i32)
@@ -226,12 +274,15 @@
         (return
           (const_i32 15))))
 
+;
 ; token_slash
 ;
-; Returns the token kind constant for `slash`.
+; Returns the token kind id for `slash`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_slash
       (params)
       (returns i32)
@@ -239,12 +290,15 @@
         (return
           (const_i32 16))))
 
+;
 ; token_eq
 ;
-; Returns the token kind constant for `eq`.
+; Returns the token kind id for `eq`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_eq
       (params)
       (returns i32)
@@ -252,12 +306,15 @@
         (return
           (const_i32 17))))
 
+;
 ; token_eqeq
 ;
-; Returns the token kind constant for `eqeq`.
+; Returns the token kind id for `eqeq`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_eqeq
       (params)
       (returns i32)
@@ -265,12 +322,15 @@
         (return
           (const_i32 18))))
 
+;
 ; token_ne
 ;
-; Returns the token kind constant for `ne`.
+; Returns the token kind id for `ne`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_ne
       (params)
       (returns i32)
@@ -278,12 +338,15 @@
         (return
           (const_i32 19))))
 
+;
 ; token_lt
 ;
-; Returns the token kind constant for `lt`.
+; Returns the token kind id for `lt`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_lt
       (params)
       (returns i32)
@@ -291,12 +354,15 @@
         (return
           (const_i32 20))))
 
+;
 ; token_le
 ;
-; Returns the token kind constant for `le`.
+; Returns the token kind id for `le`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_le
       (params)
       (returns i32)
@@ -304,12 +370,15 @@
         (return
           (const_i32 21))))
 
+;
 ; token_gt
 ;
-; Returns the token kind constant for `gt`.
+; Returns the token kind id for `gt`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_gt
       (params)
       (returns i32)
@@ -317,12 +386,15 @@
         (return
           (const_i32 22))))
 
+;
 ; token_ge
 ;
-; Returns the token kind constant for `ge`.
+; Returns the token kind id for `ge`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_ge
       (params)
       (returns i32)
@@ -330,12 +402,15 @@
         (return
           (const_i32 23))))
 
+;
 ; token_core_module
 ;
-; Returns the token kind constant for `core-module`.
+; Returns the token kind id for `core module`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_core_module
       (params)
       (returns i32)
@@ -343,12 +418,15 @@
         (return
           (const_i32 24))))
 
+;
 ; token_core_version
 ;
-; Returns the token kind constant for `core-version`.
+; Returns the token kind id for `core version`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_core_version
       (params)
       (returns i32)
@@ -356,12 +434,15 @@
         (return
           (const_i32 25))))
 
+;
 ; token_decls
 ;
-; Returns the token kind constant for `decls`.
+; Returns the token kind id for `decls`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_decls
       (params)
       (returns i32)
@@ -369,12 +450,15 @@
         (return
           (const_i32 26))))
 
+;
 ; token_extern
 ;
-; Returns the token kind constant for `extern`.
+; Returns the token kind id for `extern`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_extern
       (params)
       (returns i32)
@@ -382,12 +466,15 @@
         (return
           (const_i32 27))))
 
+;
 ; token_params
 ;
-; Returns the token kind constant for `params`.
+; Returns the token kind id for `params`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_params
       (params)
       (returns i32)
@@ -395,12 +482,15 @@
         (return
           (const_i32 28))))
 
+;
 ; token_returns
 ;
-; Returns the token kind constant for `returns`.
+; Returns the token kind id for `returns`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_returns
       (params)
       (returns i32)
@@ -408,12 +498,15 @@
         (return
           (const_i32 29))))
 
+;
 ; token_then
 ;
-; Returns the token kind constant for `then`.
+; Returns the token kind id for `then`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_then
       (params)
       (returns i32)
@@ -421,12 +514,15 @@
         (return
           (const_i32 31))))
 
+;
 ; token_block
 ;
-; Returns the token kind constant for `block`.
+; Returns the token kind id for `block`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_block
       (params)
       (returns i32)
@@ -434,12 +530,15 @@
         (return
           (const_i32 33))))
 
+;
 ; token_return_void
 ;
-; Returns the token kind constant for `return-void`.
+; Returns the token kind id for `return void`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_return_void
       (params)
       (returns i32)
@@ -447,12 +546,15 @@
         (return
           (const_i32 34))))
 
+;
 ; token_do
 ;
-; Returns the token kind constant for `do`.
+; Returns the token kind id for `do`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_do
       (params)
       (returns i32)
@@ -460,12 +562,15 @@
         (return
           (const_i32 35))))
 
+;
 ; token_condition
 ;
-; Returns the token kind constant for `condition`.
+; Returns the token kind id for `condition`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_condition
       (params)
       (returns i32)
@@ -473,12 +578,15 @@
         (return
           (const_i32 36))))
 
+;
 ; token_debug
 ;
-; Returns the token kind constant for `debug`.
+; Returns the token kind id for `debug`.
+; Token constants are functions because this WIR stage has no global constants.
 ;
 ; Returns:
-;   integer constant or field value.
+;   token kind id.
+;
 (fn token_debug
       (params)
       (returns i32)
@@ -490,12 +598,15 @@
 ; Token storage layout
 ; =============================================================================
 
+;
 ; tokens_size
 ;
-; Provides token storage behavior for size.
+; Returns the size in bytes of the token storage header.
+; The header owns parallel arrays for kind, start, length, and value.
 ;
 ; Returns:
-;   i64 result value.
+;   token storage header size in bytes.
+;
 (fn tokens_size
       (params)
       (returns i64)
@@ -503,12 +614,15 @@
         (return
           (const_i64 48))))
 
+;
 ; tokens_initial_capacity
 ;
-; Provides token storage behavior for initial capacity.
+; Returns the initial capacity for a token stream.
+; Small files avoid immediate growth while large files can still reserve.
 ;
 ; Returns:
-;   i64 result value.
+;   token storage header size in bytes.
+;
 (fn tokens_initial_capacity
       (params)
       (returns i64)
@@ -520,16 +634,21 @@
 ; Token field accessors
 ; =============================================================================
 
+;
 ; tokens_kinds_field
 ;
 ; Returns the address of the token storage `kinds` field.
+; Token storage uses parallel arrays, so field offsets stay centralized here.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   initial token capacity.
+;
 (fn tokens_kinds_field
       (params
         (tokens ptr))
@@ -538,16 +657,21 @@
         (return
           (param_get tokens))))
 
+;
 ; tokens_starts_field
 ;
 ; Returns the address of the token storage `starts` field.
+; Token storage uses parallel arrays, so field offsets stay centralized here.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `starts` field.
+;
 (fn tokens_starts_field
       (params
         (tokens ptr))
@@ -558,16 +682,21 @@
             (param_get tokens)
             (const_i64 8)))))
 
+;
 ; tokens_lengths_field
 ;
 ; Returns the address of the token storage `lengths` field.
+; Token storage uses parallel arrays, so field offsets stay centralized here.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `lengths` field.
+;
 (fn tokens_lengths_field
       (params
         (tokens ptr))
@@ -578,16 +707,21 @@
             (param_get tokens)
             (const_i64 16)))))
 
+;
 ; tokens_values_field
 ;
 ; Returns the address of the token storage `values` field.
+; Token storage uses parallel arrays, so field offsets stay centralized here.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `values` field.
+;
 (fn tokens_values_field
       (params
         (tokens ptr))
@@ -598,16 +732,21 @@
             (param_get tokens)
             (const_i64 24)))))
 
+;
 ; tokens_count_field
 ;
 ; Returns the address of the token storage `count` field.
+; Token storage uses parallel arrays, so field offsets stay centralized here.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `count` field.
+;
 (fn tokens_count_field
       (params
         (tokens ptr))
@@ -618,16 +757,21 @@
             (param_get tokens)
             (const_i64 32)))))
 
+;
 ; tokens_capacity_field
 ;
 ; Returns the address of the token storage `capacity` field.
+; Token storage uses parallel arrays, so field offsets stay centralized here.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   pointer to the `capacity` field.
+;
 (fn tokens_capacity_field
       (params
         (tokens ptr))
@@ -642,16 +786,18 @@
 ; Token value accessors
 ; =============================================================================
 
+;
 ; tokens_kinds
 ;
-; Provides token storage behavior for kinds.
-;
+; Reads the token-kind array pointer.
+; Each token index has a matching entry in all parallel arrays.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   token-kind array pointer.
+;
 (fn tokens_kinds
       (params
         (tokens ptr))
@@ -663,16 +809,18 @@
               tokens_kinds_field
               (param_get tokens))))))
 
+;
 ; tokens_starts
 ;
-; Provides token storage behavior for starts.
-;
+; Reads the token-start array pointer.
+; Starts are source byte offsets into the original source buffer.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   token-kind array pointer.
+;
 (fn tokens_starts
       (params
         (tokens ptr))
@@ -684,16 +832,18 @@
               tokens_starts_field
               (param_get tokens))))))
 
+;
 ; tokens_lengths
 ;
-; Provides token storage behavior for lengths.
-;
+; Reads the token-length array pointer.
+; Lengths preserve token spans without copying text.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   token-start array pointer.
+;
 (fn tokens_lengths
       (params
         (tokens ptr))
@@ -705,16 +855,18 @@
               tokens_lengths_field
               (param_get tokens))))))
 
+;
 ; tokens_values
 ;
-; Provides token storage behavior for values.
-;
+; Reads the token-value array pointer.
+; Integer literals store parsed numeric values here.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   token-length array pointer.
+;
 (fn tokens_values
       (params
         (tokens ptr))
@@ -726,15 +878,18 @@
               tokens_values_field
               (param_get tokens))))))
 
+;
 ; tokens_count
 ;
-; Provides token storage behavior for count.
-;
+; Reads the number of tokens currently stored.
+; The count also identifies the next append position.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   i64 result value.
+;   token-value array pointer.
+;
 (fn tokens_count
       (params
         (tokens ptr))
@@ -746,15 +901,18 @@
               tokens_count_field
               (param_get tokens))))))
 
+;
 ; tokens_capacity
 ;
-; Provides token storage behavior for capacity.
-;
+; Reads the allocated token capacity.
+; Reserve logic compares this against requested token counts.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
-;   i64 result value.
+;   current token count.
+;
 (fn tokens_capacity
       (params
         (tokens ptr))
@@ -770,16 +928,19 @@
 ; Token mutators
 ; =============================================================================
 
+;
 ; tokens_set_kinds
 ;
-; Stores a new token storage `kinds` pointer or count value.
+; Writes the token storage `kinds` field.
+; Keeping writes behind helpers makes token-array growth easier to audit.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   kinds - token-kind array pointer.
 ;
-;   kinds - Token kind array pointer.
 ; Returns:
-;   no value.
+;   allocated token capacity.
+;
 (fn tokens_set_kinds
       (params
         (tokens ptr)
@@ -793,16 +954,19 @@
           (param_get kinds))
         (return_void)))
 
+;
 ; tokens_set_starts
 ;
-; Stores a new token storage `starts` pointer or count value.
+; Writes the token storage `starts` field.
+; Keeping writes behind helpers makes token-array growth easier to audit.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   starts - token-start array pointer.
 ;
-;   starts - Token start array pointer.
 ; Returns:
 ;   no value.
+;
 (fn tokens_set_starts
       (params
         (tokens ptr)
@@ -816,16 +980,19 @@
           (param_get starts))
         (return_void)))
 
+;
 ; tokens_set_lengths
 ;
-; Stores a new token storage `lengths` pointer or count value.
+; Writes the token storage `lengths` field.
+; Keeping writes behind helpers makes token-array growth easier to audit.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   lengths - token-length array pointer.
 ;
-;   lengths - Token length array pointer.
 ; Returns:
 ;   no value.
+;
 (fn tokens_set_lengths
       (params
         (tokens ptr)
@@ -839,16 +1006,19 @@
           (param_get lengths))
         (return_void)))
 
+;
 ; tokens_set_values
 ;
-; Stores a new token storage `values` pointer or count value.
+; Writes the token storage `values` field.
+; Keeping writes behind helpers makes token-array growth easier to audit.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   values - token-value array pointer.
 ;
-;   values - Token value array pointer.
 ; Returns:
 ;   no value.
+;
 (fn tokens_set_values
       (params
         (tokens ptr)
@@ -862,16 +1032,19 @@
           (param_get values))
         (return_void)))
 
+;
 ; tokens_set_count
 ;
-; Stores a new token storage `count` pointer or count value.
+; Writes the token storage `count` field.
+; Keeping writes behind helpers makes token-array growth easier to audit.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   count - number of nodes, bytes, or entries.
 ;
-;   count - Number of entries.
 ; Returns:
 ;   no value.
+;
 (fn tokens_set_count
       (params
         (tokens ptr)
@@ -885,16 +1058,19 @@
           (param_get count))
         (return_void)))
 
+;
 ; tokens_set_capacity
 ;
-; Stores a new token storage `capacity` pointer or count value.
+; Writes the token storage `capacity` field.
+; Keeping writes behind helpers makes token-array growth easier to audit.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   capacity - allocated entry capacity.
 ;
-;   capacity - Allocated capacity.
 ; Returns:
 ;   no value.
+;
 (fn tokens_set_capacity
       (params
         (tokens ptr)
@@ -912,13 +1088,18 @@
 ; Token storage allocation
 ; =============================================================================
 
+;
 ; tokens_new
 ;
-; Provides token storage behavior for new.
+; Allocates and initializes token storage.
+; All parallel arrays start with the same capacity.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Returns:
-;   pointer result.
-;   null only when allocation or lookup fails.
+;   token storage pointer, or null on allocation failure.
+;
 (fn tokens_new
       (params)
       (returns ptr)
@@ -1077,15 +1258,21 @@
         (return
           (local_get tokens))))
 
+;
 ; tokens_free
 ;
-; Provides token storage behavior for free.
+; Releases token storage and all owned arrays.
+; Source text spans are not owned by the token stream.
 ;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;
 ; Returns:
 ;   no value.
+;
 (fn tokens_free
       (params
         (tokens ptr))
@@ -1182,16 +1369,23 @@
 ; Token storage growth
 ; =============================================================================
 
+;
 ; tokens_reserve
 ;
-; Provides token storage behavior for reserve.
+; Ensures token storage can hold the requested count.
+; All parallel arrays grow together to preserve index alignment.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   needed - minimum required capacity.
 ;
-;   needed - Required capacity.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn tokens_reserve
       (params
         (tokens ptr)
@@ -1331,19 +1525,26 @@
         (return
           (const_i32 0))))
 
+;
 ; tokens_push
 ;
-; Provides token storage behavior for push.
+; Appends one token kind, span, and value tuple.
+; The token index is shared across every parallel array.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
-;   kind - Integer kind id.
-;   start - Source byte offset.
-;   length - Byte length.
+;   tokens - token stream pointer.
+;   kind - token or AST kind id.
+;   start - source byte offset where lexing begins.
+;   length - byte length.
+;   value - value to store, emit, or compare.
 ;
-;   value - Value to store or emit.
 ; Returns:
-;   i32 result value.
+;   0 on success.
+;   nonzero on allocation failure.
+;
 (fn tokens_push
       (params
         (tokens ptr)
@@ -1422,16 +1623,19 @@
         (return
           (const_i32 0))))
 
+;
 ; token_kind_at
 ;
-; Returns the token kind constant for `kind-at`.
+; Reads or tests token `kind at` data from the token stream.
+; Parser modules use token accessors instead of reaching into arrays directly.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   integer constant or field value.
+;   token kind id at index.
+;
 (fn token_kind_at
       (params
         (tokens ptr)
@@ -1448,16 +1652,19 @@
                 (param_get index)
                 (const_i64 4)))))))
 
+;
 ; token_start_at
 ;
-; Returns the token kind constant for `start-at`.
+; Reads or tests token `start at` data from the token stream.
+; Parser modules use token accessors instead of reaching into arrays directly.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   token kind id at index.
+;
 (fn token_start_at
       (params
         (tokens ptr)
@@ -1474,16 +1681,19 @@
                 (param_get index)
                 (const_i64 8)))))))
 
+;
 ; token_length_at
 ;
-; Returns the token kind constant for `length-at`.
+; Reads or tests token `length at` data from the token stream.
+; Parser modules use token accessors instead of reaching into arrays directly.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   source byte offset at index.
+;
 (fn token_length_at
       (params
         (tokens ptr)
@@ -1500,16 +1710,19 @@
                 (param_get index)
                 (const_i64 8)))))))
 
+;
 ; token_value_at
 ;
-; Returns the token kind constant for `value-at`.
+; Reads or tests token `value at` data from the token stream.
+; Parser modules use token accessors instead of reaching into arrays directly.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   integer constant or field value.
+;   token byte length at index.
+;
 (fn token_value_at
       (params
         (tokens ptr)
@@ -1526,18 +1739,20 @@
                 (param_get index)
                 (const_i64 4)))))))
 
+;
 ; token_is
 ;
-; Returns the token kind constant for `is`.
+; Reads or tests token `is` data from the token stream.
+; Parser modules use token accessors instead of reaching into arrays directly.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
-;   index - AST node index.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
+;   expected - expected token kind id.
 ;
-;   expected - Expected token kind.
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   token numeric value at index.
+;
 (fn token_is
       (params
         (tokens ptr)
@@ -1553,17 +1768,20 @@
               (param_get index))
             (param_get expected)))))
 
+;
 ; token_is_eof
 ;
-; Returns the token kind constant for `is-eof`.
+; Reads or tests token `is eof` data from the token stream.
+; Parser modules use token accessors instead of reaching into arrays directly.
 ;
 ; Parameters:
-;   tokens - Token stream pointer.
+;   tokens - token stream pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   1 when the token at index has the expected kind.
+;   0 otherwise.
+;
 (fn token_is_eof
       (params
         (tokens ptr)

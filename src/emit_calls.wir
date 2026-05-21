@@ -17,17 +17,21 @@
 ; Call argument emission
 ; =============================================================================
 
+;
 ; emit_call_arg_node
 ;
-; Emits or computes LLVM output for call arg node.
+; Emits LLVM text for `call arg node`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;   call_node - Call AST node index.
+;   ctx - emission context pointer.
+;   call_node - AST_CALL node index.
+;   ordinal - zero-based argument position.
 ;
-;   ordinal - Argument ordinal.
 ; Returns:
-;   i64 result value.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_call_arg_node
       (params
         (ctx ptr)
@@ -114,16 +118,20 @@
 ; Call emission
 ; =============================================================================
 
+;
 ; emit_call_expr
 ;
-; Emits or computes LLVM output for call expr.
+; Emits LLVM text for `call expr`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   i64 result value.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_call_expr
       (params
         (ctx ptr)
@@ -409,16 +417,20 @@
 ; Name reference emission
 ; =============================================================================
 
+;
 ; emit_param_get_expr
 ;
-; Emits or computes LLVM output for param get expr.
+; Emits LLVM text for `param get expr`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   i64 result value.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_param_get_expr
       (params
         (ctx ptr)
@@ -518,16 +530,20 @@
         (return
           (local_get temp))))
 
+;
 ; emit_local_get_expr
 ;
-; Emits or computes LLVM output for local get expr.
+; Emits LLVM text for `local get expr`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   i64 result value.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_local_get_expr
       (params
         (ctx ptr)

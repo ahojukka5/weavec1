@@ -18,16 +18,19 @@
 ; Module header emission
 ; =============================================================================
 
+;
 ; emit_module_header
 ;
-; Emits or computes LLVM output for module header.
-;
+; Emits LLVM text for `module header`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_module_header
       (params
         (ctx ptr))
@@ -89,18 +92,21 @@
 ; Runtime usage scans
 ; =============================================================================
 
+;
 ; emit_uses_call_name
 ;
-; Emits or computes LLVM output for uses call name.
+; Emits LLVM text for `uses call name`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;   name - Name source pointer or id.
+;   ctx - emission context pointer.
+;   name - function parameter.
+;   name_len - name byte length.
 ;
-;   name_len - Name byte length.
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_uses_call_name
       (params
         (ctx ptr)
@@ -184,19 +190,22 @@
 ; Runtime declaration emission
 ; =============================================================================
 
+;
 ; emit_declare_if_used
 ;
-; Emits or computes LLVM output for declare if used.
+; Emits LLVM text for `declare if used`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;   name - Name source pointer or id.
-;   name_len - i64 parameter.
+;   ctx - emission context pointer.
+;   name - function parameter.
+;   name_len - name byte length.
+;   decl - LLVM declaration text pointer.
 ;
-;   decl - Runtime declaration text pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_declare_if_used
       (params
         (ctx ptr)
@@ -226,17 +235,20 @@
         (return
           (const_i32 0))))
 
+;
 ; emit_uses_node_kind
 ;
-; Emits or computes LLVM output for uses node kind.
+; Emits LLVM text for `uses node kind`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   kind - token or AST kind id.
 ;
-;   kind - Integer kind id.
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_uses_node_kind
       (params
         (ctx ptr)
@@ -287,16 +299,19 @@
         (return
           (const_bool false))))
 
+;
 ; emit_declare_puts_if_used
 ;
-; Emits or computes LLVM output for declare puts if used.
-;
+; Emits LLVM text for `declare puts if used`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_declare_puts_if_used
       (params
         (ctx ptr))
@@ -328,16 +343,19 @@
         (return
           (const_i32 0))))
 
+;
 ; emit_uses_runtime_declaration
 ;
-; Emits or computes LLVM output for uses runtime declaration.
-;
+; Emits LLVM text for `uses runtime declaration`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   true when the predicate matches.
-;   false otherwise.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_uses_runtime_declaration
       (params
         (ctx ptr))
@@ -443,16 +461,19 @@
         (return
           (const_bool false))))
 
+;
 ; emit_runtime_declarations
 ;
-; Emits or computes LLVM output for runtime declarations.
-;
+; Emits LLVM text for `runtime declarations`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_runtime_declarations
       (params
         (ctx ptr))

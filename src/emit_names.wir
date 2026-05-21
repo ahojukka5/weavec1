@@ -17,17 +17,20 @@
 ; Name formatting
 ; =============================================================================
 
+;
 ; emit_temp_name
 ;
-; Emits or computes LLVM output for temp name.
+; Writes an LLVM temporary name for an existing temp id.
+; Name spelling stays deterministic for golden LLVM comparisons.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   id - deterministic numeric id.
 ;
-;   id - Deterministic numeric id.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_temp_name
       (params
         (ctx ptr)
@@ -44,16 +47,19 @@
             (param_get ctx)
             (param_get id)))))
 
+;
 ; emit_indent
 ;
-; Emits or computes LLVM output for indent.
-;
+; Writes one standard indentation unit to the output buffer.
+; Formatting helpers keep generated LLVM text consistent.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_indent
       (params
         (ctx ptr))
@@ -65,17 +71,20 @@
             (param_get ctx)
             (const_string_ptr "  ")))))
 
+;
 ; emit_temp_def_name
 ;
-; Emits or computes LLVM output for temp def name.
+; Writes the left-hand side name for a new LLVM temporary definition.
+; Definitions and references share the same temp id spelling.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   id - deterministic numeric id.
 ;
-;   id - Deterministic numeric id.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_temp_def_name
       (params
         (ctx ptr)
@@ -91,17 +100,20 @@
             (param_get ctx)
             (param_get id)))))
 
+;
 ; emit_comment
 ;
-; Emits or computes LLVM output for comment.
+; Writes an LLVM comment containing a source text slice.
+; Debug output uses this to leave breadcrumbs in generated LLVM.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   text - text pointer.
 ;
-;   text - Text pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_comment
       (params
         (ctx ptr)
@@ -125,15 +137,18 @@
 ; Counter allocation
 ; =============================================================================
 
+;
 ; next_temp
 ;
-; Implements next temp for the weavec1 bootstrap compiler.
-;
+; Allocates the next deterministic temporary id from the context.
+; The context counter is the single source of temporary numbering.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   allocated id.
+;
 (fn next_temp
       (params
         (ctx ptr))
@@ -154,15 +169,18 @@
         (return
           (local_get old))))
 
+;
 ; next_label
 ;
-; Implements next label for the weavec1 bootstrap compiler.
-;
+; Allocates the next deterministic label id from the context.
+; Control-flow emission uses this to avoid label collisions.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   i64 result value.
+;   allocated id.
+;
 (fn next_label
       (params
         (ctx ptr))

@@ -16,17 +16,19 @@
 ; Bridge entry point
 ; =============================================================================
 
+;
 ; main
 ;
-; Implements main for the weavec1 bootstrap compiler.
+; Runs the command-line entry point for this executable.
+; Argument validation happens here before control passes to the driver.
 ;
 ; Parameters:
-;   argc - Argument count.
+;   argc - argument count passed to the executable.
+;   argv - argument vector passed to the executable.
 ;
-;   argv - Argument vector pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   process exit status.
+;
 (fn main
       (params
         (argc i32)

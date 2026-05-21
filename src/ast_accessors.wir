@@ -17,16 +17,19 @@
 ; AST field reads
 ; =============================================================================
 
+;
 ; ast_kind_at
 ;
 ; Reads the `kind` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   integer constant or field value.
+;   node `kind` field value.
+;
 (fn ast_kind_at
       (params
         (ast ptr)
@@ -42,16 +45,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_op_type_at
 ;
 ; Reads the `op_type` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `op_type` field value.
+;
 (fn ast_op_type_at
       (params
         (ast ptr)
@@ -67,16 +73,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_a_at
 ;
 ; Reads the `a` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `a` field value.
+;
 (fn ast_a_at
       (params
         (ast ptr)
@@ -92,16 +101,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_b_at
 ;
 ; Reads the `b` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `b` field value.
+;
 (fn ast_b_at
       (params
         (ast ptr)
@@ -117,16 +129,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_c_at
 ;
 ; Reads the `c` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `c` field value.
+;
 (fn ast_c_at
       (params
         (ast ptr)
@@ -142,16 +157,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_d_at
 ;
 ; Reads the `d` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `d` field value.
+;
 (fn ast_d_at
       (params
         (ast ptr)
@@ -167,16 +185,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_text_start_at
 ;
 ; Reads the `text_start` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `text_start` field value.
+;
 (fn ast_text_start_at
       (params
         (ast ptr)
@@ -192,16 +213,19 @@
                 (param_get ast)
                 (param_get index)))))))
 
+;
 ; ast_text_len_at
 ;
 ; Reads the `text_len` field from a node in AST storage.
+; This hides the fixed node byte layout from parser and emitter code.
 ;
 ; Parameters:
 ;   ast - AST container pointer.
+;   index - zero-based node, token, or byte index.
 ;
-;   index - AST node index or token index.
 ; Returns:
-;   i64 result value.
+;   node `text_len` field value.
+;
 (fn ast_text_len_at
       (params
         (ast ptr)

@@ -18,17 +18,20 @@
 ; Local declaration emission
 ; =============================================================================
 
+;
 ; emit_let_stmt
 ;
-; Emits or computes LLVM output for let stmt.
+; Emits LLVM text for `let stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_let_stmt
       (params
         (ctx ptr)
@@ -182,17 +185,20 @@
 ; Local assignment emission
 ; =============================================================================
 
+;
 ; emit_set_stmt
 ;
-; Emits or computes LLVM output for set stmt.
+; Emits LLVM text for `set stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_set_stmt
       (params
         (ctx ptr)
@@ -300,17 +306,20 @@
 ; Return emission
 ; =============================================================================
 
+;
 ; emit_return_stmt
 ;
-; Emits or computes LLVM output for return stmt.
+; Emits LLVM text for `return stmt`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_return_stmt
       (params
         (ctx ptr)
@@ -418,17 +427,20 @@
 ; Function emission
 ; =============================================================================
 
+;
 ; emit_function
 ;
-; Emits or computes LLVM output for function.
+; Emits LLVM text for `function`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;
+;   ctx - emission context pointer.
 ;   node - AST node index.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_function
       (params
         (ctx ptr)

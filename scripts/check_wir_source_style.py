@@ -14,6 +14,17 @@ FN_RE = re.compile(r"^\s*\(fn\s+([A-Za-z_][A-Za-z0-9_-]*)$")
 OLD_FN_RE = re.compile(r"^\s*\(fn$")
 PARAM_RE = re.compile(r"^\s*\(([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z0-9_]+)\)+$")
 RET_RE = re.compile(r"^\s*\(returns\s+([A-Za-z0-9_]+)\)$")
+BAD_DOC_PATTERNS = (
+    "Provides ",
+    "Implements ",
+    "Emits or computes ",
+    "Reads or computes ",
+    "Handles ",
+    "Documents the bootstrap helper",
+    "result value",
+    "field value or status code",
+    "storage value",
+)
 
 
 def parse_signature(lines: list[str], index: int) -> tuple[str, list[str], str]:
@@ -101,8 +112,24 @@ def check_file(path: Path) -> list[str]:
             errors.append(f"{rel}:{fn_line}: missing documentation block for {name}")
             continue
 
-        if f"; {name}" not in block:
+        if len(block) < 6:
+            errors.append(f"{rel}:{fn_line}: documentation block is too short")
+
+        if block[0].strip() != ";":
+            errors.append(f"{rel}:{block_start + 1}: documentation block must start with `;`")
+
+        if len(block) < 2 or block[1].strip() != f"; {name}":
             errors.append(f"{rel}:{fn_line}: documentation block must name {name}")
+
+        if block[-1].strip() != ";":
+            errors.append(f"{rel}:{fn_line}: documentation block must end with `;`")
+
+        for block_lineno, comment in enumerate(block, start=block_start + 1):
+            for pattern in BAD_DOC_PATTERNS:
+                if pattern in comment:
+                    errors.append(
+                        f"{rel}:{block_lineno}: generic documentation phrase `{pattern}`"
+                    )
 
         if returns and "; Returns:" not in block:
             errors.append(f"{rel}:{fn_line}: {name} must document Returns")
@@ -115,6 +142,10 @@ def check_file(path: Path) -> list[str]:
                     errors.append(
                         f"{rel}:{fn_line}: {name} must document parameter {param}"
                     )
+
+            param_index = block.index("; Parameters:")
+            if param_index + 1 >= len(block) or block[param_index + 1].strip() == ";":
+                errors.append(f"{rel}:{fn_line}: Parameters must list entries immediately")
 
         if block_start > 0 and lines[block_start - 1].strip() != "":
             errors.append(

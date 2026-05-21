@@ -17,17 +17,20 @@
 ; Program emission
 ; =============================================================================
 
+;
 ; emit_program
 ;
-; Emits or computes LLVM output for program.
+; Emits LLVM text for `program`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   program_node - AST_PROGRAM node index.
 ;
-;   program_node - Program AST node index.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_program
       (params
         (ctx ptr)
@@ -113,19 +116,22 @@
 ; LLVM module entry point
 ; =============================================================================
 
+;
 ; emit_llvm
 ;
-; Emits or computes LLVM output for llvm.
+; Emits LLVM text for `llvm`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   source - Source buffer pointer.
+;   source - source buffer pointer.
 ;   ast - AST container pointer.
-;   program_node - i64 parameter.
+;   program_node - AST_PROGRAM node index.
+;   output - output buffer pointer.
 ;
-;   output - Output buffer pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_llvm
       (params
         (source ptr)

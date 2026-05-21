@@ -17,17 +17,20 @@
 ; Text buffer emission
 ; =============================================================================
 
+;
 ; emit_cstr
 ;
-; Emits or computes LLVM output for cstr.
+; Emits LLVM text for `cstr`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   text - text pointer.
 ;
-;   text - Text pointer.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_cstr
       (params
         (ctx ptr)
@@ -42,17 +45,20 @@
               (param_get ctx))
             (param_get text)))))
 
+;
 ; emit_byte
 ;
-; Emits or computes LLVM output for byte.
+; Emits LLVM text for `byte`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   byte - byte value to emit or escape.
 ;
-;   byte - Byte value.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_byte
       (params
         (ctx ptr)
@@ -67,17 +73,20 @@
               (param_get ctx))
             (param_get byte)))))
 
+;
 ; emit_i32
 ;
-; Emits or computes LLVM output for i32.
+; Emits LLVM text for `i32`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   value - value to store, emit, or compare.
 ;
-;   value - Value to store or emit.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_i32
       (params
         (ctx ptr)
@@ -92,17 +101,20 @@
               (param_get ctx))
             (param_get value)))))
 
+;
 ; emit_i64_as_i32
 ;
-; Emits or computes LLVM output for i64 as i32.
+; Emits LLVM text for `i64 as i32`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;   value - value to store, emit, or compare.
 ;
-;   value - Value to store or emit.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_i64_as_i32
       (params
         (ctx ptr)
@@ -116,18 +128,21 @@
             (cast_i64_to_i32
               (param_get value))))))
 
+;
 ; emit_source_slice
 ;
-; Emits or computes LLVM output for source slice.
+; Emits LLVM text for `source slice`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
-;   start - Source byte offset.
+;   ctx - emission context pointer.
+;   start - source byte offset where lexing begins.
+;   length - byte length.
 ;
-;   length - Byte length.
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_source_slice
       (params
         (ctx ptr)
@@ -150,16 +165,19 @@
               (param_get start))
             (param_get length)))))
 
+;
 ; emit_newline
 ;
-; Emits or computes LLVM output for newline.
-;
+; Emits LLVM text for `newline`.
+; The emitter writes textual LLVM directly to the output buffer for bootstrap clarity.
 ;
 ; Parameters:
-;   ctx - EmitContext pointer.
+;   ctx - emission context pointer.
+;
 ; Returns:
-;   0 on success or a successful false/no result when documented by the caller.
-;   nonzero on failure or true/yes result depending on the predicate.
+;   0 on success.
+;   nonzero on emission failure.
+;
 (fn emit_newline
       (params
         (ctx ptr))

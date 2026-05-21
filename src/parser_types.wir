@@ -17,15 +17,18 @@
 ; Identifier spans
 ; =============================================================================
 
+;
 ; parser_ident_start
 ;
-; Provides parser behavior for ident start.
-;
+; Returns the source start offset for the current identifier token.
+; Operator and type parsing use this to compare source slices.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i64 result value.
+;   source byte offset of the current identifier.
+;
 (fn parser_ident_start
       (params
         (parser ptr))
@@ -36,15 +39,18 @@
             parser_current_start
             (param_get parser)))))
 
+;
 ; parser_ident_length
 ;
-; Provides parser behavior for ident length.
-;
+; Returns the byte length of the current identifier token.
+; Identifier spans are kept as source offsets instead of copied strings.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i64 result value.
+;   source byte offset of the current identifier.
+;
 (fn parser_ident_length
       (params
         (parser ptr))
@@ -59,15 +65,18 @@
 ; Type parsing
 ; =============================================================================
 
+;
 ; parser_parse_type
 ;
-; Provides parser behavior for parse type.
-;
+; Parses the current identifier as a WIR type name.
+; Unknown type names record a parser error and return failure.
 ;
 ; Parameters:
-;   parser - Parser state pointer.
+;   parser - parser state pointer.
+;
 ; Returns:
-;   i32 result value.
+;   byte length of the current identifier.
+;
 (fn parser_parse_type
       (params
         (parser ptr))
