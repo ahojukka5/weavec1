@@ -363,6 +363,9 @@ run_tests() {
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "52_wrong_arity_add_i32_too_few" "arity"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "53_wrong_arity_add_i32_too_many" "arity"
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "54_debug_marker" 42
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "55_integration_nested_control_flow" 75
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "56_integration_multi_function_chain" 35
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "57_integration_memory_flow" 100
 
   log "all $compiler_name tests passed"
 }
@@ -384,6 +387,8 @@ compare_bootstrap_outputs() {
     43_if_fallthrough_join 44_while_zero_iterations 45_nested_while
     46_forward_function_call 47_multiple_externs_used_subset 48_string_escape
     49_negative_i32_literal 54_debug_marker
+    55_integration_nested_control_flow 56_integration_multi_function_chain
+    57_integration_memory_flow
   )
 
   local diverged=0
