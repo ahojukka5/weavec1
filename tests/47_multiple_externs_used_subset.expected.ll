@@ -4,6 +4,7 @@
 
 ; declarations
 
+declare i32 @puts(ptr)
 declare ptr @malloc(i64)
 declare void @free(ptr)
 

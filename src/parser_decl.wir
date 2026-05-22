@@ -59,12 +59,269 @@
               (call_i32 token_extern)))
           (then
             (do
+              ; consume 'extern' keyword
               (if
                 (condition
                   (ne_i32
                     (call_i32
-                      parser_skip_extern_opened
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_extern))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              ; capture function name
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_current_kind
                       (param_get parser))
+                    (call_i32 token_ident)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (let
+                extern_name_start
+                i64
+                (call_i64
+                  parser_current_start
+                  (param_get parser)))
+              (let
+                extern_name_len
+                i64
+                (call_i64
+                  parser_current_length
+                  (param_get parser)))
+              (call_void
+                parser_advance
+                (param_get parser))
+              ; parse (params ...)
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_lparen))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_params))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (let
+                extern_param_first
+                i64
+                (call_i64
+                  ast_count
+                  (call_ptr
+                    parser_ast
+                    (param_get parser))))
+              (let
+                extern_param_count
+                i64
+                (const_i64 0))
+              (while
+                (condition
+                  (not_bool
+                    (call_bool
+                      parser_match
+                      (param_get parser)
+                      (call_i32 token_rparen))))
+                (do
+                  (if
+                    (condition
+                      (ne_i32
+                        (call_i32
+                          parser_expect
+                          (param_get parser)
+                          (call_i32 token_lparen))
+                        (const_i32 0)))
+                    (then
+                      (do
+                        (return
+                          (const_i64 -1))))
+                    (else
+                      (do)))
+                  (if
+                    (condition
+                      (ne_i32
+                        (call_i32
+                          parser_current_kind
+                          (param_get parser))
+                        (call_i32 token_ident)))
+                    (then
+                      (do
+                        (return
+                          (const_i64 -1))))
+                    (else
+                      (do)))
+                  (let
+                    extern_param_name_start
+                    i64
+                    (call_i64
+                      parser_current_start
+                      (param_get parser)))
+                  (let
+                    extern_param_name_len
+                    i64
+                    (call_i64
+                      parser_current_length
+                      (param_get parser)))
+                  (call_void
+                    parser_advance
+                    (param_get parser))
+                  (let
+                    extern_type_id
+                    i32
+                    (call_i32
+                      parser_parse_type
+                      (param_get parser)))
+                  (if
+                    (condition
+                      (lt_i32
+                        (local_get extern_type_id)
+                        (const_i32 0)))
+                    (then
+                      (do
+                        (return
+                          (const_i64 -1))))
+                    (else
+                      (do)))
+                  (if
+                    (condition
+                      (ne_i32
+                        (call_i32
+                          parser_expect
+                          (param_get parser)
+                          (call_i32 token_rparen))
+                        (const_i32 0)))
+                    (then
+                      (do
+                        (return
+                          (const_i64 -1))))
+                    (else
+                      (do)))
+                  (call_i64
+                    ast_make_param
+                    (call_ptr
+                      parser_ast
+                      (param_get parser))
+                    (local_get extern_type_id)
+                    (local_get extern_param_name_start)
+                    (local_get extern_param_name_len))
+                  (set
+                    extern_param_count
+                    (add_i64
+                      (local_get extern_param_count)
+                      (const_i64 1)))))
+              ; consume closing ) of (params ...)
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_rparen))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              ; parse (returns TYPE)
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_lparen))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_returns))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              (let
+                extern_return_type
+                i32
+                (call_i32
+                  parser_parse_type
+                  (param_get parser)))
+              (if
+                (condition
+                  (lt_i32
+                    (local_get extern_return_type)
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              ; close (returns ...)
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_rparen))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return
+                      (const_i64 -1))))
+                (else
+                  (do)))
+              ; close (extern ...)
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_rparen))
                     (const_i32 0)))
                 (then
                   (do
@@ -78,11 +335,11 @@
                   (call_ptr
                     parser_ast
                     (param_get parser))
-                  (call_i32 type_void)
-                  (const_i64 0)
-                  (const_i64 0)
-                  (const_i64 0)
-                  (const_i64 0)))))
+                  (local_get extern_return_type)
+                  (local_get extern_param_first)
+                  (local_get extern_param_count)
+                  (local_get extern_name_start)
+                  (local_get extern_name_len)))))
           (else
             (do)))
         (if
@@ -377,237 +634,6 @@
             (local_get do_node)
             (local_get name_start)
             (local_get name_len)))))
-
-; =============================================================================
-; Extern declaration parsing
-; =============================================================================
-
-;
-; parser_skip_extern_opened
-;
-; Parses an extern declaration after the opening form has been consumed.
-; Externs record callable signatures without a body block.
-;
-; Parameters:
-;   parser - parser state pointer.
-;
-; Returns:
-;   AST_FUNCTION node index on success.
-;   -1 on parse failure.
-;
-(fn parser_skip_extern_opened
-      (params
-        (parser ptr))
-      (returns i32)
-      (do
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_extern))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_current_kind
-                (param_get parser))
-              (call_i32 token_ident)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (call_void
-          parser_advance
-          (param_get parser))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_lparen))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_params))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (while
-          (condition
-            (not_bool
-              (call_bool
-                parser_match
-                (param_get parser)
-                (call_i32 token_rparen))))
-          (do
-            (if
-              (condition
-                (ne_i32
-                  (call_i32
-                    parser_expect
-                    (param_get parser)
-                    (call_i32 token_lparen))
-                  (const_i32 0)))
-              (then
-                (do
-                  (return
-                    (const_i32 1))))
-              (else
-                (do)))
-            (if
-              (condition
-                (ne_i32
-                  (call_i32
-                    parser_current_kind
-                    (param_get parser))
-                  (call_i32 token_ident)))
-              (then
-                (do
-                  (return
-                    (const_i32 1))))
-              (else
-                (do)))
-            (call_void
-              parser_advance
-              (param_get parser))
-            (if
-              (condition
-                (lt_i32
-                  (call_i32
-                    parser_parse_type
-                    (param_get parser))
-                  (const_i32 0)))
-              (then
-                (do
-                  (return
-                    (const_i32 1))))
-              (else
-                (do)))
-            (if
-              (condition
-                (ne_i32
-                  (call_i32
-                    parser_expect
-                    (param_get parser)
-                    (call_i32 token_rparen))
-                  (const_i32 0)))
-              (then
-                (do
-                  (return
-                    (const_i32 1))))
-              (else
-                (do)))))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_rparen))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_lparen))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_returns))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (lt_i32
-              (call_i32
-                parser_parse_type
-                (param_get parser))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_rparen))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (if
-          (condition
-            (ne_i32
-              (call_i32
-                parser_expect
-                (param_get parser)
-                (call_i32 token_rparen))
-              (const_i32 0)))
-          (then
-            (do
-              (return
-                (const_i32 1))))
-          (else
-            (do)))
-        (return
-          (const_i32 0))))
 
 ; =============================================================================
 ; Top-level parsing

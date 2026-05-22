@@ -14,6 +14,145 @@
   (decls
 
 ; =============================================================================
+; External declaration emission
+; =============================================================================
+
+;
+; emit_extern
+;
+; Emits one LLVM `declare` line for an AST_EXTERN node.
+; Format: declare RETTYPE @NAME(TYPE0, TYPE1, ...)
+;
+; Parameters:
+;   ctx - emission context pointer.
+;   node - AST_EXTERN node index.
+;
+; Returns:
+;   0 on success.
+;   nonzero on emission failure.
+;
+(fn emit_extern
+      (params
+        (ctx ptr)
+        (node i64))
+      (returns i32)
+      (do
+        (let
+          ast
+          ptr
+          (call_ptr
+            ctx_ast
+            (param_get ctx)))
+        (let
+          return_type
+          i32
+          (cast_i64_to_i32
+            (call_i64
+              ast_op_type_at
+              (local_get ast)
+              (param_get node))))
+        (let
+          name_start
+          i64
+          (call_i64
+            ast_text_start_at
+            (local_get ast)
+            (param_get node)))
+        (let
+          name_len
+          i64
+          (call_i64
+            ast_text_len_at
+            (local_get ast)
+            (param_get node)))
+        (let
+          param_first
+          i64
+          (call_i64
+            ast_a_at
+            (local_get ast)
+            (param_get node)))
+        (let
+          param_count
+          i64
+          (call_i64
+            ast_b_at
+            (local_get ast)
+            (param_get node)))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "declare "))
+        (call_i32
+          emit_type
+          (param_get ctx)
+          (local_get return_type))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr " @"))
+        (call_i32
+          emit_source_slice
+          (param_get ctx)
+          (local_get name_start)
+          (local_get name_len))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr "("))
+        (let
+          param_index
+          i64
+          (const_i64 0))
+        (while
+          (condition
+            (lt_i64
+              (local_get param_index)
+              (local_get param_count)))
+          (do
+            (if
+              (condition
+                (ne_i64
+                  (local_get param_index)
+                  (const_i64 0)))
+              (then
+                (do
+                  (call_i32
+                    emit_cstr
+                    (param_get ctx)
+                    (const_string_ptr ", "))))
+              (else
+                (do)))
+            (let
+              param_node
+              i64
+              (add_i64
+                (local_get param_first)
+                (local_get param_index)))
+            (call_i32
+              emit_type
+              (param_get ctx)
+              (cast_i64_to_i32
+                (call_i64
+                  ast_op_type_at
+                  (local_get ast)
+                  (local_get param_node))))
+            (set
+              param_index
+              (add_i64
+                (local_get param_index)
+                (const_i64 1)))))
+        (call_i32
+          emit_cstr
+          (param_get ctx)
+          (const_string_ptr ")"))
+        (call_i32
+          emit_newline
+          (param_get ctx))
+        (return
+          (const_i32 0))))
+
+; =============================================================================
 ; Program emission
 ; =============================================================================
 
@@ -52,9 +191,89 @@
         (call_i32
           emit_module_header
           (param_get ctx))
-        (call_i32
-          emit_runtime_declarations
-          (param_get ctx))
+        ; Pass 1: emit AST extern declarations.
+        ; If the module has explicit (extern ...) nodes, emit them all and skip
+        ; the hardcoded runtime-declaration fallback.  If there are no explicit
+        ; externs, fall back to emit_runtime_declarations as before.
+        (let
+          has_externs
+          bool
+          (const_bool false))
+        (let
+          j
+          i64
+          (const_i64 0))
+        (while
+          (condition
+            (lt_i64
+              (local_get j)
+              (local_get node_count)))
+          (do
+            (if
+              (condition
+                (eq_i32
+                  (call_i32
+                    ast_kind_at
+                    (local_get ast)
+                    (local_get j))
+                  (call_i32 ast_extern)))
+              (then
+                (do
+                  (if
+                    (condition
+                      (not_bool
+                        (local_get has_externs)))
+                    (then
+                      (do
+                        (call_i32
+                          emit_cstr
+                          (param_get ctx)
+                          (const_string_ptr "; declarations"))
+                        (call_i32
+                          emit_newline
+                          (param_get ctx))
+                        (call_i32
+                          emit_newline
+                          (param_get ctx))
+                        (set
+                          has_externs
+                          (const_bool true))))
+                    (else
+                      (do)))
+                  (if
+                    (condition
+                      (ne_i32
+                        (call_i32
+                          emit_extern
+                          (param_get ctx)
+                          (local_get j))
+                        (const_i32 0)))
+                    (then
+                      (do
+                        (return
+                          (const_i32 1))))
+                    (else
+                      (do)))))
+              (else
+                (do)))
+            (set
+              j
+              (add_i64
+                (local_get j)
+                (const_i64 1)))))
+        (if
+          (condition
+            (local_get has_externs))
+          (then
+            (do
+              (call_i32
+                emit_newline
+                (param_get ctx))))
+          (else
+            (do
+              (call_i32
+                emit_runtime_declarations
+                (param_get ctx)))))
         (if
           (condition
             (ne_i32

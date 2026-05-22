@@ -8,9 +8,9 @@ declare i32 @puts(ptr)
 
 ; string literals
 
-@.str1 = private unnamed_addr constant [12 x i8] c"hello\0Aworld\00"
-@.str3 = private unnamed_addr constant [15 x i8] c"quote: \22weave\22\00"
-@.str5 = private unnamed_addr constant [13 x i8] c"backslash: \5C\00"
+@.str2 = private unnamed_addr constant [12 x i8] c"hello\0Aworld\00"
+@.str4 = private unnamed_addr constant [15 x i8] c"quote: \22weave\22\00"
+@.str6 = private unnamed_addr constant [13 x i8] c"backslash: \5C\00"
 
 ; function: main
 ; params: none
@@ -18,13 +18,13 @@ declare i32 @puts(ptr)
 define i32 @main() {
 entry:
   ; print
-  %t0 = getelementptr [12 x i8], ptr @.str1, i64 0, i64 0
+  %t0 = getelementptr [12 x i8], ptr @.str2, i64 0, i64 0
   call i32 @puts(ptr %t0)
   ; print
-  %t1 = getelementptr [15 x i8], ptr @.str3, i64 0, i64 0
+  %t1 = getelementptr [15 x i8], ptr @.str4, i64 0, i64 0
   call i32 @puts(ptr %t1)
   ; print
-  %t2 = getelementptr [13 x i8], ptr @.str5, i64 0, i64 0
+  %t2 = getelementptr [13 x i8], ptr @.str6, i64 0, i64 0
   call i32 @puts(ptr %t2)
   ; return
   ret i32 42

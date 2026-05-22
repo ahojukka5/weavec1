@@ -8,14 +8,14 @@ declare i32 @puts(ptr)
 
 ; string literals
 
-@.str1 = private unnamed_addr constant [28 x i8] c"hello from const_string_ptr\00"
+@.str2 = private unnamed_addr constant [28 x i8] c"hello from const_string_ptr\00"
 
 ; function: main
 ; params: none
 ; returns: i32
 define i32 @main() {
 entry:
-  %t1 = getelementptr [28 x i8], ptr @.str1, i64 0, i64 0
+  %t1 = getelementptr [28 x i8], ptr @.str2, i64 0, i64 0
   %t0 = call i32 @puts(ptr %t1)
   ; return
   ret i32 42
