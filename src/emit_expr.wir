@@ -1194,6 +1194,174 @@
           (condition
             (eq_i32
               (param_get op)
+              (call_i32 op_div_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = sdiv i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_mod_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = srem i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_shl_i32)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = shl i32 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_shr_i32)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = lshr i32 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_and_i32)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = and i32 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_or_i32)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = or i32 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_xor_i32)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = xor i32 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_shl_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = shl i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_shr_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = lshr i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_and_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = and i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_or_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = or i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
+              (call_i32 op_xor_i64)))
+          (then
+            (do
+              (return
+                (call_i32
+                  emit_cstr
+                  (param_get ctx)
+                  (const_string_ptr " = xor i64 ")))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (param_get op)
               (call_i32 op_eq_i32)))
           (then
             (do

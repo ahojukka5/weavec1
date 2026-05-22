@@ -718,6 +718,90 @@
       (const_i32 15))))
 
 ; =============================================================================
+; Bitwise operator constants (i32)
+; =============================================================================
+
+;
+; op_shl_i32
+;
+; Returns the WIR operator id for `shl i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_shl_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 110))))
+
+;
+; op_shr_i32
+;
+; Returns the WIR operator id for `shr i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_shr_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 111))))
+
+;
+; op_and_i32
+;
+; Returns the WIR operator id for `and i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_and_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 112))))
+
+;
+; op_or_i32
+;
+; Returns the WIR operator id for `or i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_or_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 113))))
+
+;
+; op_xor_i32
+;
+; Returns the WIR operator id for `xor i32`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_xor_i32
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 114))))
+
+; =============================================================================
 ; Arithmetic operator constants (i64)
 ; =============================================================================
 
@@ -784,6 +868,22 @@
   (do
     (return
       (const_i32 23))))
+
+;
+; op_mod_i64
+;
+; Returns the WIR operator id for `mod i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_mod_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 24))))
 
 ; =============================================================================
 ; Comparison operator constants (i64)
@@ -884,6 +984,90 @@
   (do
     (return
       (const_i32 35))))
+
+; =============================================================================
+; Bitwise operator constants (i64)
+; =============================================================================
+
+;
+; op_shl_i64
+;
+; Returns the WIR operator id for `shl i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_shl_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 120))))
+
+;
+; op_shr_i64
+;
+; Returns the WIR operator id for `shr i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_shr_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 121))))
+
+;
+; op_and_i64
+;
+; Returns the WIR operator id for `and i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_and_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 122))))
+
+;
+; op_or_i64
+;
+; Returns the WIR operator id for `or i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_or_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 123))))
+
+;
+; op_xor_i64
+;
+; Returns the WIR operator id for `xor i64`.
+; Operator ids connect parser lookup with expression emission dispatch.
+;
+; Returns:
+;   WIR operator id.
+;
+(fn op_xor_i64
+  (params)
+  (returns i32)
+  (do
+    (return
+      (const_i32 124))))
 
 ; =============================================================================
 ; Pointer comparison operator constants

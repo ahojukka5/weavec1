@@ -1486,6 +1486,150 @@
           (condition
             (eq_i32
               (local_get op_id)
+              (call_i32 op_div_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_mod_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_shl_i32)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_shr_i32)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_and_i32)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_or_i32)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_xor_i32)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_shl_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_shr_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_and_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_or_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
+              (call_i32 op_xor_i64)))
+          (then
+            (do
+              (set
+                is_binary
+                (const_i32 1))))
+          (else
+            (do)))
+        (if
+          (condition
+            (eq_i32
+              (local_get op_id)
               (call_i32 op_eq_i32)))
           (then
             (do

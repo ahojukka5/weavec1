@@ -125,6 +125,104 @@
               bytes_equal
               (local_get text)
               (local_get length)
+              (const_string_ptr "div_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_div_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "mod_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_mod_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "shl_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_shl_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "shr_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_shr_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "and_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_and_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "or_i64")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_or_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "xor_i64")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_xor_i64))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
               (const_string_ptr "sub_i32")
               (const_i64 7)))
           (then
@@ -173,6 +271,76 @@
             (do
               (return
                 (call_i32 op_mod_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "shl_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_shl_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "shr_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_shr_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "and_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_and_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "or_i32")
+              (const_i64 6)))
+          (then
+            (do
+              (return
+                (call_i32 op_or_i32))))
+          (else
+            (do)))
+        (if
+          (condition
+            (call_bool
+              bytes_equal
+              (local_get text)
+              (local_get length)
+              (const_string_ptr "xor_i32")
+              (const_i64 7)))
+          (then
+            (do
+              (return
+                (call_i32 op_xor_i32))))
           (else
             (do)))
         (if
