@@ -9,9 +9,9 @@ the contract freezes.
 
 ## [Unreleased]
 
-The first public release of `weavec1` is intended to be cut from this
-section. When the `v0.1.0` git tag lands, rename this heading to
-`## [0.1.0] — YYYY-MM-DD`.
+## [0.1.0] — 2026-05-26
+
+The first public release of `weavec1`.
 
 ### Added
 - Apache-2.0 licensing (`LICENSE`, `NOTICE`, SPDX headers on every
