@@ -13,7 +13,7 @@ WEAVEC1_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEAVE_DIR="$(cd "$WEAVEC1_DIR/.." && pwd)"
 BOOTSTRAP_DIR="$WEAVE_DIR/src-bootstrap-llvm"
 SRC_DIR="$WEAVEC1_DIR/src"
-TEST_DIR="$WEAVEC1_DIR/tests"
+TEST_DIR="$WEAVEC1_DIR/test"
 BUILD_DIR="$WEAVEC1_DIR/build"
 SRC_LL_DIR="$BUILD_DIR/src-ll"
 SRC2_LL_DIR="$BUILD_DIR/src2-ll"
@@ -130,6 +130,9 @@ build_compiler() {
 
   local all_decls="$BUILD_DIR/$compiler_name.decls.ll"
   {
+    printf 'declare i32 @puts(ptr)\n'
+    printf 'declare ptr @malloc(i64)\n'
+    printf 'declare void @free(ptr)\n'
     printf 'declare ptr @realloc(ptr, i64)\n'
     printf 'declare ptr @memcpy(ptr, ptr, i64)\n'
     printf 'declare i64 @strlen(ptr)\n'
@@ -218,8 +221,8 @@ run_case() {
   local name="$5"
   local expected_exit="$6"
 
-  local src="tests/${name}.wir"
-  local expected_ll="tests/${name}.expected.ll"
+  local src="test/${name}.wir"
+  local expected_ll="test/${name}.expected.ll"
   local ll="$test_ll_dir/${name}.ll"
   local bc="$test_ll_dir/${name}.bc"
   local exe="$test_exe_dir/${name}.out"
@@ -265,7 +268,7 @@ run_compile_fail_case() {
   local name="$4"
   local expected_message="$5"
 
-  local src="tests/${name}.wir"
+  local src="test/${name}.wir"
   local ll="$test_ll_dir/${name}.ll"
   local output="$test_ll_dir/${name}.compiler-output"
 
