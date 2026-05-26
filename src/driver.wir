@@ -206,6 +206,10 @@
                   parser_error_code
                   (local_get parser)))
               (call_void
+                driver_report_parse_failure
+                (local_get parser)
+                (local_get parse_error_code))
+              (call_void
                 parser_free
                 (local_get parser))
               (call_void
@@ -217,37 +221,6 @@
               (call_void
                 source_free
                 (local_get source))
-              (if
-                (condition
-                  (eq_i32
-                    (local_get parse_error_code)
-                    (const_i32 1)))
-                (then
-                  (do
-                    (call_i32
-                      driver_error
-                      (const_string_ptr "error: unknown operator"))
-                    (return
-                      (const_i32 1))))
-                (else
-                  (do)))
-              (if
-                (condition
-                  (eq_i32
-                    (local_get parse_error_code)
-                    (const_i32 2)))
-                (then
-                  (do
-                    (call_i32
-                      driver_error
-                      (const_string_ptr "error: invalid operator arity"))
-                    (return
-                      (const_i32 1))))
-                (else
-                  (do)))
-              (call_i32
-                driver_error
-                (const_string_ptr "error: parse failed"))
               (return
                 (const_i32 1))))
           (else

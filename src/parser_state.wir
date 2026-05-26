@@ -21,7 +21,7 @@
 ; parser_size
 ;
 ; Returns the size in bytes of the parser state record.
-; The record stores source, tokens, AST, cursor, and error code.
+; The record stores source, tokens, AST, cursor, error code, and error byte offset.
 ;
 ; Returns:
 ;   parser record size in bytes.
@@ -31,7 +31,7 @@
       (returns i64)
       (do
         (return
-          (const_i64 40))))
+          (const_i64 48))))
 
 ; =============================================================================
 ; Parser allocation
@@ -101,6 +101,11 @@
             (local_get parser)
             (const_i64 32))
           (const_i32 0))
+        (store_i64
+          (ptr_add
+            (local_get parser)
+            (const_i64 40))
+          (const_i64 -1))
         (return
           (local_get parser))))
 
@@ -309,5 +314,72 @@
             (param_get parser)
             (const_i64 32))
           (param_get code))
+        (call_void
+          parser_note_error_site
+          (param_get parser))
+        (return_void)))
+
+;
+; parser_error_site
+;
+; Returns the recorded source byte offset for the first parse error, or -1.
+;
+(fn parser_error_site
+      (params
+        (parser ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (ptr_add
+              (param_get parser)
+              (const_i64 40))))))
+
+;
+; parser_set_error_site
+;
+; Records the source byte offset associated with a parse error.
+;
+(fn parser_set_error_site
+      (params
+        (parser ptr)
+        (site i64))
+      (returns void)
+      (do
+        (store_i64
+          (ptr_add
+            (param_get parser)
+            (const_i64 40))
+          (param_get site))
+        (return_void)))
+
+;
+; parser_note_error_site
+;
+; Captures the current token start offset on the first parse failure only.
+;
+(fn parser_note_error_site
+      (params
+        (parser ptr))
+      (returns void)
+      (do
+        (if
+          (condition
+            (ne_i64
+              (call_i64
+                parser_error_site
+                (param_get parser))
+              (const_i64 -1)))
+          (then
+            (do
+              (return_void)))
+          (else
+            (do)))
+        (call_void
+          parser_set_error_site
+          (param_get parser)
+          (call_i64
+            parser_current_start
+            (param_get parser)))
         (return_void)))
 ))

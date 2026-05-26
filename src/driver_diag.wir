@@ -1,0 +1,130 @@
+; driver_diag.wir — parse failure diagnostics for the weavec1 driver
+
+(core-module
+  (core-version 1)
+  (decls
+
+  (fn driver_print_cstr_no_nl
+    (params (text ptr))
+    (returns void)
+    (do
+      (let scan_idx i64 (const_i64 0))
+      (while
+        (condition (ne_i32
+          (load_u8
+            (ptr_add (param_get text) (local_get scan_idx)))
+          (const_i32 0)))
+        (do
+          (call_i32 putchar
+            (load_u8
+              (ptr_add (param_get text) (local_get scan_idx))))
+          (set scan_idx (add_i64 (local_get scan_idx) (const_i64 1)))))
+      (return_void)))
+
+  (fn driver_put_u32
+    (params (value i32))
+    (returns void)
+    (do
+      (if
+        (condition (eq_i32 (param_get value) (const_i32 0)))
+        (then (do
+          (call_i32 putchar (const_i32 48))
+          (return_void)))
+        (else (do)))
+      (let buf ptr (call_ptr malloc (const_i64 32)))
+      (if
+        (condition (eq_ptr (local_get buf) (const_null)))
+        (then (do (return_void)))
+        (else (do)))
+      (let n i32 (param_get value))
+      (let count i32 (const_i32 0))
+      (while
+        (condition (gt_i32 (local_get n) (const_i32 0)))
+        (do
+          (store_i8
+            (ptr_add (local_get buf) (cast_i32_to_i64 (local_get count)))
+            (add_i32 (mod_i32 (local_get n) (const_i32 10)) (const_i32 48)))
+          (set count (add_i32 (local_get count) (const_i32 1)))
+          (set n (div_i32 (local_get n) (const_i32 10)))))
+      (let digit_idx i32 (sub_i32 (local_get count) (const_i32 1)))
+      (while
+        (condition (ge_i32 (local_get digit_idx) (const_i32 0)))
+        (do
+          (call_i32 putchar
+            (load_u8
+              (ptr_add
+                (local_get buf)
+                (cast_i32_to_i64 (local_get digit_idx)))))
+          (set digit_idx (sub_i32 (local_get digit_idx) (const_i32 1)))))
+      (call_void free (local_get buf))
+      (return_void)))
+
+  (fn driver_print_parse_location
+    (params (parser ptr) (site i64))
+    (returns void)
+    (do
+      (let src_ptr ptr (call_ptr parser_source (param_get parser)))
+      (let line i32 (const_i32 1))
+      (let col i32 (const_i32 1))
+      (let byte_idx i64 (const_i64 0))
+      (while
+        (condition (lt_i64 (local_get byte_idx) (param_get site)))
+        (do
+          (let ch i32
+            (call_i32 source_byte_at
+              (local_get src_ptr)
+              (local_get byte_idx)))
+          (if
+            (condition (eq_i32 (local_get ch) (const_i32 10)))
+            (then (do
+              (set line (add_i32 (local_get line) (const_i32 1)))
+              (set col (const_i32 1))))
+            (else (do
+              (set col (add_i32 (local_get col) (const_i32 1))))))
+          (set byte_idx (add_i64 (local_get byte_idx) (const_i64 1)))))
+      (call_void driver_print_cstr_no_nl (const_string_ptr " at line "))
+      (call_void driver_put_u32 (local_get line))
+      (call_void driver_print_cstr_no_nl (const_string_ptr " column "))
+      (call_void driver_put_u32 (local_get col))
+      (call_void driver_print_cstr_no_nl (const_string_ptr " (byte "))
+      (call_void driver_put_u32 (cast_i64_to_i32 (param_get site)))
+      (call_void driver_print_cstr_no_nl (const_string_ptr ")"))
+      (return_void)))
+
+  (fn driver_report_parse_failure
+    (params (parser ptr) (error_code i32))
+    (returns void)
+    (do
+      (let site i64 (call_i64 parser_error_site (param_get parser)))
+      (if
+        (condition (eq_i64 (local_get site) (const_i64 -1)))
+        (then (do
+          (set site (call_i64 parser_current_start (param_get parser)))))
+        (else (do)))
+      (if
+        (condition (eq_i32 (param_get error_code) (const_i32 1)))
+        (then (do
+          (call_void driver_print_cstr_no_nl
+            (const_string_ptr "error: unknown operator"))))
+        (else (do)))
+      (if
+        (condition (eq_i32 (param_get error_code) (const_i32 2)))
+        (then (do
+          (call_void driver_print_cstr_no_nl
+            (const_string_ptr "error: invalid operator arity"))))
+        (else (do)))
+      (if
+        (condition (and_bool
+          (ne_i32 (param_get error_code) (const_i32 1))
+          (ne_i32 (param_get error_code) (const_i32 2))))
+        (then (do
+          (call_void driver_print_cstr_no_nl
+            (const_string_ptr "error: parse failed"))))
+        (else (do)))
+      (call_void driver_print_parse_location
+        (param_get parser)
+        (local_get site))
+      (call_i32 putchar (const_i32 10))
+      (return_void)))
+)
+)

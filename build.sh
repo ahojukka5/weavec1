@@ -62,6 +62,7 @@ MODULES=(
   emit_declarations
   emit_module
 
+  driver_diag
   driver
   main
 )
@@ -387,6 +388,7 @@ run_tests() {
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "51_unknown_operator" "unknown operator"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "52_wrong_arity_add_i32_too_few" "arity"
   run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "53_wrong_arity_add_i32_too_many" "arity"
+  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "61_parse_error_location" "at line"
 
   # ===== Debug Features (54) =====
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "54_debug_marker" 42
@@ -399,6 +401,10 @@ run_tests() {
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "55_integration_nested_control_flow" 75
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "56_integration_multi_function_chain" 35
   run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "57_integration_memory_flow" 100
+
+  # ===== Surface-style empty parameter list (60) =====
+  # (params ()) is equivalent to (params) for zero-argument functions.
+  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "60_empty_params_paren_list" 42
 
   log "all $compiler_name tests passed"
 }
@@ -421,7 +427,7 @@ compare_bootstrap_outputs() {
     46_forward_function_call 47_multiple_externs_used_subset 48_string_escape
     49_negative_i32_literal 54_debug_marker
     55_integration_nested_control_flow 56_integration_multi_function_chain
-    57_integration_memory_flow
+    57_integration_memory_flow 60_empty_params_paren_list
   )
 
   local diverged=0

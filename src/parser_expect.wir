@@ -98,6 +98,29 @@
               parser_index
               (param_get parser))))))
 
+;
+; parser_peek_kind
+;
+; Reads the token kind one position ahead without advancing the cursor.
+; Used to recognize optional empty lists such as (params ()).
+;
+(fn parser_peek_kind
+      (params
+        (parser ptr))
+      (returns i32)
+      (do
+        (return
+          (call_i32
+            token_kind_at
+            (call_ptr
+              parser_tokens
+              (param_get parser))
+            (add_i64
+              (call_i64
+                parser_index
+                (param_get parser))
+              (const_i64 1))))))
+
 ; =============================================================================
 ; Token cursor movement
 ; =============================================================================
@@ -194,6 +217,54 @@
                 (const_i32 0))))
           (else
             (do
+              (call_void
+                parser_note_error_site
+                (param_get parser))
               (return
                 (const_i32 1)))))))
+
+;
+; parser_consume_optional_empty_paren_list
+;
+; After (params, consumes an optional empty child list written as ().
+; Both (params) and (params ()) denote zero parameters.
+;
+(fn parser_consume_optional_empty_paren_list
+      (params
+        (parser ptr))
+      (returns void)
+      (do
+        (if
+          (condition
+            (and_bool
+              (call_bool
+                parser_match
+                (param_get parser)
+                (call_i32 token_lparen))
+              (eq_i32
+                (call_i32
+                  parser_peek_kind
+                  (param_get parser))
+                (call_i32 token_rparen))))
+          (then
+            (do
+              (call_void
+                parser_advance
+                (param_get parser))
+              (if
+                (condition
+                  (ne_i32
+                    (call_i32
+                      parser_expect
+                      (param_get parser)
+                      (call_i32 token_rparen))
+                    (const_i32 0)))
+                (then
+                  (do
+                    (return_void)))
+                (else
+                  (do)))))
+          (else
+            (do)))
+        (return_void)))
 ))

@@ -132,6 +132,9 @@
                       (const_i64 -1))))
                 (else
                   (do)))
+              (call_void
+                parser_consume_optional_empty_paren_list
+                (param_get parser))
               (let
                 extern_param_first
                 i64
@@ -412,6 +415,9 @@
                 (const_i64 -1))))
           (else
             (do)))
+        (call_void
+          parser_consume_optional_empty_paren_list
+          (param_get parser))
         (let
           param_first
           i64

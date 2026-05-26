@@ -1,0 +1,11 @@
+(core-module
+  (core-version 1)
+  (decls
+    (fn main
+      (params ())
+      (returns i32)
+      (do
+        (return
+          (bogus_op_i32
+            (const_i32 1)
+            (const_i32 2))))))
