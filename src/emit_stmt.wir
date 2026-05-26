@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; emit_stmt.wir
 ;
 ; LLVM emission for statement AST nodes.

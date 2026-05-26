@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; runtime_bindings.wir
 ;
 ; Runtime function declarations used by generated LLVM.

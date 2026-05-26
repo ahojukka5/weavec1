@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Heuristic WIR source documentation/style checker."""
 
 from __future__ import annotations
@@ -137,15 +138,16 @@ def check_file(path: Path) -> list[str]:
         if params:
             if "; Parameters:" not in block:
                 errors.append(f"{rel}:{fn_line}: {name} must document Parameters")
-            for param in params:
-                if not re.search(rf"^;\s+{re.escape(param)}\s+-", block_text, re.M):
-                    errors.append(
-                        f"{rel}:{fn_line}: {name} must document parameter {param}"
-                    )
+            else:
+                for param in params:
+                    if not re.search(rf"^;\s+{re.escape(param)}\s+-", block_text, re.M):
+                        errors.append(
+                            f"{rel}:{fn_line}: {name} must document parameter {param}"
+                        )
 
-            param_index = block.index("; Parameters:")
-            if param_index + 1 >= len(block) or block[param_index + 1].strip() == ";":
-                errors.append(f"{rel}:{fn_line}: Parameters must list entries immediately")
+                param_index = block.index("; Parameters:")
+                if param_index + 1 >= len(block) or block[param_index + 1].strip() == ";":
+                    errors.append(f"{rel}:{fn_line}: Parameters must list entries immediately")
 
         if block_start > 0 and lines[block_start - 1].strip() != "":
             errors.append(

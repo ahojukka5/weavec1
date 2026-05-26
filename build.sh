@@ -1,17 +1,57 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 set -euo pipefail
 
 # =============================================================================
-# Weave Stage 1 Bootstrap Build
-# weave/weavec1/build.sh
+# weavec1 — Stage 1 Weave compiler (WIR-written), build & test ladder
+# =============================================================================
 #
-# Build the WIR-written compiler with the hand-written LLVM Stage 0 compiler,
-# then run the same curated WIR test ladder through the produced weavec1 binary.
+# Pipeline:
+#
+#   1. Acquire weavec0 (Stage 0 seed compiler). Either honour the WEAVEC0
+#      environment variable (path to a pre-built weavec0 source tree), or
+#      git-clone the pinned $WEAVEC0_TAG from upstream into build/vendor/
+#      and build it there.
+#   2. Compile every weavec1 WIR module under src/ with weavec0 → LLVM IR.
+#   3. Link the modules with weavec0's compiler bitcode + runtime.c to
+#      produce the weavec1 binary.
+#   4. Run the test ladder (test/manifest.txt) through weavec1.
+#   5. Repeat steps 2–4 with weavec1-compiled-by-weavec0 producing weavec2,
+#      to confirm bootstrap determinism (weavec2 must emit byte-identical
+#      LLVM IR to weavec1 on the shared test surface).
+#
+# Flags:
+#
+#   --regen-goldens
+#       On any golden mismatch, overwrite the expected .ll with the just-
+#       generated output instead of erroring. Review the resulting git
+#       diff before committing.
+#
+# Environment:
+#
+#   WEAVEC0
+#       Absolute path to an existing weavec0 source tree where ./build.sh
+#       has already produced the bitcode artefacts under build/bootstrap-
+#       tests/bc/. Skips the vendor-fetch entirely.
+#
+#   WEAVEC0_TAG  (default: v0.2.0)
+#       Git tag/ref pulled from github.com/ahojukka5/weavec0 when no
+#       WEAVEC0 is provided.
 # =============================================================================
 
+REGEN_GOLDENS=0
+for arg in "$@"; do
+  case "$arg" in
+    --regen-goldens) REGEN_GOLDENS=1 ;;
+    -h|--help)
+      sed -n '4,40p' "$0"
+      exit 0
+      ;;
+    *) printf 'unknown flag: %s\n' "$arg" >&2; exit 2 ;;
+  esac
+done
+
 WEAVEC1_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WEAVE_DIR="$(cd "$WEAVEC1_DIR/.." && pwd)"
-BOOTSTRAP_DIR="$WEAVE_DIR/src-bootstrap-llvm"
 SRC_DIR="$WEAVEC1_DIR/src"
 TEST_DIR="$WEAVEC1_DIR/test"
 BUILD_DIR="$WEAVEC1_DIR/build"
@@ -23,9 +63,15 @@ TEST_LL_DIR="$BUILD_DIR/test-ll"
 TEST2_LL_DIR="$BUILD_DIR/test2-ll"
 TEST_EXE_DIR="$BUILD_DIR/test-bin"
 TEST2_EXE_DIR="$BUILD_DIR/test2-bin"
-BOOTSTRAP_BC_DIR="$BOOTSTRAP_DIR/build/bootstrap-tests/bc"
+MANIFEST="$TEST_DIR/manifest.txt"
 
-WEAVEC0="$BOOTSTRAP_DIR/weavec0"
+# weavec0 dependency. BOOTSTRAP_DIR is set by ensure_weavec0() below — either
+# from the WEAVEC0 env var or from the auto-fetched vendor copy.
+WEAVEC0_TAG="${WEAVEC0_TAG:-v0.2.0}"
+WEAVEC0_REPO="https://github.com/ahojukka5/weavec0.git"
+BOOTSTRAP_DIR=""
+BOOTSTRAP_BC_DIR=""
+
 WEAVEC1="$BUILD_DIR/weavec1"
 WEAVEC2="$BUILD_DIR/weavec2"
 
@@ -78,22 +124,38 @@ BOOTSTRAP_MODULES=(
   08_driver
 )
 
-log() {
-  printf '[weavec1] %s\n' "$*"
-}
+log()  { printf '[weavec1] %s\n' "$*" >&2; }
+fail() { printf '[weavec1] error: %s\n' "$*" >&2; exit 1; }
+require_tool() { command -v "$1" >/dev/null 2>&1 || fail "required tool not found: $1"; }
 
-fail() {
-  printf '[weavec1] error: %s\n' "$*" >&2
-  exit 1
-}
+# Locate (or fetch + build) the weavec0 dependency. After this returns,
+# $BOOTSTRAP_DIR points at a weavec0 source tree where ./build.sh has been
+# run, and $BOOTSTRAP_BC_DIR points at its bitcode output directory.
+ensure_weavec0() {
+  if [[ -n "${WEAVEC0:-}" ]]; then
+    BOOTSTRAP_DIR="$WEAVEC0"
+    log "using WEAVEC0 from env: $BOOTSTRAP_DIR"
+  else
+    BOOTSTRAP_DIR="$BUILD_DIR/vendor/weavec0"
+    if [[ ! -d "$BOOTSTRAP_DIR/.git" ]]; then
+      log "fetching weavec0 $WEAVEC0_TAG from $WEAVEC0_REPO"
+      mkdir -p "$(dirname "$BOOTSTRAP_DIR")"
+      git clone --depth 1 --branch "$WEAVEC0_TAG" "$WEAVEC0_REPO" "$BOOTSTRAP_DIR"
+    fi
+  fi
 
-require_tool() {
-  command -v "$1" >/dev/null 2>&1 || fail "required tool not found: $1"
-}
+  [[ -d "$BOOTSTRAP_DIR" ]] || fail "weavec0 source dir not found: $BOOTSTRAP_DIR"
+  [[ -x "$BOOTSTRAP_DIR/build.sh" ]] || fail "weavec0 build.sh not found at $BOOTSTRAP_DIR/build.sh"
 
-build_weavec0() {
-  log "building weavec0"
-  "$BOOTSTRAP_DIR/build.sh"
+  if [[ ! -x "$BOOTSTRAP_DIR/weavec0" ]] || [[ ! -d "$BOOTSTRAP_DIR/build/bootstrap-tests/bc" ]]; then
+    log "building weavec0 ($BOOTSTRAP_DIR)"
+    ( cd "$BOOTSTRAP_DIR" && ./build.sh ) || fail "weavec0 build failed"
+  fi
+
+  BOOTSTRAP_BC_DIR="$BOOTSTRAP_DIR/build/bootstrap-tests/bc"
+  WEAVEC0="$BOOTSTRAP_DIR/weavec0"
+  [[ -x "$WEAVEC0" ]] || fail "weavec0 binary not built at $WEAVEC0"
+  [[ -d "$BOOTSTRAP_BC_DIR" ]] || fail "weavec0 bitcode dir missing: $BOOTSTRAP_BC_DIR"
 }
 
 compile_module() {
@@ -130,6 +192,10 @@ build_compiler() {
 
   local all_decls="$BUILD_DIR/$compiler_name.decls.ll"
   {
+    # Cross-module declarations for the C-runtime externs every module may
+    # call. weavec0's per-module emission only places a `declare` line for
+    # externs declared in that specific .wir module, so here we seed the
+    # full set for the link step (matches weavec0's admitted extern subset).
     printf 'declare i32 @puts(ptr)\n'
     printf 'declare ptr @malloc(i64)\n'
     printf 'declare void @free(ptr)\n'
@@ -228,7 +294,6 @@ run_case() {
   local exe="$test_exe_dir/${name}.out"
 
   [[ -f "$src" ]] || fail "missing test source: $src"
-  [[ -f "$expected_ll" ]] || fail "missing expected LLVM IR: $expected_ll"
 
   log "compile test $name"
   "$compiler" "$src" "$ll"
@@ -254,8 +319,21 @@ run_case() {
   fi
 
   log "compare test $name"
-  if ! diff -u "$expected_ll" "$ll"; then
-    fail "$name: generated LLVM IR differs from expected fixture"
+  if [[ ! -f "$expected_ll" ]]; then
+    if (( REGEN_GOLDENS )); then
+      cp "$ll" "$expected_ll"
+      log "regen $name (new golden)"
+    else
+      fail "missing expected LLVM IR: $expected_ll (rerun with --regen-goldens to create)"
+    fi
+  elif ! diff -u "$expected_ll" "$ll" >/dev/null; then
+    if (( REGEN_GOLDENS )); then
+      cp "$ll" "$expected_ll"
+      log "regen $name (updated golden)"
+    else
+      diff -u "$expected_ll" "$ll" || true
+      fail "$name: generated LLVM IR differs from expected fixture (rerun with --regen-goldens to accept)"
+    fi
   fi
 
   log "ok $name"
@@ -313,101 +391,21 @@ run_tests() {
 
   mkdir -p "$test_ll_dir" "$test_exe_dir"
 
-  # ===== Unit Tests: Basic Features (01-10) =====
-  # Core primitives: return, arithmetic, functions, control flow, strings
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "01_return_constant" 0
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "02_return_42" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "03_add" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "04_one_arg_function" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "05_let_local" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "06_set_local" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "07_if" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "08_while" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "09_two_arg_function" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "10_string_literal" 42
+  [[ -f "$MANIFEST" ]] || fail "missing test manifest: $MANIFEST"
 
-  # ===== Unit Tests: i64 Operations (11-13) =====
-  # 64-bit integer support: constants, arithmetic, comparisons
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "11_const_i64" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "12_i64_arithmetic" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "13_i64_comparisons" 42
+  local kind name rest
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%#*}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    [[ -z "$line" ]] && continue
 
-  # ===== Unit Tests: Boolean and Pointer Basics (14-15) =====
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "14_bool_ops" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "15_ptr_null" 42
-
-  # ===== Unit Tests: Memory Operations (16-18) =====
-  # Pointers, memory allocation, load/store operations
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "16_extern_malloc_free" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "17_ptr_add_store_load_i64" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "18_store_load_i8" 42
-
-  # ===== Unit Tests: Function Calls (19-22) =====
-  # Different return types: void, i64, ptr
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "19_call_void" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "20_call_i64" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "21_call_ptr" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "22_return_void" 42
-
-  # ===== Unit Tests: i32 Arithmetic and Extended Features (23-33) =====
-  # Modulo, buffers, parameter passing, type casting
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "23_mod_i32" 2
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "24_buffer_like_smoke" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "25_ptr_params_call_i32" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "26_bool_return" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "27_three_arg_function" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "28_i32_memory_and_cast" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "29_const_string_ptr" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "30_i64_sub_eq" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "31_not_bool" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "32_codegen_join_and_i64_arg" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "33_store_i8_temp" 42
-
-  # ===== Unit Tests: Complete i32 Operator Coverage (34-40) =====
-  # All i32 comparisons and arithmetic operations
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "34_ge_i32" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "35_sub_i32" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "36_mul_i32" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "37_div_i32" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "38_i32_comparisons_full" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "39_i64_ge_gt" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "40_call_bool_direct" 42
-
-  # ===== Unit Tests: Edge Cases and Control Flow (41-49) =====
-  # Pointer loads/stores, empty blocks, fallthrough, nested loops, forward refs, escapes
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "41_load_store_ptr" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "42_empty_do" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "43_if_fallthrough_join" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "44_while_zero_iterations" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "45_nested_while" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "46_forward_function_call" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "47_multiple_externs_used_subset" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "48_string_escape" 42
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "49_negative_i32_literal" 42
-
-  # ===== Negative Tests: Error Handling (50-53) =====
-  # Tests that should fail to compile with specific error messages
-  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "50_parse_error_smoke" "parse failed"
-  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "51_unknown_operator" "unknown operator"
-  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "52_wrong_arity_add_i32_too_few" "arity"
-  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "53_wrong_arity_add_i32_too_many" "arity"
-  run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "61_parse_error_location" "at line"
-
-  # ===== Debug Features (54) =====
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "54_debug_marker" 42
-
-  # ===== Integration Tests: Multi-Feature Combinations (55-57) =====
-  # Tests combining multiple features to validate interactions
-  # 55: nested if + while + i64 arithmetic + mutable locals in loops
-  # 56: multi-function chains with forward declarations
-  # 57: memory flow (malloc → write → read → free)
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "55_integration_nested_control_flow" 75
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "56_integration_multi_function_chain" 35
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "57_integration_memory_flow" 100
-
-  # ===== Surface-style empty parameter list (60) =====
-  # (params ()) is equivalent to (params) for zero-argument functions.
-  run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "60_empty_params_paren_list" 42
+    read -r kind name rest <<<"$line"
+    case "$kind" in
+      pass) run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "$name" "$rest" ;;
+      fail) run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "$name" "$rest" ;;
+      *)    fail "unknown manifest entry kind: $kind (line: $line)" ;;
+    esac
+  done < "$MANIFEST"
 
   log "all $compiler_name tests passed"
 }
@@ -464,7 +462,8 @@ compare_bootstrap_outputs() {
 main() {
   require_tool clang
   require_tool llvm-as
-  build_weavec0
+  require_tool git
+  ensure_weavec0
   build_weavec1
   run_tests "$WEAVEC1" "weavec1" "$TEST_LL_DIR" "$TEST_EXE_DIR"
   build_weavec2

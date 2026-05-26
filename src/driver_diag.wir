@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; driver_diag.wir — parse failure diagnostics for the weavec1 driver
 
 (core-module

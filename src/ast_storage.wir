@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; ast_storage.wir
 ;
 ; AST node storage: allocation, growth, field layout, and node insertion.

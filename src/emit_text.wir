@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; emit_text.wir
 ;
 ; Low-level text emission helpers.

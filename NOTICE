@@ -1,0 +1,9 @@
+weavec1 — Weave Stage 1 (WIR-written) Compiler
+Copyright 2026 Jukka Aho
+
+This product includes software developed as the WIR-written Stage 1
+compiler for the Weave programming language. It is built by weavec0
+(the Stage 0 hand-written LLVM-IR seed compiler) and emits LLVM IR.
+
+Upstream:  https://github.com/ahojukka5/weavec1
+Dependency: https://github.com/ahojukka5/weavec0 (pinned via WEAVEC0_TAG)

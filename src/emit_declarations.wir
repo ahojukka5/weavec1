@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; emit_declarations.wir
 ;
 ; LLVM emission for declarations and local state changes.

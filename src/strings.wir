@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; strings.wir
 ;
 ; Growable byte buffer and byte-string helpers.

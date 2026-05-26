@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; parser_decl.wir
 ;
 ; Parsing for top-level declarations.
