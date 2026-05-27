@@ -175,17 +175,20 @@ time:
 
 ## Where weavec1 fits in the chain
 
-`weavec1` is the **middle stage** of a planned three-stage Weave
-compiler chain. Each stage lives in its own repository.
+`weavec1` is the **middle stage** of a four-repository Weave compiler
+chain. Each stage lives in its own repository and is independently
+buildable.
 
 | Stage | Repo | Role |
 |-------|------|------|
-| `weavec0` | [`ahojukka5/weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written LLVM-IR seed compiler. Compiles WIR → LLVM. Tiny, frozen. |
-| `weavec1` | **this repo** | WIR-written compiler. Compiled by `weavec0`. Same WIR → LLVM contract, self-hosted implementation. |
-| `weavec2` | TBD | Surface-Weave compiler. Compiled by `weavec1`. Produces WIR or LLVM directly. |
+| `weavec0` | [`ahojukka5/weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written LLVM-IR seed compiler. Compiles WIR → LLVM IR. Tiny, frozen. |
+| `weavec1` | **this repo** | WIR-written compiler. Compiled by `weavec0`. Same WIR → LLVM IR contract, self-hosted implementation. |
+| `weavefront` | [`ahojukka5/weavefront`](https://github.com/ahojukka5/weavefront) | Surface (`.weave`) → WIR (`.wir`) frontend. Written in WIR, compiled by `weavec1`. |
+| `weavec2` | [`ahojukka5/weavec2`](https://github.com/ahojukka5/weavec2) | Self-hosted Weave compiler. Written in surface Weave; bootstrapped via `weavefront + weavec1`. |
 
-When `weavec2` is stable, `weavec1` should mostly freeze. Future
-compiler development moves to the surface-Weave compiler.
+When `weavec2` is fully self-sustaining for surface inputs, both
+`weavec1` and `weavefront` should mostly freeze. Future surface-level
+compiler development moves to `weavec2`.
 
 ---
 
