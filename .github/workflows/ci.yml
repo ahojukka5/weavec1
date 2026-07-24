@@ -2,11 +2,8 @@
 #
 # Continuous integration for weavec1.
 #
-# Builds weavec1 from source and runs the full test ladder on Linux and
-# macOS using the platform's stable LLVM toolchain. The build.sh script
-# auto-fetches the pinned weavec0 tag (default v0.2.0) from
-# github.com/ahojukka5/weavec0 into build/vendor/weavec0; CI uses that
-# default unless WEAVEC0_TAG is explicitly overridden below.
+# Linux consumes the published weavec0 bootstrap SDK. macOS retains the source
+# fallback until a native SDK is published for that platform.
 
 name: ci
 
@@ -18,36 +15,49 @@ on:
 
 jobs:
   test:
-    name: build & test (${{ matrix.os }})
+    name: build & test (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+          - name: linux-glibc-sdk
+            os: ubuntu-latest
+            libc: glibc
+          - name: linux-musl-sdk
+            os: ubuntu-latest
+            libc: musl
+          - name: macos-source-fallback
+            os: macos-latest
+            libc: glibc
 
     env:
-      # Pin the weavec0 tag CI builds against. Bump this when weavec0
-      # cuts a new release that weavec1 has actually been validated against.
-      WEAVEC0_TAG: v0.2.0
+      WEAVEC0_VERSION: v0.2.1
+      WEAVEC0_TAG: v0.2.1
+      WEAVEC0_LIBC: ${{ matrix.libc }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install LLVM toolchain (Linux)
+      - name: Install LLVM and SDK tools (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y llvm clang
-          echo "Tool versions:"
+          sudo apt-get install -y \
+            clang \
+            curl \
+            llvm \
+            musl-tools
           clang --version
           llvm-as --version
-          llvm-link --version
+          musl-gcc --version
 
       - name: Install LLVM toolchain (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install llvm
+          brew install llvm git
           echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
 
       - name: Verify toolchain (macOS)
@@ -55,7 +65,7 @@ jobs:
         run: |
           clang --version
           llvm-as --version
-          llvm-link --version
+          git --version
 
-      - name: Build weavec0 dependency, build weavec1, run ladder
+      - name: Build compiler chain and run full ladder
         run: ./build.sh
