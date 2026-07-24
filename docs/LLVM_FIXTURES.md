@@ -1,310 +1,173 @@
 # LLVM IR Fixture Testing
 
-This document explains the LLVM IR fixture testing system used to ensure stable, deterministic code generation.
+This document describes the deterministic LLVM fixture system used by
+`weavec1`.
 
-## Overview
+## Fixture layout
 
-Every positive test case has two files:
-- `tests/NN_test_name.wir` - WIR source input
-- `tests/NN_test_name.expected.ll` - Expected LLVM IR output
+Every positive case has:
 
-During the build, weavec1 compiles each `.wir` file and compares the output against the corresponding `.expected.ll` fixture. If they differ, the build fails.
+```text
+test/<name>.wir
+test/<name>.expected.ll
+```
 
-## Purpose
+Negative cases have only WIR input and an expected diagnostic recorded in
+`test/manifest.txt`.
 
-Fixture testing provides several guarantees:
+`build.sh` compiles each positive WIR file, compares the output with its LLVM
+golden, assembles it with `llvm-as`, links it with `clang`, and checks the
+program's declared exit code.
 
-### 1. Deterministic Code Generation
-The compiler must produce identical output every time for the same input. No randomness, no timestamp-based differences, no hash-table iteration order issues.
+## Why fixtures are checked in
 
-### 2. Regression Detection
-Any change to code generation is immediately visible. You can't accidentally:
-- Change LLVM IR format
-- Break label naming conventions
-- Alter instruction ordering
-- Introduce codegen bugs
+Fixtures provide:
 
-### 3. Auditable Output
-Fixtures are checked into git, making them reviewable. Code generation changes require:
-- Justification in commit message
-- Reviewer approval
-- Diff visibility in pull requests
+- deterministic code-generation checks;
+- immediate visibility into instruction, label, and ordering changes;
+- reviewable regression evidence;
+- executable documentation for WIR operators and interactions;
+- a stable comparison surface between bootstrap generations.
 
-### 4. Documentation
-Fixtures serve as executable documentation showing exactly what LLVM IR the compiler generates for each language feature.
+A fixture mismatch is not fixed by blindly accepting new output. First identify
+whether the change is a bug, an intentional semantic correction, or a justified
+format change.
 
-## Fixture Generation Workflow
+## Authoritative compiler generations
 
-### Initial Creation
+The first Stage 1 compiler is:
 
-When adding a new test:
+```text
+build/weavec1
+```
 
-1. Write the WIR test file: `tests/NN_new_feature.wir`
-2. Add test to `build.sh` in the `run_tests()` function
-3. Generate the initial fixture using weavec1:
+The build then constructs a second Stage 1 generation and compares its output
+with the first. The current compatibility path for that compiler is:
+
+```text
+build/weavec2
+```
+
+Conceptually this artifact is `weavec1-selfhost`. It is unrelated to the final
+[`weavec`](https://github.com/ahojukka5/weavec) compiler repository, which was
+formerly named `weavec2`.
+
+## Normal workflow
+
+Build and verify all fixtures:
+
+```bash
+./build.sh
+```
+
+Regenerate goldens after an intentional emitter change:
+
+```bash
+./build.sh --regen-goldens
+git diff -- test/
+```
+
+The regeneration mode updates missing or changed positive fixtures. Review the
+entire diff before committing.
+
+## Adding a test
+
+1. Add `test/NN_name.wir`.
+2. Add a `pass` or `fail` row to `test/manifest.txt`.
+3. For a positive case, run:
+
    ```bash
-   ./build.sh  # Build weavec1 first
-   build/weavec1 tests/NN_new_feature.wir tests/NN_new_feature.expected.ll
+   ./build.sh --regen-goldens
    ```
-4. Verify the generated LLVM IR is correct
-5. Commit both files together
 
-### Updating Existing Fixtures
+4. Inspect `test/NN_name.expected.ll`.
+5. Run the normal build again without regeneration.
+6. Commit the source, manifest entry, and golden together.
 
-When making intentional codegen changes:
+Do not add test enumeration directly to `build.sh`; the manifest is the
+authoritative list.
 
-1. Understand why the output changed
-2. Verify the new output is correct
-3. Regenerate affected fixtures:
-   ```bash
-   build/weavec1 tests/NN_test.wir tests/NN_test.expected.ll
-   ```
-4. Review the diff carefully
-5. Commit with clear explanation of why fixtures changed
+## Reviewing an intentional fixture change
 
-### When NOT to Update Fixtures
+Check:
 
-Never update fixtures just to make tests pass. If a fixture comparison fails:
+- function and extern signatures;
+- LLVM types on every operand;
+- block structure and terminators;
+- label and temporary ordering;
+- string lengths and escaping;
+- declarations emitted only when required;
+- runtime exit behavior;
+- output identity between both Stage 1 generations.
 
-1. **First**: Understand what broke
-2. **Second**: Determine if it's a bug or intentional change
-3. **Third**: Fix the bug OR update fixtures with justification
+A clear commit or PR description should explain why the LLVM output changed.
 
-Common mistakes:
-- "Tests failed, I'll just regenerate fixtures" ❌
-- "I don't know why output changed, updating fixtures anyway" ❌
-- "The diff looks fine, good enough" ❌
+## Debugging a mismatch
 
-Correct approach:
-- "I changed label naming to be more readable, fixtures need updating" ✅
-- "Fixed off-by-one bug in temp counter, output correctly changed" ✅
-- "Added function comments to LLVM IR, fixtures show the improvement" ✅
-
-## Fixture File Format
-
-Expected LLVM IR fixtures should:
-
-### Use weavec1 Output Format
-
-```llvm
-; generated by weavec1
-; source: tests/NN_test_name.wir
-; core-version: 1
-
-; function: function_name
-; params: ...
-; returns: ...
-define i32 @function_name(...) {
-entry:
-  ; clear comments
-  ; meaningful labels
-  ...
-}
-```
-
-NOT weavec0 format (which lacks comments and uses generic labels).
-
-### Be Self-Contained
-
-Each fixture is a complete LLVM IR module that:
-- Defines all functions tested
-- Declares external functions used
-- Can be assembled with `llvm-as`
-- Can be linked and executed with `clang`
-
-### Use Consistent Naming
-
-- Labels: `while.cond0`, `while.body0`, `while.end0`
-- Temporaries: `%t0`, `%t1`, `%t2`, ...
-- Variables: `%varname.addr` (for address), `%varname` (for value)
-
-## Test Categories
-
-Fixtures exist for several test categories:
-
-### Unit Tests (01-49)
-Single-feature tests covering individual WIR primitives:
-- `01_return_constant.wir` → `01_return_constant.expected.ll`
-- `03_add.wir` → `03_add.expected.ll`
-- `08_while.wir` → `08_while.expected.ll`
-
-### Integration Tests (55-57)
-Multi-feature tests validating feature interactions:
-- `55_integration_nested_control_flow.wir`
-- `56_integration_multi_function_chain.wir`
-- `57_integration_memory_flow.wir`
-
-### Negative Tests (50-53)
-Compile-fail tests that have no `.expected.ll` (they should fail to compile):
-- `50_parse_error_smoke.wir` - should fail
-- `51_unknown_operator.wir` - should fail
-
-## Fixture Validation in Build
-
-The `build.sh` script validates fixtures in several stages:
-
-### Stage 1: Bootstrap Tests (weavec0)
+Generate one actual output:
 
 ```bash
-run_case "$WEAVEC0" "bootstrap" "$BOOTSTRAP_LL_DIR" "$BOOTSTRAP_EXE_DIR" "01_return_constant" 7
+build/weavec1 test/NN_name.wir /tmp/actual.ll
+diff -u test/NN_name.expected.ll /tmp/actual.ll
 ```
 
-- Compiles with weavec0
-- Compares LLVM IR against fixture
-- Ensures weavec0 produces expected output
-
-### Stage 2: weavec1 Tests
+Compare the two Stage 1 generations directly:
 
 ```bash
-run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "01_return_constant" 7
+build/weavec1 test/NN_name.wir /tmp/stage1.ll
+build/weavec2 test/NN_name.wir /tmp/selfhost.ll
+diff -u /tmp/stage1.ll /tmp/selfhost.ll
 ```
 
-- Compiles with weavec1
-- Compares LLVM IR against fixture
-- Ensures weavec1 produces expected output
-- Most important validation - this is the primary compiler
+The second command uses the current historical binary path. A divergence
+between these files is always a compiler or nondeterminism bug, not a fixture
+update request.
 
-### Stage 3: Bootstrap Determinism Check
+Common causes include:
 
-```bash
-compare_bootstrap_outputs()
+- uninitialised state;
+- host-dependent behavior;
+- unstable iteration order;
+- inconsistent source paths;
+- changes to label or temporary counters;
+- incorrect cross-module declarations;
+- accidental runtime ABI differences.
+
+## Negative fixtures
+
+A `fail` manifest row specifies the diagnostic substring expected from the
+compiler. The test verifies that:
+
+- the compiler exits non-zero;
+- no non-empty LLVM output is produced;
+- the diagnostic contains the expected text.
+
+Negative cases do not have `.expected.ll` files.
+
+## Fixture policy
+
+Do:
+
+- review fixture diffs carefully;
+- keep each golden paired with its WIR source;
+- regenerate rather than hand-edit generated LLVM;
+- isolate code-generation changes from unrelated work;
+- preserve deterministic output.
+
+Do not:
+
+- regenerate output without understanding the difference;
+- accept bootstrap divergence;
+- mix stale fixtures from different compiler versions;
+- treat formatting drift as harmless without review;
+- bypass `test/manifest.txt`.
+
+## Relationship to the full compiler chain
+
+```text
+weavec0 → weavec1 → weavec-bootstrap → weavec
 ```
 
-- Compares weavec1 output vs weavec2 output
-- Ensures they produce identical LLVM IR
-- Validates bootstrap correctness
-- Catches non-deterministic codegen
-
-## Common Fixture Issues
-
-### Issue: Fixture Comparison Fails
-
-**Symptom**: Build fails with diff output showing LLVM IR differences.
-
-**Debug steps**:
-1. Check if the change was intentional
-2. Look at the actual diff - what specifically changed?
-3. Determine root cause:
-   - Codegen bug?
-   - Label numbering changed?
-   - Comment format changed?
-   - Instruction ordering changed?
-
-**Resolution**:
-- If bug: fix the code, don't update fixture
-- If intentional improvement: update fixture with clear commit message
-- If non-determinism: fix the compiler to be deterministic
-
-### Issue: Bootstrap Determinism Failure
-
-**Symptom**: `compare_bootstrap_outputs()` reports divergence between weavec1 and weavec2.
-
-**Meaning**: The compiler produces different output when compiling itself. This is always a bug.
-
-**Common causes**:
-- Hash table iteration order
-- Uninitialized memory
-- System-dependent behavior
-- Timestamp or random number use
-
-**Resolution**: Fix the non-determinism. Never accept divergent bootstrap.
-
-### Issue: Exit Code Mismatch
-
-**Symptom**: Test passes LLVM IR comparison but fails on exit code.
-
-**Cause**: Expected exit code in `build.sh` doesn't match program's return value.
-
-**Resolution**:
-1. Run the test binary manually: `./build/test-bin/NN_test_name`
-2. Check exit code: `echo $?`
-3. Update expected exit code in `build.sh` `run_case` call
-4. Verify the return value makes sense for the test
-
-## Best Practices
-
-### DO:
-- ✅ Review fixture diffs carefully before committing
-- ✅ Regenerate fixtures when making intentional codegen changes
-- ✅ Keep fixtures in sync with corresponding .wir files
-- ✅ Document why fixtures changed in commit messages
-- ✅ Use weavec1 to generate fixtures (not weavec0)
-
-### DON'T:
-- ❌ Update fixtures without understanding why output changed
-- ❌ Accept non-deterministic codegen
-- ❌ Manually edit .expected.ll files (regenerate instead)
-- ❌ Mix fixture updates with unrelated changes
-- ❌ Skip fixture validation during development
-
-## Helper Commands
-
-### Regenerate a Single Fixture
-```bash
-build/weavec1 tests/NN_test.wir tests/NN_test.expected.ll
-```
-
-### Regenerate All Fixtures
-```bash
-for test in tests/*.wir; do
-  base=$(basename "$test" .wir)
-  if [[ ! "$base" =~ ^(50|51|52|53)_ ]]; then  # Skip compile-fail tests
-    build/weavec1 "tests/${base}.wir" "tests/${base}.expected.ll"
-  fi
-done
-```
-
-### Compare Specific Test
-```bash
-build/weavec1 tests/NN_test.wir /tmp/actual.ll
-diff -u tests/NN_test.expected.ll /tmp/actual.ll
-```
-
-### Check Bootstrap Determinism for One Test
-```bash
-build/weavec1 tests/NN_test.wir /tmp/weavec1.ll
-build/weavec2 tests/NN_test.wir /tmp/weavec2.ll
-diff -u /tmp/weavec1.ll /tmp/weavec2.ll
-```
-
-## Fixture Evolution
-
-As the compiler evolves, fixtures may need updates for:
-
-### Readability Improvements
-Adding or improving comments in generated LLVM IR:
-- Function headers
-- Section markers
-- Instruction explanations
-
-Example: Adding `; while body` comments to loops.
-
-### Label Naming Changes
-Improving label names for clarity:
-- `label0` → `while.cond0`
-- `then1` → `if.then0`
-- `done2` → `while.end1`
-
-### Format Consistency
-Ensuring consistent indentation, spacing, ordering:
-- Consistent comment formatting
-- Predictable instruction ordering
-- Stable temporary numbering
-
-### Bug Fixes
-Correcting incorrect code generation:
-- Wrong instruction used
-- Incorrect type conversion
-- Missing optimization
-
-All of these require fixture updates, with clear documentation of the improvement.
-
-## Summary
-
-LLVM IR fixtures provide:
-- **Regression testing** - catch unintended changes
-- **Determinism validation** - ensure stable output
-- **Documentation** - show exact code generation
-- **Review visibility** - make changes auditable
-
-They are critical to maintaining the stable core contract and ensuring the compiler behaves predictably and correctly.
+The fixtures in this repository stabilize the WIR-to-LLVM backend shared by
+the bootstrap chain. Surface-language fixtures and final self-host behavior are
+validated in `weavec-bootstrap` and `weavec`, respectively.
