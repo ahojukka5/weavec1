@@ -68,4 +68,16 @@ jobs:
           git --version
 
       - name: Build compiler chain and run full ladder
-        run: ./build.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          ./build.sh 2>&1 | tee build.log
+
+      - name: Upload failed build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.name }}
+          path: build.log
+          if-no-files-found: error
+          retention-days: 7
