@@ -46,15 +46,15 @@ SRC_DIR="$WEAVEC1_DIR/src"
 TEST_DIR="$WEAVEC1_DIR/test"
 BUILD_DIR="$WEAVEC1_DIR/build"
 SRC_LL_DIR="$BUILD_DIR/src-ll"
-SRC2_LL_DIR="$BUILD_DIR/src2-ll"
+SELFHOST_SRC_LL_DIR="$BUILD_DIR/src2-ll"
 LINK_LL_DIR="$BUILD_DIR/link-ll"
-LINK2_LL_DIR="$BUILD_DIR/link2-ll"
+SELFHOST_LINK_LL_DIR="$BUILD_DIR/link2-ll"
 OBJ_DIR="$BUILD_DIR/obj"
-OBJ2_DIR="$BUILD_DIR/obj2"
+SELFHOST_OBJ_DIR="$BUILD_DIR/obj2"
 TEST_LL_DIR="$BUILD_DIR/test-ll"
-TEST2_LL_DIR="$BUILD_DIR/test2-ll"
+SELFHOST_TEST_LL_DIR="$BUILD_DIR/test2-ll"
 TEST_EXE_DIR="$BUILD_DIR/test-bin"
-TEST2_EXE_DIR="$BUILD_DIR/test2-bin"
+SELFHOST_TEST_EXE_DIR="$BUILD_DIR/test2-bin"
 MANIFEST="$TEST_DIR/manifest.txt"
 
 WEAVEC0_VERSION="${WEAVEC0_VERSION:-v0.2.1}"
@@ -71,7 +71,7 @@ BOOTSTRAP_BC_DIR=""
 WEAVEC0_COMPILER=""
 
 WEAVEC1="$BUILD_DIR/weavec1"
-WEAVEC2="$BUILD_DIR/weavec2"
+WEAVEC1_SELFHOST="$BUILD_DIR/weavec1-selfhost"
 
 MODULES=(
   runtime_bindings
@@ -399,9 +399,9 @@ build_weavec1() {
     "$OBJ_DIR" "$WEAVEC1"
 }
 
-build_weavec2() {
-  build_compiler "$WEAVEC1" "weavec2" "$SRC2_LL_DIR" "$LINK2_LL_DIR" \
-    "$OBJ2_DIR" "$WEAVEC2"
+build_weavec1_selfhost() {
+  build_compiler "$WEAVEC1" "weavec1-selfhost" "$SELFHOST_SRC_LL_DIR" "$SELFHOST_LINK_LL_DIR" \
+    "$SELFHOST_OBJ_DIR" "$WEAVEC1_SELFHOST"
 }
 
 run_case() {
@@ -501,7 +501,7 @@ run_tests() {
 }
 
 compare_bootstrap_outputs() {
-  log "comparing weavec1 and weavec2 output"
+  log "comparing weavec1 and weavec1-selfhost output"
   local diverged=0
   local kind name rest
   while IFS= read -r line || [[ -n "$line" ]]; do
@@ -510,7 +510,7 @@ compare_bootstrap_outputs() {
     [[ -z "$line" ]] && continue
     read -r kind name rest <<<"$line"
     [[ "$kind" == pass ]] || continue
-    if ! diff -u "$TEST_LL_DIR/${name}.ll" "$TEST2_LL_DIR/${name}.ll" \
+    if ! diff -u "$TEST_LL_DIR/${name}.ll" "$SELFHOST_TEST_LL_DIR/${name}.ll" \
       >/dev/null; then
       printf '[bootstrap] DIVERGENCE: %s\n' "$name" >&2
       diverged=$((diverged + 1))
@@ -529,8 +529,8 @@ main() {
   ensure_weavec0
   build_weavec1
   run_tests "$WEAVEC1" "weavec1" "$TEST_LL_DIR" "$TEST_EXE_DIR"
-  build_weavec2
-  run_tests "$WEAVEC2" "weavec2" "$TEST2_LL_DIR" "$TEST2_EXE_DIR"
+  build_weavec1_selfhost
+  run_tests "$WEAVEC1_SELFHOST" "weavec1-selfhost" "$SELFHOST_TEST_LL_DIR" "$SELFHOST_TEST_EXE_DIR"
   compare_bootstrap_outputs
 }
 

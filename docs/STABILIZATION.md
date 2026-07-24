@@ -18,7 +18,7 @@ weavec0 → weavec1 → weavec-bootstrap → weavec
 - `weavec1` is the WIR-written backend and Stage 1 SDK.
 - `weavec-bootstrap` is the surface-to-WIR bootstrap frontend, formerly
   `weavefront`.
-- `weavec` is the final user-facing compiler, formerly `weavec2`.
+- `weavec` is the final user-facing compiler, formerly `weavec1-selfhost`.
 
 ## Stabilized guarantees
 
@@ -27,7 +27,7 @@ weavec0 → weavec1 → weavec-bootstrap → weavec
 `build.sh` builds two consecutive generations of the Stage 1 WIR compiler and
 requires byte-identical LLVM output for every positive fixture.
 
-The second generation currently uses the historical path `build/weavec2`, but
+The second generation currently uses the historical path `build/weavec1-selfhost`, but
 it is conceptually `weavec1-selfhost`; it is not the final `weavec` product.
 
 A divergence fails the build immediately.

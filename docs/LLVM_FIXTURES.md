@@ -45,12 +45,12 @@ The build then constructs a second Stage 1 generation and compares its output
 with the first. The current compatibility path for that compiler is:
 
 ```text
-build/weavec2
+build/weavec1-selfhost
 ```
 
 Conceptually this artifact is `weavec1-selfhost`. It is unrelated to the final
 [`weavec`](https://github.com/ahojukka5/weavec) compiler repository, which was
-formerly named `weavec2`.
+formerly named `weavec1-selfhost`.
 
 ## Normal workflow
 
@@ -115,7 +115,7 @@ Compare the two Stage 1 generations directly:
 
 ```bash
 build/weavec1 test/NN_name.wir /tmp/stage1.ll
-build/weavec2 test/NN_name.wir /tmp/selfhost.ll
+build/weavec1-selfhost test/NN_name.wir /tmp/selfhost.ll
 diff -u /tmp/stage1.ll /tmp/selfhost.ll
 ```
 
