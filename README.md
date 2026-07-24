@@ -1,56 +1,60 @@
-# weavec1 — Weave Stage 1 Compiler
+# weavec1 — Weave Stage 1 Bootstrap Compiler
 
 [![ci](https://github.com/ahojukka5/weavec1/actions/workflows/ci.yml/badge.svg)](https://github.com/ahojukka5/weavec1/actions/workflows/ci.yml)
 
 > The WIR-written compiler stage: built from the published `weavec0` SDK and
-> published as the SDK consumed by `weavefront`.
+> published as the SDK consumed by `weavec-bootstrap`.
 
-## Overview
+## Role
 
 `weavec1` is the first Weave compiler written in WIR rather than hand-written
-LLVM IR. It translates `.wir` source to `.ll` LLVM IR.
+LLVM IR. It translates `.wir` source to `.ll` LLVM IR and forms the stable
+backend used by the bootstrap frontend.
 
-A complete build validates two consecutive generations of the same compiler:
+A complete build creates two consecutive generations of the same WIR compiler:
+
+```text
+weavec0 SDK
+    ↓
+compile src/*.wir
+    ↓
+build/weavec1
+    ↓
+compile the same sources again
+    ↓
+second Stage 1 generation
+    ↓
+byte-identical output on the full ladder
+```
+
+The second generation is conceptually **`weavec1-selfhost`**. The current build
+still writes the historical compatibility path `build/weavec2`; that filename
+does not refer to the user-facing [`weavec`](https://github.com/ahojukka5/weavec)
+repository.
+
+## Compiler chain
 
 ```text
 weavec0 v0.2.1 SDK
         ↓
-compile src/*.wir
+      weavec1
         ↓
- build/weavec1
+weavec1 v0.2.0 SDK
         ↓
-compile the same src/*.wir again
+weavec-bootstrap
         ↓
- build/weavec2
-        ↓
-byte-identical LLVM output on the full ladder
+       weavec
 ```
 
-In this repository, `build/weavec2` means the second bootstrap generation of
-the WIR compiler. It is **not** the separate
-[`ahojukka5/weavec2`](https://github.com/ahojukka5/weavec2) repository, which is
-the compiler written in surface Weave.
+| Component | Repository | Role |
+|---|---|---|
+| `weavec0` | [`ahojukka5/weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written Stage 0 seed and SDK. |
+| `weavec1` | **this repository** | WIR compiler and Stage 1 SDK. |
+| `weavec-bootstrap` | [`ahojukka5/weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Surface-to-WIR bootstrap frontend, formerly `weavefront`. |
+| `weavec` | [`ahojukka5/weavec`](https://github.com/ahojukka5/weavec) | User-facing self-hosted compiler, formerly `weavec2`. |
 
-## Current binary chain
-
-`weavec1` sits between two published SDK boundaries:
-
-```text
-weavec0 v0.2.1 bootstrap SDK
-        ↓
-     weavec1 source build
-        ↓
-weavec1 v0.2.0 bootstrap SDK
-        ↓
-       weavefront
-```
-
-Linux x86-64 builds do not clone or rebuild `weavec0`. They download the
-selected Stage 0 archive, verify it against `SHA256SUMS`, and reuse the cached
-SDK on later builds.
-
-`weavec1 v0.2.0` publishes a fully static compiler and the matching runtime
-library so downstream stages do not rebuild Stage 0 or Stage 1.
+Normal users should use `weavec`. This repository is a reproducible bootstrap
+stage and should change conservatively.
 
 ## Prerequisites
 
@@ -60,7 +64,7 @@ library so downstream stages do not rebuild Stage 0 or Stage 1.
 sudo apt-get install -y clang curl llvm
 ```
 
-Install `musl-tools` only for the musl build:
+For the musl variant:
 
 ```sh
 sudo apt-get install -y musl-tools
@@ -73,8 +77,8 @@ brew install llvm git
 export PATH="$(brew --prefix llvm)/bin:$PATH"
 ```
 
-Linux x86-64 uses the published Stage 0 SDK by default. macOS currently uses a
-pinned source fallback because no native macOS SDK is published.
+Linux x86-64 consumes the published Stage 0 SDK by default. macOS uses a pinned
+source fallback because no native macOS Stage 0 SDK is published.
 
 ## Quick start
 
@@ -82,13 +86,6 @@ pinned source fallback because no native macOS SDK is published.
 git clone https://github.com/ahojukka5/weavec1.git
 cd weavec1
 ./build.sh
-```
-
-The resulting bootstrap generations are:
-
-```text
-build/weavec1
-build/weavec2
 ```
 
 Build with the musl Stage 0 SDK:
@@ -106,7 +103,7 @@ git diff -- test/
 
 ## Stage 0 dependency
 
-The default dependency is `weavec0 v0.2.1`.
+The default dependency is `weavec0 v0.2.1`:
 
 ```text
 bin/weavec0
@@ -116,21 +113,16 @@ lib/libweavec0-runtime.a
 include/runtime.h
 ```
 
-The build uses:
-
-- `bin/weavec0` to compile Stage 1 WIR modules;
-- `weavec0-bootstrap.o` as reusable compiler support code;
-- `libweavec0-runtime.a` as the matching static runtime.
-
-No `runtime.c` source file is required on the normal Linux path.
+The normal Linux build uses the compiler, reusable bootstrap object, and
+matching static runtime directly. It does not require `runtime.c`.
 
 Environment overrides:
 
-- `WEAVEC0_VERSION=v0.2.1` selects a published SDK release;
+- `WEAVEC0_VERSION=v0.2.1` selects the published SDK;
 - `WEAVEC0_LIBC=glibc|musl` selects the Linux variant;
-- `WEAVEC0_SDK=/path/to/sdk` uses an extracted SDK directly;
-- `WEAVEC0_RELEASE_BASE=<url>` changes the release download base;
-- `WEAVEC0=/path/to/source` explicitly selects a built source tree;
+- `WEAVEC0_SDK=/path/to/sdk` uses an extracted SDK;
+- `WEAVEC0_RELEASE_BASE=<url>` changes the release base;
+- `WEAVEC0=/path/to/source` selects a built source tree;
 - `WEAVEC0_TAG=v0.2.1` selects the source-fallback tag.
 
 ## Build pipeline
@@ -138,14 +130,13 @@ Environment overrides:
 The normal Linux build:
 
 1. downloads or reuses a checksum-verified Stage 0 SDK;
-2. compiles every WIR module under `src/` with `bin/weavec0`;
-3. adds deterministic cross-module declarations;
-4. compiles generated LLVM modules to native objects;
-5. links `build/weavec1` with the Stage 0 bootstrap object and runtime;
-6. runs all positive and negative compiler tests;
-7. uses `build/weavec1` to build the second generation `build/weavec2`;
-8. runs the same test ladder through the second generation;
-9. compares every positive LLVM output byte for byte.
+2. compiles every `src/*.wir` module with `bin/weavec0`;
+3. generates deterministic cross-module declarations;
+4. links `build/weavec1` with Stage 0 support and runtime;
+5. runs positive and negative compiler tests;
+6. builds the second Stage 1 generation from the same sources;
+7. runs the same test ladder through it;
+8. compares every positive LLVM output byte for byte.
 
 A failed download, checksum mismatch, missing SDK component, test failure, or
 bootstrap divergence aborts the build.
@@ -169,15 +160,8 @@ weavec1-vX.Y.Z-linux-x86_64-<libc>/
 └── NOTICE
 ```
 
-The SDK contains exactly what `weavefront` needs:
-
-- a fully static WIR-to-LLVM compiler;
-- the matching libc-specific runtime library;
-- the runtime ABI header and package metadata.
-
-The release workflow builds both variants, runs the complete bootstrap ladder,
-rejects compiler executables with an ELF interpreter, and performs an SDK-only
-compile-link-run smoke test.
+The SDK contains exactly what `weavec-bootstrap` needs: a fully static
+WIR-to-LLVM compiler, the matching runtime library, and ABI metadata.
 
 See [`docs/RELEASING.md`](docs/RELEASING.md).
 
@@ -188,42 +172,18 @@ weavec1/
 ├── build.sh
 ├── VERSION
 ├── src/                         WIR compiler modules
-├── test/
-│   ├── manifest.txt
-│   ├── NN_<name>.wir
-│   └── NN_<name>.expected.ll
-├── scripts/
-│   ├── check_wir_source_style.py
-│   └── package-linux-sdk.sh
-├── docs/
-│   ├── RELEASING.md
-│   ├── STABILIZATION.md
-│   ├── STABLE_CORE.md
-│   └── WIR_SOURCE_STYLE.md
-└── build/
-    ├── vendor/weavec0-sdk/
-    ├── downloads/
-    ├── src-ll/ and link-ll/
-    ├── src2-ll/ and link2-ll/
-    ├── obj/ and obj2/
-    ├── test-ll/ and test-bin/
-    └── test2-ll/ and test2-bin/
+├── test/                        WIR fixtures and LLVM goldens
+├── scripts/                     source checks and SDK packaging
+├── docs/                        WIR, stabilization, and release contracts
+└── build/                       generated compilers and test outputs
 ```
 
 ## Test ladder
 
 `test/manifest.txt` contains 60 cases: 55 positive and 5 expected failures.
-
-Each positive case verifies that:
-
-1. the compiler emits non-empty LLVM IR;
-2. the output matches the checked-in golden;
-3. `llvm-as` accepts it;
-4. `clang` builds an executable;
-5. the executable returns the declared exit code.
-
-Negative cases must fail without producing LLVM IR and must emit the expected
-diagnostic substring.
+Each positive case verifies compiler output, the LLVM golden, `llvm-as`, native
+linking, and the declared exit code. Negative cases must fail without producing
+LLVM IR and must include the expected diagnostic substring.
 
 Useful examples:
 
@@ -233,22 +193,10 @@ Useful examples:
 - [`test/16_extern_malloc_free.wir`](test/16_extern_malloc_free.wir)
 - [`test/55_integration_nested_control_flow.wir`](test/55_integration_nested_control_flow.wir)
 
-## Compiler chain
-
-| Stage | Repository | Role |
-|---|---|---|
-| `weavec0` | [`ahojukka5/weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written seed and published Stage 0 SDK. |
-| `weavec1` | **this repository** | WIR-written compiler and published Stage 1 SDK. |
-| `weavefront` | [`ahojukka5/weavefront`](https://github.com/ahojukka5/weavefront) | Surface Weave to WIR frontend. |
-| `weavec2` | [`ahojukka5/weavec2`](https://github.com/ahojukka5/weavec2) | Self-hosted compiler written in surface Weave. |
-
-Once the surface compiler is fully self-sustaining, this WIR stage and its
-contract should remain stable.
-
 ## Source style
 
 WIR modules follow [`docs/WIR_SOURCE_STYLE.md`](docs/WIR_SOURCE_STYLE.md).
-The optional checker is run with:
+Run the optional checker with:
 
 ```sh
 python3 scripts/check_wir_source_style.py
@@ -261,7 +209,7 @@ python3 scripts/check_wir_source_style.py
 - Source comments are not preserved in generated LLVM IR.
 - The admitted extern set is intentionally small and versioned upstream.
 - Diagnostics remain compact and mostly lack precise source ranges.
-- The source-style checker reports pre-existing documentation gaps.
+- The second-generation output still uses the historical path `build/weavec2`.
 
 ## License
 
