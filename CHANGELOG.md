@@ -7,6 +7,14 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+### Documentation
+
+- Updated downstream terminology after `weavefront` was renamed to
+  `weavec-bootstrap` and the surface compiler repository `weavec2` was renamed
+  to `weavec`.
+- Defined the second Stage 1 generation conceptually as `weavec1-selfhost` while
+  documenting that the current compatibility path remains `build/weavec2`.
+
 ## [0.2.0] — 2026-07-24
 
 ### Added
@@ -27,14 +35,15 @@ published SDK are maintained as explicit bootstrap contracts.
 - `weavec1` and its second bootstrap generation link against the Stage 0
   bootstrap object and matching static runtime library; `runtime.c` is no
   longer required on the normal Linux path.
-- CI now validates Linux glibc SDK, Linux musl SDK, and macOS source-fallback
+- CI validates Linux glibc SDK, Linux musl SDK, and macOS source-fallback
   builds.
-- `weavefront` consumes the published Stage 1 SDK on Linux.
+- The repository then named `weavefront` began consuming the published Stage 1
+  SDK on Linux. It is now named `weavec-bootstrap`.
 
 ### Documentation
 
-- Clarified that `build/weavec2` in this repository is the second generation of
-  the WIR compiler, not the separate surface-compiler repository.
+- Clarified that the historical path `build/weavec2` in this repository is the
+  second generation of the WIR compiler, not the surface-compiler repository.
 - Added the Stage 0 input SDK and Stage 1 output SDK contracts to the README.
 
 ## [0.1.0] — 2026-05-26
