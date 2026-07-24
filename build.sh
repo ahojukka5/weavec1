@@ -3,40 +3,30 @@
 set -euo pipefail
 
 # =============================================================================
-# weavec1 — Stage 1 Weave compiler (WIR-written), build & test ladder
+# weavec1 — Stage 1 compiler build and bootstrap-determinism ladder
 # =============================================================================
 #
-# Pipeline:
+# Linux x86-64 builds consume the published weavec0 bootstrap SDK by default.
+# The SDK supplies the Stage 0 compiler executable, reusable bootstrap object,
+# and a libc-specific static runtime library. No weavec0 source build is needed.
 #
-#   1. Acquire weavec0 (Stage 0 seed compiler). Either honour the WEAVEC0
-#      environment variable (path to a pre-built weavec0 source tree), or
-#      git-clone the pinned $WEAVEC0_TAG from upstream into build/vendor/
-#      and build it there.
-#   2. Compile every weavec1 WIR module under src/ with weavec0 → LLVM IR.
-#   3. Link the modules with weavec0's compiler bitcode + runtime.c to
-#      produce the weavec1 binary.
-#   4. Run the test ladder (test/manifest.txt) through weavec1.
-#   5. Repeat steps 2–4 with weavec1-compiled-by-weavec0 producing weavec2,
-#      to confirm bootstrap determinism (weavec2 must emit byte-identical
-#      LLVM IR to weavec1 on the shared test surface).
+# Environment overrides:
 #
-# Flags:
+#   WEAVEC0_SDK=/path/to/extracted/sdk
+#       Use an already extracted SDK directory.
 #
-#   --regen-goldens
-#       On any golden mismatch, overwrite the expected .ll with the just-
-#       generated output instead of erroring. Review the resulting git
-#       diff before committing.
+#   WEAVEC0_VERSION=v0.2.1
+#       Select the published weavec0 SDK release.
 #
-# Environment:
+#   WEAVEC0_LIBC=glibc|musl
+#       Select the Linux SDK and linker. Default: glibc.
 #
-#   WEAVEC0
-#       Absolute path to an existing weavec0 source tree where ./build.sh
-#       has already produced the bitcode artefacts under build/bootstrap-
-#       tests/bc/. Skips the vendor-fetch entirely.
+#   WEAVEC0=/path/to/weavec0/source
+#       Backwards-compatible source-tree override. Used directly after running
+#       that tree's build.sh when necessary.
 #
-#   WEAVEC0_TAG  (default: v0.2.0)
-#       Git tag/ref pulled from github.com/ahojukka5/weavec0 when no
-#       WEAVEC0 is provided.
+#   WEAVEC0_TAG=v0.2.1
+#       Source fallback tag for platforms without a published SDK.
 # =============================================================================
 
 REGEN_GOLDENS=0
@@ -44,7 +34,7 @@ for arg in "$@"; do
   case "$arg" in
     --regen-goldens) REGEN_GOLDENS=1 ;;
     -h|--help)
-      sed -n '4,40p' "$0"
+      sed -n '4,38p' "$0"
       exit 0
       ;;
     *) printf 'unknown flag: %s\n' "$arg" >&2; exit 2 ;;
@@ -59,18 +49,26 @@ SRC_LL_DIR="$BUILD_DIR/src-ll"
 SRC2_LL_DIR="$BUILD_DIR/src2-ll"
 LINK_LL_DIR="$BUILD_DIR/link-ll"
 LINK2_LL_DIR="$BUILD_DIR/link2-ll"
+OBJ_DIR="$BUILD_DIR/obj"
+OBJ2_DIR="$BUILD_DIR/obj2"
 TEST_LL_DIR="$BUILD_DIR/test-ll"
 TEST2_LL_DIR="$BUILD_DIR/test2-ll"
 TEST_EXE_DIR="$BUILD_DIR/test-bin"
 TEST2_EXE_DIR="$BUILD_DIR/test2-bin"
 MANIFEST="$TEST_DIR/manifest.txt"
 
-# weavec0 dependency. BOOTSTRAP_DIR is set by ensure_weavec0() below — either
-# from the WEAVEC0 env var or from the auto-fetched vendor copy.
-WEAVEC0_TAG="${WEAVEC0_TAG:-v0.2.0}"
+WEAVEC0_VERSION="${WEAVEC0_VERSION:-v0.2.1}"
+WEAVEC0_TAG="${WEAVEC0_TAG:-$WEAVEC0_VERSION}"
+WEAVEC0_LIBC="${WEAVEC0_LIBC:-glibc}"
+WEAVEC0_RELEASE_BASE="${WEAVEC0_RELEASE_BASE:-https://github.com/ahojukka5/weavec0/releases/download}"
 WEAVEC0_REPO="https://github.com/ahojukka5/weavec0.git"
+
+DEPENDENCY_MODE=""
 BOOTSTRAP_DIR=""
+BOOTSTRAP_OBJECT=""
+BOOTSTRAP_RUNTIME_LIBRARY=""
 BOOTSTRAP_BC_DIR=""
+WEAVEC0_COMPILER=""
 
 WEAVEC1="$BUILD_DIR/weavec1"
 WEAVEC2="$BUILD_DIR/weavec2"
@@ -126,76 +124,135 @@ BOOTSTRAP_MODULES=(
 
 log()  { printf '[weavec1] %s\n' "$*" >&2; }
 fail() { printf '[weavec1] error: %s\n' "$*" >&2; exit 1; }
-require_tool() { command -v "$1" >/dev/null 2>&1 || fail "required tool not found: $1"; }
+require_tool() {
+  command -v "$1" >/dev/null 2>&1 || fail "required tool not found: $1"
+}
 
-# Locate (or fetch + build) the weavec0 dependency. After this returns,
-# $BOOTSTRAP_DIR points at a weavec0 source tree where ./build.sh has been
-# run, and $BOOTSTRAP_BC_DIR points at its bitcode output directory.
-ensure_weavec0() {
+host_has_published_sdk() {
+  [[ "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ]]
+}
+
+validate_sdk() {
+  local sdk="$1"
+  [[ -x "$sdk/bin/weavec0" ]] || fail "SDK compiler missing: $sdk/bin/weavec0"
+  [[ -s "$sdk/lib/weavec0-bootstrap.o" ]] || \
+    fail "SDK bootstrap object missing: $sdk/lib/weavec0-bootstrap.o"
+  [[ -s "$sdk/lib/libweavec0-runtime.a" ]] || \
+    fail "SDK runtime library missing: $sdk/lib/libweavec0-runtime.a"
+
+  BOOTSTRAP_DIR="$sdk"
+  WEAVEC0_COMPILER="$sdk/bin/weavec0"
+  BOOTSTRAP_OBJECT="$sdk/lib/weavec0-bootstrap.o"
+  BOOTSTRAP_RUNTIME_LIBRARY="$sdk/lib/libweavec0-runtime.a"
+  DEPENDENCY_MODE=sdk
+}
+
+download_weavec0_sdk() {
+  require_tool curl
+  require_tool sha256sum
+  require_tool tar
+
+  case "$WEAVEC0_LIBC" in
+    glibc|musl) ;;
+    *) fail "WEAVEC0_LIBC must be glibc or musl" ;;
+  esac
+
+  local package="weavec0-${WEAVEC0_VERSION}-linux-x86_64-${WEAVEC0_LIBC}"
+  local archive="$package.tar.gz"
+  local vendor_root="$BUILD_DIR/vendor/weavec0-sdk"
+  local sdk="$vendor_root/$package"
+  local cache="$BUILD_DIR/downloads"
+  local archive_path="$cache/$archive"
+  local sums_path="$cache/weavec0-${WEAVEC0_VERSION}-SHA256SUMS"
+  local release_url="$WEAVEC0_RELEASE_BASE/$WEAVEC0_VERSION"
+
+  if [[ -d "$sdk" ]]; then
+    log "using cached weavec0 SDK: $sdk"
+    validate_sdk "$sdk"
+    return
+  fi
+
+  mkdir -p "$cache" "$vendor_root"
+  log "downloading weavec0 SDK $WEAVEC0_VERSION ($WEAVEC0_LIBC)"
+  curl --fail --location --retry 3 --output "$archive_path" \
+    "$release_url/$archive"
+  curl --fail --location --retry 3 --output "$sums_path" \
+    "$release_url/SHA256SUMS"
+
+  local expected
+  expected="$(awk -v name="$archive" '$2 == name { print $1; exit }' "$sums_path")"
+  [[ -n "$expected" ]] || fail "checksum not found for $archive"
+  printf '%s  %s\n' "$expected" "$archive_path" | sha256sum --check -
+
+  rm -rf "$sdk"
+  tar -C "$vendor_root" -xzf "$archive_path"
+  validate_sdk "$sdk"
+}
+
+ensure_weavec0_source() {
+  require_tool git
+
   if [[ -n "${WEAVEC0:-}" ]]; then
     BOOTSTRAP_DIR="$WEAVEC0"
-    log "using WEAVEC0 from env: $BOOTSTRAP_DIR"
+    log "using weavec0 source tree from WEAVEC0: $BOOTSTRAP_DIR"
   else
-    BOOTSTRAP_DIR="$BUILD_DIR/vendor/weavec0"
+    BOOTSTRAP_DIR="$BUILD_DIR/vendor/weavec0-source"
     if [[ ! -d "$BOOTSTRAP_DIR/.git" ]]; then
-      log "fetching weavec0 $WEAVEC0_TAG from $WEAVEC0_REPO"
+      log "fetching weavec0 source fallback $WEAVEC0_TAG"
       mkdir -p "$(dirname "$BOOTSTRAP_DIR")"
-      git clone --depth 1 --branch "$WEAVEC0_TAG" "$WEAVEC0_REPO" "$BOOTSTRAP_DIR"
+      git clone --depth 1 --branch "$WEAVEC0_TAG" "$WEAVEC0_REPO" \
+        "$BOOTSTRAP_DIR"
     fi
   fi
 
-  [[ -d "$BOOTSTRAP_DIR" ]] || fail "weavec0 source dir not found: $BOOTSTRAP_DIR"
-  [[ -x "$BOOTSTRAP_DIR/build.sh" ]] || fail "weavec0 build.sh not found at $BOOTSTRAP_DIR/build.sh"
+  [[ -x "$BOOTSTRAP_DIR/build.sh" ]] || \
+    fail "weavec0 build.sh missing: $BOOTSTRAP_DIR/build.sh"
 
-  if [[ ! -x "$BOOTSTRAP_DIR/weavec0" ]] || [[ ! -d "$BOOTSTRAP_DIR/build/bootstrap-tests/bc" ]]; then
-    log "building weavec0 ($BOOTSTRAP_DIR)"
-    ( cd "$BOOTSTRAP_DIR" && ./build.sh ) || fail "weavec0 build failed"
+  if [[ ! -x "$BOOTSTRAP_DIR/weavec0" ]] || \
+     [[ ! -d "$BOOTSTRAP_DIR/build/bootstrap-tests/bc" ]]; then
+    log "building weavec0 source fallback"
+    (cd "$BOOTSTRAP_DIR" && ./build.sh)
   fi
 
+  WEAVEC0_COMPILER="$BOOTSTRAP_DIR/weavec0"
   BOOTSTRAP_BC_DIR="$BOOTSTRAP_DIR/build/bootstrap-tests/bc"
-  WEAVEC0="$BOOTSTRAP_DIR/weavec0"
-  [[ -x "$WEAVEC0" ]] || fail "weavec0 binary not built at $WEAVEC0"
-  [[ -d "$BOOTSTRAP_BC_DIR" ]] || fail "weavec0 bitcode dir missing: $BOOTSTRAP_BC_DIR"
+  [[ -x "$WEAVEC0_COMPILER" ]] || fail "weavec0 compiler was not built"
+  [[ -d "$BOOTSTRAP_BC_DIR" ]] || fail "weavec0 bitcode directory missing"
+  DEPENDENCY_MODE=source
+}
+
+ensure_weavec0() {
+  if [[ -n "${WEAVEC0_SDK:-}" ]]; then
+    log "using WEAVEC0_SDK: $WEAVEC0_SDK"
+    validate_sdk "$WEAVEC0_SDK"
+  elif host_has_published_sdk; then
+    download_weavec0_sdk
+  else
+    log "no published SDK for $(uname -s)/$(uname -m); using source fallback"
+    ensure_weavec0_source
+  fi
 }
 
 compile_module() {
   local compiler="$1"
   local output_dir="$2"
   local name="$3"
-  local src="$SRC_DIR/${name}.wir"
+  local src="src/${name}.wir"
   local ll="$output_dir/${name}.ll"
 
   [[ -f "$src" ]] || fail "missing source module: $src"
-
   log "compile src/$name.wir"
   "$compiler" "$src" "$ll"
   [[ -s "$ll" ]] || fail "compiler produced empty LLVM IR for $name"
 }
 
-build_compiler() {
-  local compiler="$1"
-  local compiler_name="$2"
-  local src_ll_dir="$3"
-  local link_ll_dir="$4"
-  local output="$5"
-
-  log "building $compiler_name"
-
-  mkdir -p "$src_ll_dir" "$link_ll_dir"
-  rm -f "$src_ll_dir"/*.ll "$link_ll_dir"/*.ll
-
-  local llvm_modules=()
-  local module
-  for module in "${MODULES[@]}"; do
-    compile_module "$compiler" "$src_ll_dir" "$module"
-  done
+prepare_link_modules() {
+  local src_ll_dir="$1"
+  local link_ll_dir="$2"
+  local compiler_name="$3"
 
   local all_decls="$BUILD_DIR/$compiler_name.decls.ll"
   {
-    # Cross-module declarations for the C-runtime externs every module may
-    # call. weavec0's per-module emission only places a `declare` line for
-    # externs declared in that specific .wir module, so here we seed the
-    # full set for the link step (matches weavec0's admitted extern subset).
     printf 'declare i32 @puts(ptr)\n'
     printf 'declare ptr @malloc(i64)\n'
     printf 'declare void @free(ptr)\n'
@@ -210,6 +267,7 @@ build_compiler() {
     printf 'declare i32 @weave_rt_write_file(ptr, ptr, i64)\n'
     printf 'declare void @weave_rt_fatal(ptr)\n'
 
+    local module
     for module in "${MODULES[@]}"; do
       awk '
         /^define / {
@@ -222,6 +280,7 @@ build_compiler() {
     done
   } > "$all_decls"
 
+  local module
   for module in "${MODULES[@]}"; do
     local src_ll="$src_ll_dir/${module}.ll"
     local link_ll="$link_ll_dir/${module}.ll"
@@ -241,9 +300,7 @@ build_compiler() {
     {
       if (match($0, /@[A-Za-z0-9_.$-]+/)) {
         name = substr($0, RSTART, RLENGTH)
-        if (name in skip) {
-          next
-        }
+        if (name in skip) next
       }
       print
     }' "$names" "$all_decls" > "$decls"
@@ -255,8 +312,49 @@ build_compiler() {
       printf '\n'
       sed '1,/^$/d' "$src_ll"
     } > "$link_ll"
+  done
+}
 
-    llvm_modules+=("$link_ll")
+link_compiler_from_sdk() {
+  local compiler_name="$1"
+  local link_ll_dir="$2"
+  local obj_dir="$3"
+  local output="$4"
+
+  mkdir -p "$obj_dir"
+  rm -f "$obj_dir"/*.o
+
+  local objects=()
+  local module
+  for module in "${MODULES[@]}"; do
+    local object="$obj_dir/${module}.o"
+    clang -Wno-override-module -O2 -c "$link_ll_dir/${module}.ll" -o "$object"
+    objects+=("$object")
+  done
+
+  log "link $compiler_name with weavec0 SDK ($WEAVEC0_LIBC)"
+  case "$WEAVEC0_LIBC" in
+    glibc)
+      clang -static "${objects[@]}" "$BOOTSTRAP_OBJECT" \
+        "$BOOTSTRAP_RUNTIME_LIBRARY" -o "$output"
+      ;;
+    musl)
+      require_tool musl-gcc
+      musl-gcc -static "${objects[@]}" "$BOOTSTRAP_OBJECT" \
+        "$BOOTSTRAP_RUNTIME_LIBRARY" -o "$output"
+      ;;
+  esac
+}
+
+link_compiler_from_source() {
+  local compiler_name="$1"
+  local link_ll_dir="$2"
+  local output="$3"
+
+  local llvm_modules=()
+  local module
+  for module in "${MODULES[@]}"; do
+    llvm_modules+=("$link_ll_dir/${module}.ll")
   done
 
   local bootstrap_bitcode=()
@@ -266,17 +364,44 @@ build_compiler() {
     bootstrap_bitcode+=("$bc")
   done
 
-  log "link $compiler_name"
+  log "link $compiler_name with weavec0 source fallback"
   clang "${llvm_modules[@]}" "${bootstrap_bitcode[@]}" \
     "$BOOTSTRAP_DIR/runtime.c" -o "$output"
 }
 
+build_compiler() {
+  local compiler="$1"
+  local compiler_name="$2"
+  local src_ll_dir="$3"
+  local link_ll_dir="$4"
+  local obj_dir="$5"
+  local output="$6"
+
+  log "building $compiler_name"
+  mkdir -p "$src_ll_dir" "$link_ll_dir"
+  rm -f "$src_ll_dir"/*.ll "$link_ll_dir"/*.ll
+
+  local module
+  for module in "${MODULES[@]}"; do
+    compile_module "$compiler" "$src_ll_dir" "$module"
+  done
+  prepare_link_modules "$src_ll_dir" "$link_ll_dir" "$compiler_name"
+
+  case "$DEPENDENCY_MODE" in
+    sdk) link_compiler_from_sdk "$compiler_name" "$link_ll_dir" "$obj_dir" "$output" ;;
+    source) link_compiler_from_source "$compiler_name" "$link_ll_dir" "$output" ;;
+    *) fail "unknown weavec0 dependency mode: $DEPENDENCY_MODE" ;;
+  esac
+}
+
 build_weavec1() {
-  build_compiler "$WEAVEC0" "weavec1" "$SRC_LL_DIR" "$LINK_LL_DIR" "$WEAVEC1"
+  build_compiler "$WEAVEC0_COMPILER" "weavec1" "$SRC_LL_DIR" "$LINK_LL_DIR" \
+    "$OBJ_DIR" "$WEAVEC1"
 }
 
 build_weavec2() {
-  build_compiler "$WEAVEC1" "weavec2" "$SRC2_LL_DIR" "$LINK2_LL_DIR" "$WEAVEC2"
+  build_compiler "$WEAVEC1" "weavec2" "$SRC2_LL_DIR" "$LINK2_LL_DIR" \
+    "$OBJ2_DIR" "$WEAVEC2"
 }
 
 run_case() {
@@ -294,48 +419,34 @@ run_case() {
   local exe="$test_exe_dir/${name}.out"
 
   [[ -f "$src" ]] || fail "missing test source: $src"
-
   log "compile test $name"
   "$compiler" "$src" "$ll"
   [[ -s "$ll" ]] || fail "$compiler_name produced empty LLVM IR for $name"
 
-  log "llvm-as test $name"
   llvm-as "$ll" -o "$bc"
-
-  log "clang test $name"
   clang "$ll" -o "$exe"
 
-  log "run test $name"
   set +e
   "$exe"
   local actual_exit=$?
   set -e
-
-  if [[ "$actual_exit" != "$expected_exit" ]]; then
-    printf '\n--- generated LLVM IR: %s ---\n' "$ll" >&2
-    sed -n '1,220p' "$ll" >&2 || true
-    printf '\n' >&2
+  [[ "$actual_exit" == "$expected_exit" ]] || \
     fail "$name: expected exit $expected_exit, got $actual_exit"
-  fi
 
-  log "compare test $name"
   if [[ ! -f "$expected_ll" ]]; then
     if (( REGEN_GOLDENS )); then
       cp "$ll" "$expected_ll"
-      log "regen $name (new golden)"
     else
-      fail "missing expected LLVM IR: $expected_ll (rerun with --regen-goldens to create)"
+      fail "missing expected LLVM IR: $expected_ll"
     fi
   elif ! diff -u "$expected_ll" "$ll" >/dev/null; then
     if (( REGEN_GOLDENS )); then
       cp "$ll" "$expected_ll"
-      log "regen $name (updated golden)"
     else
       diff -u "$expected_ll" "$ll" || true
-      fail "$name: generated LLVM IR differs from expected fixture (rerun with --regen-goldens to accept)"
+      fail "$name: generated LLVM IR differs from expected fixture"
     fi
   fi
-
   log "ok $name"
 }
 
@@ -350,36 +461,16 @@ run_compile_fail_case() {
   local ll="$test_ll_dir/${name}.ll"
   local output="$test_ll_dir/${name}.compiler-output"
 
-  [[ -f "$src" ]] || fail "missing test source: $src"
-
-  log "compile-fail test $name"
   rm -f "$ll" "$output"
   set +e
   "$compiler" "$src" "$ll" >"$output" 2>&1
-  local compile_status=$?
+  local status=$?
   set -e
 
-  if [[ "$compile_status" == 0 ]]; then
-    printf '\n--- unexpected generated LLVM IR: %s ---\n' "$ll" >&2
-    sed -n '1,120p' "$ll" >&2 || true
-    printf '\n' >&2
-    fail "$name: expected $compiler_name compiler failure, got success"
-  fi
-
-  if [[ -s "$ll" ]]; then
-    printf '\n--- unexpected generated LLVM IR: %s ---\n' "$ll" >&2
-    sed -n '1,120p' "$ll" >&2 || true
-    printf '\n' >&2
-    fail "$name: compiler failure still produced non-empty LLVM IR"
-  fi
-
-  if ! grep -q "$expected_message" "$output"; then
-    printf '\n--- compiler output: %s ---\n' "$output" >&2
-    sed -n '1,120p' "$output" >&2 || true
-    printf '\n' >&2
+  [[ "$status" != 0 ]] || fail "$name: expected $compiler_name failure"
+  [[ ! -s "$ll" ]] || fail "$name: failed compile produced LLVM IR"
+  grep -q "$expected_message" "$output" || \
     fail "$name: expected diagnostic containing: $expected_message"
-  fi
-
   log "ok $name"
 }
 
@@ -390,7 +481,6 @@ run_tests() {
   local test_exe_dir="$4"
 
   mkdir -p "$test_ll_dir" "$test_exe_dir"
-
   [[ -f "$MANIFEST" ]] || fail "missing test manifest: $MANIFEST"
 
   local kind name rest
@@ -398,71 +488,44 @@ run_tests() {
     line="${line%%#*}"
     line="${line#"${line%%[![:space:]]*}"}"
     [[ -z "$line" ]] && continue
-
     read -r kind name rest <<<"$line"
     case "$kind" in
-      pass) run_case "$compiler" "$compiler_name" "$test_ll_dir" "$test_exe_dir" "$name" "$rest" ;;
-      fail) run_compile_fail_case "$compiler" "$compiler_name" "$test_ll_dir" "$name" "$rest" ;;
-      *)    fail "unknown manifest entry kind: $kind (line: $line)" ;;
+      pass) run_case "$compiler" "$compiler_name" "$test_ll_dir" \
+        "$test_exe_dir" "$name" "$rest" ;;
+      fail) run_compile_fail_case "$compiler" "$compiler_name" \
+        "$test_ll_dir" "$name" "$rest" ;;
+      *) fail "unknown manifest entry: $line" ;;
     esac
   done < "$MANIFEST"
-
   log "all $compiler_name tests passed"
 }
 
 compare_bootstrap_outputs() {
-  log "comparing weavec1 vs weavec2 LLVM output for bootstrap determinism"
-
-  local tests=(
-    01_return_constant 02_return_42 03_add 04_one_arg_function
-    05_let_local 06_set_local 07_if 08_while 09_two_arg_function
-    10_string_literal 11_const_i64 12_i64_arithmetic 13_i64_comparisons
-    14_bool_ops 15_ptr_null 16_extern_malloc_free 17_ptr_add_store_load_i64
-    18_store_load_i8 19_call_void 20_call_i64 21_call_ptr 22_return_void
-    23_mod_i32 24_buffer_like_smoke 25_ptr_params_call_i32 26_bool_return
-    27_three_arg_function 28_i32_memory_and_cast 29_const_string_ptr
-    30_i64_sub_eq 31_not_bool 32_codegen_join_and_i64_arg 33_store_i8_temp
-    34_ge_i32 35_sub_i32 36_mul_i32 37_div_i32 38_i32_comparisons_full
-    39_i64_ge_gt 40_call_bool_direct 41_load_store_ptr 42_empty_do
-    43_if_fallthrough_join 44_while_zero_iterations 45_nested_while
-    46_forward_function_call 47_multiple_externs_used_subset 48_string_escape
-    49_negative_i32_literal 54_debug_marker
-    55_integration_nested_control_flow 56_integration_multi_function_chain
-    57_integration_memory_flow 60_empty_params_paren_list
-  )
-
+  log "comparing weavec1 and weavec2 output"
   local diverged=0
-  local diverged_tests=()
-
-  for test in "${tests[@]}"; do
-    local weavec1_ll="$TEST_LL_DIR/${test}.ll"
-    local weavec2_ll="$TEST2_LL_DIR/${test}.ll"
-
-    if ! diff -u "$weavec1_ll" "$weavec2_ll" >/dev/null 2>&1; then
-      printf '[bootstrap] DIVERGENCE: %s\n' "$test" >&2
-      diff -u "$weavec1_ll" "$weavec2_ll" | head -50 >&2
+  local kind name rest
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%#*}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    [[ -z "$line" ]] && continue
+    read -r kind name rest <<<"$line"
+    [[ "$kind" == pass ]] || continue
+    if ! diff -u "$TEST_LL_DIR/${name}.ll" "$TEST2_LL_DIR/${name}.ll" \
+      >/dev/null; then
+      printf '[bootstrap] DIVERGENCE: %s\n' "$name" >&2
       diverged=$((diverged + 1))
-      diverged_tests+=("$test")
     fi
-  done
-
-  if [[ "$diverged" -gt 0 ]]; then
-    printf '\n[bootstrap] ERROR: %d test(s) produced different LLVM IR between weavec1 and weavec2:\n' "$diverged" >&2
-    for test in "${diverged_tests[@]}"; do
-      printf '  - %s\n' "$test" >&2
-    done
-    printf '\nThis breaks the bootstrap determinism guarantee.\n' >&2
-    printf 'weavec1 and weavec2 must produce identical LLVM IR.\n' >&2
-    exit 1
-  fi
-
-  log "bootstrap determinism validated: weavec1 and weavec2 produce identical LLVM IR"
+  done < "$MANIFEST"
+  [[ "$diverged" == 0 ]] || fail "$diverged bootstrap output(s) diverged"
+  log "bootstrap determinism validated"
 }
 
 main() {
+  cd "$WEAVEC1_DIR"
+  require_tool awk
   require_tool clang
+  require_tool diff
   require_tool llvm-as
-  require_tool git
   ensure_weavec0
   build_weavec1
   run_tests "$WEAVEC1" "weavec1" "$TEST_LL_DIR" "$TEST_EXE_DIR"
