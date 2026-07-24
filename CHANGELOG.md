@@ -1,50 +1,63 @@
 # Changelog
 
 All notable changes to `weavec1` are recorded here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning is
-[SemVer](https://semver.org/) with the caveat that `0.x` is the
-bootstrap phase: minor versions may break things until `weavec1`
-reaches its goal of bootstrapping `weavec2` reliably, at which point
-the contract freezes.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning follows
+[SemVer](https://semver.org/). The project remains pre-1.0, but WIR and the
+published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
+
+## [0.2.0] — 2026-07-24
+
+### Added
+
+- Static Linux x86-64 Stage 1 SDKs for glibc and musl.
+- A fully static `bin/weavec1` compiler and matching
+  `lib/libweave-runtime.a` in each archive.
+- Runtime headers, SDK manifest, version metadata, and SHA-256 checksums.
+- SDK-only compile-link-run smoke tests for both libc variants.
+- VERSION-driven GitHub Release publication and release documentation.
+
+### Changed
+
+- Linux builds consume the published `weavec0 v0.2.1` bootstrap SDK rather
+  than clone and rebuild Stage 0.
+- Downloaded Stage 0 archives are verified against `SHA256SUMS` and cached
+  under `build/vendor/weavec0-sdk/`.
+- `weavec1` and its second bootstrap generation link against the Stage 0
+  bootstrap object and matching static runtime library; `runtime.c` is no
+  longer required on the normal Linux path.
+- CI now validates Linux glibc SDK, Linux musl SDK, and macOS source-fallback
+  builds.
+- `weavefront` consumes the published Stage 1 SDK on Linux.
+
+### Documentation
+
+- Clarified that `build/weavec2` in this repository is the second generation of
+  the WIR compiler, not the separate surface-compiler repository.
+- Added the Stage 0 input SDK and Stage 1 output SDK contracts to the README.
 
 ## [0.1.0] — 2026-05-26
 
 The first public release of `weavec1`.
 
 ### Added
-- Apache-2.0 licensing (`LICENSE`, `NOTICE`, SPDX headers on every
-  owned source file).
-- `CONTRIBUTING.md` describing the very narrow merge bar.
-- `CHANGELOG.md` (this file).
-- `.editorconfig` and `.gitattributes` for consistent line endings /
-  indentation.
-- GitHub Actions CI matrix (`ubuntu-latest`, `macos-latest`) that
-  fetches the pinned `weavec0` dependency and runs the full ladder.
-- `--regen-goldens` flag on `build.sh` for accepting golden updates
-  with reviewable `git diff`.
-- `test/manifest.txt` enumerates every test case (60 cases:
-  55 positive + 5 negative), replacing the inline enumeration in
-  `build.sh`.
+
+- Apache-2.0 licensing and SPDX headers.
+- `CONTRIBUTING.md`, this changelog, and repository formatting files.
+- GitHub Actions CI on Linux and macOS.
+- `--regen-goldens` support.
+- `test/manifest.txt` with 60 cases: 55 positive and 5 negative.
 
 ### Changed
-- Layout rename: `tests/` → `test/`, matching `weavec0`/`weavec2`.
-- `build.sh` no longer assumes a sibling `../src-bootstrap-llvm/`
-  directory. Instead it honours the `WEAVEC0` env var (path to a
-  pre-built weavec0 source tree); when unset, it git-clones the
-  pinned `WEAVEC0_TAG` (default `v0.2.0`) from
-  `https://github.com/ahojukka5/weavec0` into `build/vendor/weavec0`
-  and builds it there. Vendored copy is gitignored.
-- Reworked README from a 26-line stub to a full standalone-project
-  README (overview, prerequisites, quick start, layout, build, test
-  ladder, examples, where weavec1 fits, source style, known
-  limitations, license, contributing).
+
+- Renamed `tests/` to `test/`.
+- Removed the sibling-directory assumption. The initial release fetched and
+  built the pinned `weavec0 v0.2.0` source tree when `WEAVEC0` was unset.
+- Expanded the README into standalone build, test, architecture, and
+  contribution documentation.
 
 ### Fixed
-- `scripts/check_wir_source_style.py` no longer crashes with
-  `ValueError` when a function block is missing its `; Parameters:`
-  marker; it now records the missing marker as a normal style
-  violation. (The checker still reports 17 pre-existing violations
-  in the current source tree; cleaning these up is a separate
-  follow-up.)
+
+- The source-style checker reports missing documentation markers as normal
+  violations rather than raising `ValueError`.
