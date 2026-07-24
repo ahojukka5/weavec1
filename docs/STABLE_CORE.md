@@ -38,10 +38,10 @@ weavec0 → weavec1 → weavec-bootstrap → weavec
 | [`weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written LLVM-IR seed. Compiles WIR to LLVM IR and publishes the Stage 0 SDK. |
 | `weavec1` | WIR-written backend. Compiles WIR to LLVM IR and publishes the Stage 1 SDK. |
 | [`weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Deterministic surface-Weave-to-WIR bootstrap frontend, formerly `weavefront`. |
-| [`weavec`](https://github.com/ahojukka5/weavec) | Final user-facing self-hosted compiler, formerly `weavec2`. |
+| [`weavec`](https://github.com/ahojukka5/weavec) | Final user-facing self-hosted compiler, formerly `weavec1-selfhost`. |
 
 This repository also builds a second generation of `weavec1` to prove
-self-hosting. The current physical path is `build/weavec2` for compatibility,
+self-hosting. The current physical path is `build/weavec1-selfhost` for compatibility,
 but the artifact is conceptually **`weavec1-selfhost`** and is unrelated to the
 `weavec` repository.
 

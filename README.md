@@ -27,10 +27,9 @@ second Stage 1 generation
 byte-identical output on the full ladder
 ```
 
-The second generation is conceptually **`weavec1-selfhost`**. The current build
-still writes the historical compatibility path `build/weavec2`; that filename
-does not refer to the user-facing [`weavec`](https://github.com/ahojukka5/weavec)
-repository.
+The second generation is named **`weavec1-selfhost`** and is written to
+`build/weavec1-selfhost`. It is the same WIR compiler rebuilt by itself; it is
+not the user-facing [`weavec`](https://github.com/ahojukka5/weavec) compiler.
 
 ## Compiler chain
 
@@ -51,7 +50,7 @@ weavec-bootstrap
 | `weavec0` | [`ahojukka5/weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written Stage 0 seed and SDK. |
 | `weavec1` | **this repository** | WIR compiler and Stage 1 SDK. |
 | `weavec-bootstrap` | [`ahojukka5/weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Surface-to-WIR bootstrap frontend, formerly `weavefront`. |
-| `weavec` | [`ahojukka5/weavec`](https://github.com/ahojukka5/weavec) | User-facing self-hosted compiler, formerly `weavec2`. |
+| `weavec` | [`ahojukka5/weavec`](https://github.com/ahojukka5/weavec) | User-facing self-hosted compiler, formerly `weavec1-selfhost`. |
 
 Normal users should use `weavec`. This repository is a reproducible bootstrap
 stage and should change conservatively.
@@ -209,7 +208,6 @@ python3 scripts/check_wir_source_style.py
 - Source comments are not preserved in generated LLVM IR.
 - The admitted extern set is intentionally small and versioned upstream.
 - Diagnostics remain compact and mostly lack precise source ranges.
-- The second-generation output still uses the historical path `build/weavec2`.
 
 ## License
 

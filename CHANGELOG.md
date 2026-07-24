@@ -7,6 +7,13 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed the second Stage 1 bootstrap generation from the ambiguous
+  `build/weavec2` path to `build/weavec1-selfhost`.
+- Renamed the corresponding build variables, directories, diagnostics, and
+  documentation to distinguish it from the user-facing `weavec` compiler.
+
 ### Documentation
 
 - Updated downstream terminology after `weavefront` was renamed to

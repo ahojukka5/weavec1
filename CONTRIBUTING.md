@@ -17,7 +17,7 @@ change conservatively.
   `./build.sh`.
 - **Bootstrap determinism is required.** `build/weavec1` and the second Stage 1
   generation must emit byte-identical LLVM output on positive fixtures. The
-  latter currently uses the historical compatibility path `build/weavec2`.
+  latter currently uses the historical compatibility path `build/weavec1-selfhost`.
 - **SDK contracts are versioned.** Changes to compiler behavior, runtime ABI,
   archive layout, or required Stage 0 components must be documented and
   released in dependency order.
