@@ -237,7 +237,7 @@ compile_module() {
   local compiler="$1"
   local output_dir="$2"
   local name="$3"
-  local src="$SRC_DIR/${name}.wir"
+  local src="src/${name}.wir"
   local ll="$output_dir/${name}.ll"
 
   [[ -f "$src" ]] || fail "missing source module: $src"
@@ -412,8 +412,8 @@ run_case() {
   local name="$5"
   local expected_exit="$6"
 
-  local src="$TEST_DIR/${name}.wir"
-  local expected_ll="$TEST_DIR/${name}.expected.ll"
+  local src="test/${name}.wir"
+  local expected_ll="test/${name}.expected.ll"
   local ll="$test_ll_dir/${name}.ll"
   local bc="$test_ll_dir/${name}.bc"
   local exe="$test_exe_dir/${name}.out"
@@ -457,7 +457,7 @@ run_compile_fail_case() {
   local name="$4"
   local expected_message="$5"
 
-  local src="$TEST_DIR/${name}.wir"
+  local src="test/${name}.wir"
   local ll="$test_ll_dir/${name}.ll"
   local output="$test_ll_dir/${name}.compiler-output"
 
@@ -521,6 +521,7 @@ compare_bootstrap_outputs() {
 }
 
 main() {
+  cd "$WEAVEC1_DIR"
   require_tool awk
   require_tool clang
   require_tool diff
