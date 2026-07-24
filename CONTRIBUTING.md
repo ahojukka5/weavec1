@@ -2,7 +2,7 @@
 
 `weavec1` is the WIR-written compiler stage between two versioned SDK
 boundaries. It consumes the published Stage 0 SDK and publishes the compiler and
-runtime consumed by `weavefront`.
+runtime consumed by `weavec-bootstrap`.
 
 Once the WIR and surface bootstrap chain are stable, this repository should
 change conservatively.
@@ -15,9 +15,9 @@ change conservatively.
 - **No feature without a test.** Add every admitted shape to
   [`test/manifest.txt`](test/manifest.txt) and exercise it through
   `./build.sh`.
-- **Bootstrap determinism is required.** `build/weavec1` and the second
-  bootstrap generation `build/weavec2` must emit byte-identical LLVM output on
-  positive fixtures.
+- **Bootstrap determinism is required.** `build/weavec1` and the second Stage 1
+  generation must emit byte-identical LLVM output on positive fixtures. The
+  latter currently uses the historical compatibility path `build/weavec2`.
 - **SDK contracts are versioned.** Changes to compiler behavior, runtime ABI,
   archive layout, or required Stage 0 components must be documented and
   released in dependency order.
@@ -30,7 +30,10 @@ change conservatively.
 
 ## What does not belong here
 
-- New high-level surface-language features.
+- New high-level surface-language features. Those belong in
+  [`weavec`](https://github.com/ahojukka5/weavec).
+- Bootstrap surface-lowering changes. Those belong in
+  [`weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap).
 - Optimisation, packages, advanced types, or IDE behavior.
 - Uncoordinated changes to the WIR or runtime ABI.
 - A new runtime extern added only in Stage 1. Add it to `weavec0`, publish a new
@@ -71,7 +74,7 @@ For an output-SDK change:
 2. validate both libc variants;
 3. document compatibility and archive changes;
 4. publish the Stage 1 SDK;
-5. only then update downstream `WEAVEC1_VERSION` pins.
+5. only then update the `WEAVEC1_VERSION` pin in `weavec-bootstrap`.
 
 See [`docs/RELEASING.md`](docs/RELEASING.md).
 
