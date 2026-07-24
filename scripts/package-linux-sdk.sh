@@ -46,6 +46,7 @@ RUNTIME_SOURCE="$WEAVEC0_SDK/lib/libweavec0-runtime.a"
 RUNTIME="$PACKAGE_DIR/lib/libweave-runtime.a"
 HEADER_SOURCE="$WEAVEC0_SDK/include/runtime.h"
 SMOKE_LL="$RELEASE_BUILD/smoke.ll"
+SMOKE_OBJECT="$RELEASE_BUILD/smoke.o"
 SMOKE_EXE="$RELEASE_BUILD/smoke"
 
 require_tool() {
@@ -112,12 +113,13 @@ cp "$ROOT/README.md" "$PACKAGE_DIR/"
 [[ -f "$ROOT/NOTICE" ]] && cp "$ROOT/NOTICE" "$PACKAGE_DIR/"
 
 "$COMPILER" test/10_string_literal.wir "$SMOKE_LL"
+clang -Wno-override-module -O2 -c "$SMOKE_LL" -o "$SMOKE_OBJECT"
 case "$LIBC" in
   glibc)
-    clang -static "$SMOKE_LL" "$RUNTIME" -o "$SMOKE_EXE"
+    clang -static "$SMOKE_OBJECT" "$RUNTIME" -o "$SMOKE_EXE"
     ;;
   musl)
-    musl-gcc -static "$SMOKE_LL" "$RUNTIME" -o "$SMOKE_EXE"
+    musl-gcc -static "$SMOKE_OBJECT" "$RUNTIME" -o "$SMOKE_EXE"
     ;;
 esac
 
