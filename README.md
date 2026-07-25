@@ -178,7 +178,7 @@ weavec1/
 
 ## Test ladder
 
-`test/manifest.txt` contains 60 cases: 54 positive and 6 expected failures.
+`test/manifest.txt` contains 61 cases: 55 positive and 6 expected failures.
 Each positive case verifies compiler output, the LLVM golden, `llvm-as`, native
 linking, and the declared exit code. Negative cases must fail without producing
 LLVM IR and must include the expected diagnostic substring.
@@ -190,15 +190,21 @@ Useful examples:
 - [`test/08_while.wir`](test/08_while.wir)
 - [`test/16_extern_malloc_free.wir`](test/16_extern_malloc_free.wir)
 - [`test/55_integration_nested_control_flow.wir`](test/55_integration_nested_control_flow.wir)
+- [`test/59_new_operators.wir`](test/59_new_operators.wir)
 
-## Source style
+## Repository audit
 
-WIR modules follow [`docs/WIR_SOURCE_STYLE.md`](docs/WIR_SOURCE_STYLE.md).
-Run the optional checker with:
+Run the repository audit before committing:
 
 ```sh
 python3 scripts/check_wir_source_style.py
 ```
+
+CI and release workflows require this audit. It enforces a one-to-one mapping
+between `build.sh` and `src/*.wir`, requires every production module to declare
+WIR core version 2, applies the documented source-style rules, and verifies that
+every test fixture and positive LLVM golden belongs to exactly one manifest
+case.
 
 ## Known limitations
 
