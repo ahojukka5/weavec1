@@ -12,7 +12,7 @@
 ; Buffers use a manual fixed-layout record to keep runtime dependencies small.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

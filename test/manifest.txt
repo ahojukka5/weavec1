@@ -85,6 +85,7 @@ fail 51_unknown_operator                      unknown operator
 fail 52_wrong_arity_add_i32_too_few           arity
 fail 53_wrong_arity_add_i32_too_many          arity
 fail 61_parse_error_location                  at line
+fail 62_core_version_1_rejected              parse failed
 
 # ===== Debug features (54) =====
 pass 54_debug_marker                          42

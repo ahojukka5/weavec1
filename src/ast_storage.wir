@@ -34,7 +34,7 @@
 ;   at the cost of a fixed 64-byte footprint per node.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

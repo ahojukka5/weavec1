@@ -1,16 +1,16 @@
 # Stable WIR Core Architecture
 
-This document defines the stable backend contract shared by the Weave bootstrap
+This document defines the backend contract shared by the Weave bootstrap
 compiler chain.
 
-## WIR
+## WIR core version 2
 
-WIR, the Weave Intermediate Representation, is the stable boundary between
-surface lowering and LLVM emission:
+WIR is the typed, deterministic boundary between surface lowering and LLVM
+emission:
 
 ```lisp
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
     (fn main
       (params)
@@ -19,15 +19,11 @@ surface lowering and LLVM emission:
         (return (const_i32 42))))))
 ```
 
-WIR is intentionally:
+Core version 2 is small, explicit, close to LLVM semantics, human-readable, and
+versioned conservatively. Core version 1 remains reproducible through immutable
+older compiler releases; current compilers reject it.
 
-- small and explicit;
-- close to LLVM semantics;
-- deterministic;
-- human-readable and auditable;
-- versioned conservatively.
-
-## Current compiler chain
+## Compiler chain
 
 ```text
 weavec0 → weavec1 → weavec-bootstrap → weavec
@@ -35,113 +31,47 @@ weavec0 → weavec1 → weavec-bootstrap → weavec
 
 | Component | Role |
 |---|---|
-| [`weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written LLVM-IR seed. Compiles WIR to LLVM IR and publishes the Stage 0 SDK. |
-| `weavec1` | WIR-written backend. Compiles WIR to LLVM IR and publishes the Stage 1 SDK. |
-| [`weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Deterministic surface-Weave-to-WIR bootstrap frontend, formerly `weavefront`. |
-| [`weavec`](https://github.com/ahojukka5/weavec) | Final user-facing self-hosted compiler, formerly `weavec1-selfhost`. |
+| [`weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written LLVM-IR seed. Implements only the WIR v2 bootstrap profile required to compile `weavec1`. |
+| `weavec1` | WIR-written backend. Implements the complete stable WIR v2 backend and publishes the Stage 1 SDK. |
+| [`weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Deterministic surface-Weave-to-WIR bootstrap frontend. |
+| [`weavec`](https://github.com/ahojukka5/weavec) | User-facing self-hosted compiler. |
 
-This repository also builds a second generation of `weavec1` to prove
-self-hosting. The current physical path is `build/weavec1-selfhost` for compatibility,
-but the artifact is conceptually **`weavec1-selfhost`** and is unrelated to the
-`weavec` repository.
+The Stage 0 bootstrap profile is intentionally a strict implementation subset:
+it accepts exactly the forms used by the pinned Stage 1 source modules. This is
+not a second language version. Stage 1 owns the complete backend surface used by
+downstream compilers.
 
 ## Bootstrap determinism
 
-For every positive WIR fixture, the first and second Stage 1 generations must
-emit byte-identical LLVM IR.
-
-`build.sh` validates this by:
-
-1. building `build/weavec1` with `weavec0`;
-2. building the second Stage 1 generation with `build/weavec1`;
-3. running the complete positive and negative ladder through both;
-4. comparing every positive LLVM output byte for byte.
-
-A divergence is always a build failure. It may indicate nondeterministic code,
-uninitialised state, host-dependent behavior, or a compiler self-hosting bug.
+`build.sh` builds `weavec1` with `weavec0`, rebuilds the same compiler with the
+first generation, runs the complete positive and negative ladder through both,
+and requires byte-identical LLVM output. Any divergence is a build failure.
 
 ## Stable backend contract
 
-WIR version 1 includes explicit:
+WIR core version 2 includes explicit scalar and pointer types, arithmetic and
+comparisons, memory operations, locals and parameters, typed calls and externs,
+structured control flow, string pointer constants, and module declarations.
+The authoritative admitted shapes are the Stage 1 implementation and fixtures
+under `test/`.
 
-- scalar types: `i8`, `i32`, `i64`, `bool`, and `void`;
-- pointer operations and memory loads/stores;
-- arithmetic and comparisons;
-- locals, parameters, function calls, and extern declarations;
-- `do`, `if`, `while`, and `return` control flow;
-- string pointer constants;
-- module and declaration structure.
-
-The authoritative admitted shapes are the implementation and the fixtures under
-[`test/`](../test/).
-
-### Allowed changes
-
-- bug fixes that restore intended semantics;
-- deterministic implementation improvements;
-- diagnostics and documentation improvements;
-- explicitly versioned additions coordinated with `weavec0`;
-- release and packaging improvements that preserve the SDK contract.
-
-### Changes requiring a new contract version
-
-- removing or changing an existing operator;
-- changing an operator's type or semantics;
-- breaking previously valid WIR version 1 programs;
-- changing the runtime ABI incompatibly;
-- introducing nondeterministic output.
-
-Future incompatible language additions must use a new `(core-version N)` and a
-documented migration path.
-
-## Surface language relationship
-
-WIR is not the user language:
-
-```text
-surface Weave
-      ↓
-weavec-bootstrap or weavec frontend
-      ↓
-WIR version 1
-      ↓
-weavec1 or weavec backend
-      ↓
-LLVM IR
-```
-
-New user-facing language work belongs primarily in `weavec`. The bootstrap
-frontend only needs enough surface support to reproduce that compiler from the
-lower stages.
-
-## LLVM fixtures
-
-Each positive case has:
-
-```text
-test/<name>.wir
-test/<name>.expected.ll
-```
-
-The build verifies that the compiler output matches the checked-in fixture,
-assembles with `llvm-as`, links with `clang`, and returns the declared exit code.
-Negative cases must fail without producing LLVM IR and must include the expected
-diagnostic substring.
-
-See [`LLVM_FIXTURES.md`](LLVM_FIXTURES.md).
+Allowed changes without a new core version are correctness fixes, deterministic
+implementation improvements, diagnostics, tests, and packaging changes that
+preserve semantics. Removing or changing an admitted form, changing its type or
+semantics, breaking valid v2 programs, or changing the runtime ABI incompatibly
+requires a new core version and coordinated release.
 
 ## Runtime and SDK boundaries
 
-Linux x86-64 builds consume the published `weavec0` SDK:
+Stage 1 consumes the minimal Stage 0 SDK:
 
 ```text
 bin/weavec0
-lib/weavec0-bootstrap.o
 lib/libweavec0-runtime.a
 include/runtime.h
 ```
 
-This repository publishes the Stage 1 SDK consumed by `weavec-bootstrap`:
+Stage 1 publishes:
 
 ```text
 bin/weavec1
@@ -149,32 +79,11 @@ lib/libweave-runtime.a
 include/runtime.h
 ```
 
-Both SDK boundaries are versioned. Downstream pins change only after the
-corresponding upstream release exists and its checksums and contents have been
-verified.
-
-## Project principles
-
-- **Auditability:** transformations and generated LLVM remain inspectable.
-- **Determinism:** the same WIR produces the same LLVM text.
-- **Explicit lowering:** no hidden conversions, allocations, or operators.
-- **Reproducibility:** each stage can be rebuilt from the previous published
-  stage.
-- **LLM-friendly structure:** stable naming, simple formats, and small explicit
-  operations.
+Downstream pins move only after the corresponding upstream release and checksums
+exist.
 
 ## Verification
 
-Run:
-
-```bash
-./build.sh
-```
-
-A passing build confirms:
-
-- the Stage 0 SDK can build `weavec1`;
-- the complete WIR ladder passes;
-- the second Stage 1 generation can rebuild the same compiler;
-- both generations emit identical output;
-- the source and SDK contracts remain compatible.
+Run `./build.sh`. A passing build confirms the Stage 0 SDK can build Stage 1,
+the full WIR v2 ladder passes, the second generation rebuilds the compiler, and
+both generations emit identical output.

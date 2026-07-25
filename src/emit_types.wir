@@ -12,7 +12,7 @@
 ; The compiler currently relies on explicit AST layout and simple lookup scans.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

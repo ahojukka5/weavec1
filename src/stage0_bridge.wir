@@ -10,7 +10,7 @@
 ; This file intentionally contains no compiler logic.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

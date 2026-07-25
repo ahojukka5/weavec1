@@ -34,11 +34,11 @@ not the user-facing [`weavec`](https://github.com/ahojukka5/weavec) compiler.
 ## Compiler chain
 
 ```text
-weavec0 v0.2.1 SDK
+weavec0 v0.4.0 SDK
         ↓
       weavec1
         ↓
-weavec1 v0.2.0 SDK
+weavec1 v0.3.0 SDK
         ↓
 weavec-bootstrap
         ↓
@@ -102,31 +102,26 @@ git diff -- test/
 
 ## Stage 0 dependency
 
-The default dependency is `weavec0 v0.2.1`. Stage 1 requires only:
+The default dependency is `weavec0 v0.4.0`. Stage 1 requires only:
 
 ```text
 bin/weavec0
 lib/libweavec0-runtime.a
 ```
 
-`bin/weavec0` is a build-time compiler: it translates the Stage 1 WIR modules
-to LLVM IR. The resulting Stage 1 binaries contain only the generated Stage 1
-modules and the matching runtime implementation. They do not link or embed the
-Stage 0 compiler implementation.
-
-The v0.2.1 archives also contain `weavec0-bootstrap.bc` and
-`weavec0-bootstrap.o` for compatibility, but `weavec1` does not consume them.
-The normal Linux path links the static runtime library; the source fallback
-links the matching `runtime.c` implementation.
+`bin/weavec0` is a build-time compiler: it translates the Stage 1 WIR v2
+modules to LLVM IR. The resulting Stage 1 binaries contain only the generated
+Stage 1 modules and the matching runtime implementation. They do not link or
+embed the Stage 0 compiler implementation.
 
 Environment overrides:
 
-- `WEAVEC0_VERSION=v0.2.1` selects the published SDK;
+- `WEAVEC0_VERSION=v0.4.0` selects the published SDK;
 - `WEAVEC0_LIBC=glibc|musl` selects the Linux variant;
 - `WEAVEC0_SDK=/path/to/sdk` uses an extracted SDK;
 - `WEAVEC0_RELEASE_BASE=<url>` changes the release base;
 - `WEAVEC0=/path/to/source` selects a built source tree;
-- `WEAVEC0_TAG=v0.2.1` selects the source-fallback tag.
+- `WEAVEC0_TAG=v0.4.0` selects the source-fallback tag.
 
 ## Build pipeline
 
@@ -146,7 +141,7 @@ failure, or bootstrap divergence aborts the build.
 
 ## Published Stage 1 SDK
 
-Release `v0.2.0` introduced static Linux x86-64 SDKs for glibc and musl:
+Release `v0.3.0` publishes static Linux x86-64 SDKs for glibc and musl:
 
 ```text
 weavec1-vX.Y.Z-linux-x86_64-<libc>/
@@ -183,7 +178,7 @@ weavec1/
 
 ## Test ladder
 
-`test/manifest.txt` contains 60 cases: 55 positive and 5 expected failures.
+`test/manifest.txt` contains 60 cases: 54 positive and 6 expected failures.
 Each positive case verifies compiler output, the LLVM golden, `llvm-as`, native
 linking, and the declared exit code. Negative cases must fail without producing
 LLVM IR and must include the expected diagnostic substring.
@@ -207,7 +202,7 @@ python3 scripts/check_wir_source_style.py
 
 ## Known limitations
 
-- WIR v1 is the stable boundary between Stage 0 and Stage 1.
+- WIR core version 2 is the stable boundary between Stage 0 and Stage 1.
 - Published SDKs currently cover Linux x86-64 only.
 - Source comments are not preserved in generated LLVM IR.
 - The admitted extern set is intentionally small and versioned upstream.

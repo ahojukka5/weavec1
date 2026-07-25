@@ -10,7 +10,7 @@
 ; Implementations are supplied by the runtime linked with emitted LLVM.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
     (extern
       malloc

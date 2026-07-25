@@ -11,7 +11,7 @@
 ; This is the final emission entry point after parsing has produced an AST.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

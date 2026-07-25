@@ -12,7 +12,7 @@
 ; remains easy to audit against the source AST.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

@@ -15,7 +15,7 @@
 ;   Constants are inlined by the emitter during compilation.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

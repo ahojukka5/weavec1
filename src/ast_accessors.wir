@@ -11,7 +11,7 @@
 ; Callers are responsible for passing a valid AST pointer and node index.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

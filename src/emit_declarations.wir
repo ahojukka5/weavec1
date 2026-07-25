@@ -12,7 +12,7 @@
 ; This module connects statement-level AST nodes to function-level LLVM output.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

@@ -12,7 +12,7 @@
 ; delegated to parser_stmt.wir and parser_expr.wir.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================
@@ -761,7 +761,7 @@
           (condition
             (ne_i32
               (local_get version)
-              (const_i32 1)))
+              (const_i32 2)))
           (then
             (do
               (return

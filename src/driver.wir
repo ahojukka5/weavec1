@@ -12,7 +12,7 @@
 ; This module owns phase sequencing, not parsing or emission details.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

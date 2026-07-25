@@ -12,7 +12,7 @@
 ; Token storage uses parallel arrays for kind, start offset, and length.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

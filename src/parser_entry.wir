@@ -11,7 +11,7 @@
 ; A negative return value reports parse failure.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================
