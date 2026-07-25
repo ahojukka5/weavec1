@@ -79,13 +79,13 @@ pass 47_multiple_externs_used_subset          42
 pass 48_string_escape                         42
 pass 49_negative_i32_literal                  42
 
-# ===== Negative tests (50-53, 61) =====
+# ===== Negative tests (50-53, 61-62) =====
 fail 50_parse_error_smoke                     parse failed
 fail 51_unknown_operator                      unknown operator
 fail 52_wrong_arity_add_i32_too_few           arity
 fail 53_wrong_arity_add_i32_too_many          arity
 fail 61_parse_error_location                  at line
-fail 62_core_version_1_rejected              parse failed
+fail 62_core_version_1_rejected               parse failed
 
 # ===== Debug features (54) =====
 pass 54_debug_marker                          42
@@ -94,6 +94,9 @@ pass 54_debug_marker                          42
 pass 55_integration_nested_control_flow       75
 pass 56_integration_multi_function_chain      35
 pass 57_integration_memory_flow               100
+
+# ===== Extended integer operators (59) =====
+pass 59_new_operators                         40
 
 # ===== Surface-style empty parameter list (60) =====
 pass 60_empty_params_paren_list               42
