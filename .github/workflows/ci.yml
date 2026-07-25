@@ -67,6 +67,9 @@ jobs:
           llvm-as --version
           git --version
 
+      - name: Audit frozen WIR source boundary
+        run: python3 scripts/check_wir_source_style.py
+
       - name: Build compiler chain and run full ladder
         shell: bash
         run: |
