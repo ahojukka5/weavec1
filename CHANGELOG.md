@@ -13,6 +13,11 @@ published SDK are maintained as explicit bootstrap contracts.
   `build/weavec2` path to `build/weavec1-selfhost`.
 - Renamed the corresponding build variables, directories, diagnostics, and
   documentation to distinguish it from the user-facing `weavec` compiler.
+- Stage 1 now uses the Stage 0 compiler strictly as a build-time WIR translator;
+  final Stage 1 binaries no longer link `weavec0-bootstrap.o` or the equivalent
+  Stage 0 source-fallback bitcode modules.
+- The required Stage 0 SDK subset is reduced to `bin/weavec0` and the matching
+  static runtime library.
 
 ### Documentation
 
@@ -21,6 +26,8 @@ published SDK are maintained as explicit bootstrap contracts.
   to `weavec`.
 - Defined the second Stage 1 generation conceptually as `weavec1-selfhost` while
   documenting that the current compatibility path remains `build/weavec2`.
+- Clarified the compile-time boundary between the Stage 0 compiler and the
+  generated Stage 1 implementation.
 
 ## [0.2.0] — 2026-07-24
 

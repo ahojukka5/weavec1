@@ -6,9 +6,10 @@ set -euo pipefail
 # weavec1 — Stage 1 compiler build and bootstrap-determinism ladder
 # =============================================================================
 #
-# Linux x86-64 builds consume the published weavec0 bootstrap SDK by default.
-# The SDK supplies the Stage 0 compiler executable, reusable bootstrap object,
-# and a libc-specific static runtime library. No weavec0 source build is needed.
+# Linux x86-64 builds consume the published weavec0 SDK by default. Stage 0 is
+# used only as the WIR compiler executable; the final Stage 1 binaries contain
+# the Stage 1-generated modules and the matching runtime implementation, not
+# the Stage 0 compiler implementation.
 #
 # Environment overrides:
 #
@@ -34,7 +35,7 @@ for arg in "$@"; do
   case "$arg" in
     --regen-goldens) REGEN_GOLDENS=1 ;;
     -h|--help)
-      sed -n '4,38p' "$0"
+      sed -n '4,40p' "$0"
       exit 0
       ;;
     *) printf 'unknown flag: %s\n' "$arg" >&2; exit 2 ;;
@@ -65,9 +66,7 @@ WEAVEC0_REPO="https://github.com/ahojukka5/weavec0.git"
 
 DEPENDENCY_MODE=""
 BOOTSTRAP_DIR=""
-BOOTSTRAP_OBJECT=""
 BOOTSTRAP_RUNTIME_LIBRARY=""
-BOOTSTRAP_BC_DIR=""
 WEAVEC0_COMPILER=""
 
 WEAVEC1="$BUILD_DIR/weavec1"
@@ -111,17 +110,6 @@ MODULES=(
   main
 )
 
-BOOTSTRAP_MODULES=(
-  01_runtime_bindings
-  02_strings
-  03_tokens
-  04_lexer
-  05_ast
-  06_parser
-  07_emit_llvm
-  08_driver
-)
-
 log()  { printf '[weavec1] %s\n' "$*" >&2; }
 fail() { printf '[weavec1] error: %s\n' "$*" >&2; exit 1; }
 require_tool() {
@@ -135,14 +123,11 @@ host_has_published_sdk() {
 validate_sdk() {
   local sdk="$1"
   [[ -x "$sdk/bin/weavec0" ]] || fail "SDK compiler missing: $sdk/bin/weavec0"
-  [[ -s "$sdk/lib/weavec0-bootstrap.o" ]] || \
-    fail "SDK bootstrap object missing: $sdk/lib/weavec0-bootstrap.o"
   [[ -s "$sdk/lib/libweavec0-runtime.a" ]] || \
     fail "SDK runtime library missing: $sdk/lib/libweavec0-runtime.a"
 
   BOOTSTRAP_DIR="$sdk"
   WEAVEC0_COMPILER="$sdk/bin/weavec0"
-  BOOTSTRAP_OBJECT="$sdk/lib/weavec0-bootstrap.o"
   BOOTSTRAP_RUNTIME_LIBRARY="$sdk/lib/libweavec0-runtime.a"
   DEPENDENCY_MODE=sdk
 }
@@ -208,16 +193,13 @@ ensure_weavec0_source() {
   [[ -x "$BOOTSTRAP_DIR/build.sh" ]] || \
     fail "weavec0 build.sh missing: $BOOTSTRAP_DIR/build.sh"
 
-  if [[ ! -x "$BOOTSTRAP_DIR/weavec0" ]] || \
-     [[ ! -d "$BOOTSTRAP_DIR/build/bootstrap-tests/bc" ]]; then
+  if [[ ! -x "$BOOTSTRAP_DIR/weavec0" ]]; then
     log "building weavec0 source fallback"
     (cd "$BOOTSTRAP_DIR" && ./build.sh)
   fi
 
   WEAVEC0_COMPILER="$BOOTSTRAP_DIR/weavec0"
-  BOOTSTRAP_BC_DIR="$BOOTSTRAP_DIR/build/bootstrap-tests/bc"
   [[ -x "$WEAVEC0_COMPILER" ]] || fail "weavec0 compiler was not built"
-  [[ -d "$BOOTSTRAP_BC_DIR" ]] || fail "weavec0 bitcode directory missing"
   DEPENDENCY_MODE=source
 }
 
@@ -332,15 +314,15 @@ link_compiler_from_sdk() {
     objects+=("$object")
   done
 
-  log "link $compiler_name with weavec0 SDK ($WEAVEC0_LIBC)"
+  log "link $compiler_name with weavec0 runtime ($WEAVEC0_LIBC)"
   case "$WEAVEC0_LIBC" in
     glibc)
-      clang -static "${objects[@]}" "$BOOTSTRAP_OBJECT" \
+      clang -static "${objects[@]}" \
         "$BOOTSTRAP_RUNTIME_LIBRARY" -o "$output"
       ;;
     musl)
       require_tool musl-gcc
-      musl-gcc -static "${objects[@]}" "$BOOTSTRAP_OBJECT" \
+      musl-gcc -static "${objects[@]}" \
         "$BOOTSTRAP_RUNTIME_LIBRARY" -o "$output"
       ;;
   esac
@@ -357,15 +339,8 @@ link_compiler_from_source() {
     llvm_modules+=("$link_ll_dir/${module}.ll")
   done
 
-  local bootstrap_bitcode=()
-  for module in "${BOOTSTRAP_MODULES[@]}"; do
-    local bc="$BOOTSTRAP_BC_DIR/${module}.bc"
-    [[ -f "$bc" ]] || fail "missing bootstrap bitcode: $bc"
-    bootstrap_bitcode+=("$bc")
-  done
-
-  log "link $compiler_name with weavec0 source fallback"
-  clang "${llvm_modules[@]}" "${bootstrap_bitcode[@]}" \
+  log "link $compiler_name with weavec0 source runtime"
+  clang "${llvm_modules[@]}" \
     "$BOOTSTRAP_DIR/runtime.c" -o "$output"
 }
 

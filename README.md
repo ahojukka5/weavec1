@@ -102,18 +102,22 @@ git diff -- test/
 
 ## Stage 0 dependency
 
-The default dependency is `weavec0 v0.2.1`:
+The default dependency is `weavec0 v0.2.1`. Stage 1 requires only:
 
 ```text
 bin/weavec0
-lib/weavec0-bootstrap.bc
-lib/weavec0-bootstrap.o
 lib/libweavec0-runtime.a
-include/runtime.h
 ```
 
-The normal Linux build uses the compiler, reusable bootstrap object, and
-matching static runtime directly. It does not require `runtime.c`.
+`bin/weavec0` is a build-time compiler: it translates the Stage 1 WIR modules
+to LLVM IR. The resulting Stage 1 binaries contain only the generated Stage 1
+modules and the matching runtime implementation. They do not link or embed the
+Stage 0 compiler implementation.
+
+The v0.2.1 archives also contain `weavec0-bootstrap.bc` and
+`weavec0-bootstrap.o` for compatibility, but `weavec1` does not consume them.
+The normal Linux path links the static runtime library; the source fallback
+links the matching `runtime.c` implementation.
 
 Environment overrides:
 
@@ -131,14 +135,14 @@ The normal Linux build:
 1. downloads or reuses a checksum-verified Stage 0 SDK;
 2. compiles every `src/*.wir` module with `bin/weavec0`;
 3. generates deterministic cross-module declarations;
-4. links `build/weavec1` with Stage 0 support and runtime;
+4. links `build/weavec1` from the generated Stage 1 modules and runtime;
 5. runs positive and negative compiler tests;
 6. builds the second Stage 1 generation from the same sources;
 7. runs the same test ladder through it;
 8. compares every positive LLVM output byte for byte.
 
-A failed download, checksum mismatch, missing SDK component, test failure, or
-bootstrap divergence aborts the build.
+A failed download, checksum mismatch, missing required SDK component, test
+failure, or bootstrap divergence aborts the build.
 
 ## Published Stage 1 SDK
 
