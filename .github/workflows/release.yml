@@ -38,7 +38,10 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python3 scripts/check_wir_source_style.py 2>&1 | tee audit.log
+          {
+            python3 scripts/check_wir_source_style.py
+            python3 scripts/audit_wir_reachability.py
+          } 2>&1 | tee audit.log
 
       - name: Install LLVM and libc toolchains
         run: |
@@ -100,6 +103,7 @@ jobs:
           path: |
             audit.log
             build.log
+            build/audit/*.json
           if-no-files-found: warn
           retention-days: 7
 
