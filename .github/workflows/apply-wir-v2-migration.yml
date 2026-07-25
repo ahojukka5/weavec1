@@ -105,6 +105,7 @@ jobs:
         run: |
           git rm scripts/apply-wir-v2-migration.py
           git rm .github/workflows/apply-wir-v2-migration.yml
+          rm -rf weavec0-source
 
       - name: Commit and push
         run: |
