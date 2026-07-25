@@ -211,6 +211,11 @@ def audit(report_path: Path) -> int:
         path = functions[name][0].relative_to(REPO_ROOT)
         errors.append(f"{path}: unreachable source function `{name}`")
 
+    called_targets = set().union(*graph.values()) if graph else set()
+    unused_externs = sorted(externs - called_targets)
+    for name in unused_externs:
+        errors.append(f"unused source extern `{name}`")
+
     report = {
         "format": "weavec1-reachability-v1",
         "roots": sorted(roots),
@@ -220,6 +225,7 @@ def audit(report_path: Path) -> int:
         "reachable_count": len(reachable),
         "unreachable": unreachable,
         "unresolved_calls": unresolved,
+        "unused_externs": unused_externs,
         "functions": [
             {
                 "name": name,
@@ -243,7 +249,7 @@ def audit(report_path: Path) -> int:
 
     print(
         f"WIR reachability passed: {len(reachable)}/{len(functions)} functions "
-        f"reachable from main."
+        f"reachable from main; {len(externs)} externs used."
     )
     print(f"reachability report: {report_path.relative_to(REPO_ROOT)}")
     return 0
