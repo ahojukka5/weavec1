@@ -27,7 +27,7 @@ jobs:
         libc: [glibc, musl]
 
     env:
-      WEAVEC0_VERSION: v0.2.1
+      WEAVEC0_VERSION: v0.4.0
       WEAVEC0_LIBC: ${{ matrix.libc }}
 
     steps:
