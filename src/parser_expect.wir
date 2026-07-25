@@ -105,6 +105,12 @@
 ; Reads the token kind one position ahead without advancing the cursor.
 ; Used to recognize optional empty lists such as (params ()).
 ;
+; Parameters:
+;   parser - parser state pointer.
+;
+; Returns:
+;   next token kind id.
+;
 (fn parser_peek_kind
       (params
         (parser ptr))
@@ -229,6 +235,12 @@
 ;
 ; After (params, consumes an optional empty child list written as ().
 ; Both (params) and (params ()) denote zero parameters.
+;
+; Parameters:
+;   parser - parser state pointer.
+;
+; Returns:
+;   no value.
 ;
 (fn parser_consume_optional_empty_paren_list
       (params

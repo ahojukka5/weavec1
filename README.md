@@ -178,7 +178,7 @@ weavec1/
 
 ## Test ladder
 
-`test/manifest.txt` contains 60 cases: 54 positive and 6 expected failures.
+`test/manifest.txt` contains 61 cases: 55 positive and 6 expected failures.
 Each positive case verifies compiler output, the LLVM golden, `llvm-as`, native
 linking, and the declared exit code. Negative cases must fail without producing
 LLVM IR and must include the expected diagnostic substring.
@@ -190,15 +190,32 @@ Useful examples:
 - [`test/08_while.wir`](test/08_while.wir)
 - [`test/16_extern_malloc_free.wir`](test/16_extern_malloc_free.wir)
 - [`test/55_integration_nested_control_flow.wir`](test/55_integration_nested_control_flow.wir)
+- [`test/59_new_operators.wir`](test/59_new_operators.wir)
 
-## Source style
+## Repository audit
 
-WIR modules follow [`docs/WIR_SOURCE_STYLE.md`](docs/WIR_SOURCE_STYLE.md).
-Run the optional checker with:
+Run both repository audits before committing:
 
 ```sh
 python3 scripts/check_wir_source_style.py
+python3 scripts/audit_wir_reachability.py
 ```
+
+CI and release workflows require both audits. They enforce:
+
+- a one-to-one mapping between `build.sh` and `src/*.wir`;
+- exactly one WIR core version 2 declaration in every production module;
+- the documented WIR source-style contract;
+- a one-to-one mapping between test fixtures, manifest cases, and positive LLVM
+  goldens;
+- resolution of every direct WIR call target;
+- reachability of every source function from the executable `main` entry point;
+- use of every source-level extern declaration.
+
+The current audited implementation has 377 source functions, all reachable from
+`main`, and 11 source extern declarations, all used. The reachability audit
+writes the machine-readable report
+`build/audit/weavec1-reachability.json`.
 
 ## Known limitations
 

@@ -34,6 +34,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Audit frozen WIR source boundary
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            python3 scripts/check_wir_source_style.py
+            python3 scripts/audit_wir_reachability.py
+          } 2>&1 | tee audit.log
+
       - name: Install LLVM and libc toolchains
         run: |
           sudo apt-get update
@@ -53,7 +62,10 @@ jobs:
           musl-gcc --version
 
       - name: Build compiler chain and run the full ladder
-        run: ./build.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          ./build.sh 2>&1 | tee build.log
 
       - name: Select archive version
         id: version
@@ -82,6 +94,18 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
           retention-days: 14
+
+      - name: Upload failed diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-diagnostics-${{ matrix.libc }}
+          path: |
+            audit.log
+            build.log
+            build/audit/*.json
+          if-no-files-found: warn
+          retention-days: 7
 
   publish-release:
     name: Publish GitHub Release

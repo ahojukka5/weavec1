@@ -323,7 +323,14 @@
 ;
 ; parser_error_site
 ;
-; Returns the recorded source byte offset for the first parse error, or -1.
+; Reads the first recorded parse-error source offset.
+; A value of -1 means no error location has been recorded.
+;
+; Parameters:
+;   parser - parser state pointer.
+;
+; Returns:
+;   source byte offset for the first parse error, or -1.
 ;
 (fn parser_error_site
       (params
@@ -340,6 +347,14 @@
 ; parser_set_error_site
 ;
 ; Records the source byte offset associated with a parse error.
+; Callers decide whether an existing location may be replaced.
+;
+; Parameters:
+;   parser - parser state pointer.
+;   site - zero-based source byte offset to store.
+;
+; Returns:
+;   no value.
 ;
 (fn parser_set_error_site
       (params
@@ -358,6 +373,13 @@
 ; parser_note_error_site
 ;
 ; Captures the current token start offset on the first parse failure only.
+; Later errors preserve the original location for stable diagnostics.
+;
+; Parameters:
+;   parser - parser state pointer.
+;
+; Returns:
+;   no value.
 ;
 (fn parser_note_error_site
       (params

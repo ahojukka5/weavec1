@@ -5,6 +5,18 @@
   (core-version 2)
   (decls
 
+;
+; driver_print_cstr_no_nl
+;
+; Writes a null-terminated byte string to standard output without a newline.
+; Output continues until the first zero byte.
+;
+; Parameters:
+;   text - null-terminated string pointer.
+;
+; Returns:
+;   no value.
+;
   (fn driver_print_cstr_no_nl
     (params (text ptr))
     (returns void)
@@ -22,6 +34,18 @@
           (set scan_idx (add_i64 (local_get scan_idx) (const_i64 1)))))
       (return_void)))
 
+;
+; driver_put_u32
+;
+; Writes a non-negative 32-bit integer to standard output in decimal form.
+; Allocation failure leaves the value unwritten rather than aborting diagnostics.
+;
+; Parameters:
+;   value - non-negative integer to print.
+;
+; Returns:
+;   no value.
+;
   (fn driver_put_u32
     (params (value i32))
     (returns void)
@@ -60,6 +84,19 @@
       (call_void free (local_get buf))
       (return_void)))
 
+;
+; driver_print_parse_location
+;
+; Converts a source byte offset into one-based line and column coordinates.
+; Writes the coordinates and original byte offset without a trailing newline.
+;
+; Parameters:
+;   parser - parser state containing the source buffer.
+;   site - zero-based source byte offset to describe.
+;
+; Returns:
+;   no value.
+;
   (fn driver_print_parse_location
     (params (parser ptr) (site i64))
     (returns void)
@@ -92,6 +129,19 @@
       (call_void driver_print_cstr_no_nl (const_string_ptr ")"))
       (return_void)))
 
+;
+; driver_report_parse_failure
+;
+; Selects the stable parse error text and appends its source location.
+; Generic parse failures are used for error codes without a dedicated message.
+;
+; Parameters:
+;   parser - parser state containing error location and source data.
+;   error_code - parser error code to translate.
+;
+; Returns:
+;   no value.
+;
   (fn driver_report_parse_failure
     (params (parser ptr) (error_code i32))
     (returns void)

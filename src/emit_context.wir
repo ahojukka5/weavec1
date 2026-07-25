@@ -465,29 +465,6 @@
               (param_get ctx))))))
 
 ;
-; ctx_string_counter
-;
-; Reads the emission context `string counter` field.
-; Accessors keep the manual context layout hidden from emitters.
-;
-; Parameters:
-;   ctx - emission context pointer.
-;
-; Returns:
-;   context `string counter` field value.
-;
-(fn ctx_string_counter
-      (params
-        (ctx ptr))
-      (returns i64)
-      (do
-        (return
-          (load_i64
-            (call_ptr
-              ctx_string_field
-              (param_get ctx))))))
-
-;
 ; ctx_locals
 ;
 ; Reads the emission context `locals` field.
@@ -508,29 +485,6 @@
           (load_ptr
             (call_ptr
               ctx_locals_field
-              (param_get ctx))))))
-
-;
-; ctx_local_count
-;
-; Reads the emission context `local count` field.
-; Accessors keep the manual context layout hidden from emitters.
-;
-; Parameters:
-;   ctx - emission context pointer.
-;
-; Returns:
-;   context `local count` field value.
-;
-(fn ctx_local_count
-      (params
-        (ctx ptr))
-      (returns i64)
-      (do
-        (return
-          (load_i64
-            (call_ptr
-              ctx_local_count_field
               (param_get ctx))))))
 
 ;

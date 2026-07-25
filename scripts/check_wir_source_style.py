@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Heuristic WIR source documentation/style checker."""
+"""Validate the frozen Stage 1 source and test inventories."""
 
 from __future__ import annotations
 
@@ -11,10 +11,16 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = REPO_ROOT / "src"
+TEST_DIR = REPO_ROOT / "test"
+BUILD_SCRIPT = REPO_ROOT / "build.sh"
+TEST_MANIFEST = TEST_DIR / "manifest.txt"
 FN_RE = re.compile(r"^\s*\(fn\s+([A-Za-z_][A-Za-z0-9_-]*)$")
 OLD_FN_RE = re.compile(r"^\s*\(fn$")
 PARAM_RE = re.compile(r"^\s*\(([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z0-9_]+)\)+$")
 RET_RE = re.compile(r"^\s*\(returns\s+([A-Za-z0-9_]+)\)$")
+CORE_VERSION_RE = re.compile(r"^\s*\(core-version\s+([0-9]+)\)\s*$")
+MODULE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+TEST_NAME_RE = re.compile(r"^[0-9]{2}_[A-Za-z0-9_]+$")
 BAD_DOC_PATTERNS = (
     "Provides ",
     "Implements ",
@@ -26,6 +32,147 @@ BAD_DOC_PATTERNS = (
     "field value or status code",
     "storage value",
 )
+
+
+def parse_build_modules() -> tuple[list[str], list[str]]:
+    """Read the authoritative MODULES array from build.sh."""
+
+    errors: list[str] = []
+    modules: list[str] = []
+    in_modules = False
+    found_modules = False
+    closed_modules = False
+
+    for lineno, line in enumerate(BUILD_SCRIPT.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.strip()
+        if not in_modules:
+            if stripped == "MODULES=(":
+                in_modules = True
+                found_modules = True
+            continue
+
+        if stripped == ")":
+            closed_modules = True
+            break
+        if not stripped or stripped.startswith("#"):
+            continue
+        if not MODULE_RE.fullmatch(stripped):
+            errors.append(
+                f"build.sh:{lineno}: invalid MODULES entry `{stripped}`"
+            )
+            continue
+        modules.append(stripped)
+
+    if not found_modules:
+        errors.append("build.sh: missing MODULES array")
+    elif not closed_modules:
+        errors.append("build.sh: unterminated MODULES array")
+
+    seen: set[str] = set()
+    for module in modules:
+        if module in seen:
+            errors.append(f"build.sh: duplicate MODULES entry `{module}`")
+        seen.add(module)
+
+    return modules, errors
+
+
+def check_source_inventory(modules: list[str]) -> list[str]:
+    """Require a one-to-one mapping between build modules and src/*.wir."""
+
+    errors: list[str] = []
+    expected = set(modules)
+    actual = {path.stem for path in SRC_DIR.glob("*.wir")}
+
+    for module in sorted(expected - actual):
+        errors.append(f"build.sh: listed source module is missing: src/{module}.wir")
+    for module in sorted(actual - expected):
+        errors.append(f"src/{module}.wir: source module is not listed in build.sh MODULES")
+
+    if not actual:
+        errors.append("src: no WIR source modules found")
+
+    return errors
+
+
+def parse_test_manifest() -> tuple[dict[str, str], list[str]]:
+    """Read and validate the authoritative test ladder manifest."""
+
+    errors: list[str] = []
+    cases: dict[str, str] = {}
+
+    if not TEST_MANIFEST.is_file():
+        return cases, ["test/manifest.txt: file is missing"]
+
+    for lineno, line in enumerate(TEST_MANIFEST.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.split("#", 1)[0].strip()
+        if not stripped:
+            continue
+
+        parts = stripped.split(maxsplit=2)
+        if len(parts) != 3:
+            errors.append(
+                f"test/manifest.txt:{lineno}: expected `<pass|fail> <name> <expectation>`"
+            )
+            continue
+
+        kind, name, expectation = parts
+        if kind not in {"pass", "fail"}:
+            errors.append(f"test/manifest.txt:{lineno}: unknown case kind `{kind}`")
+        if not TEST_NAME_RE.fullmatch(name):
+            errors.append(f"test/manifest.txt:{lineno}: invalid test name `{name}`")
+        if name in cases:
+            errors.append(f"test/manifest.txt:{lineno}: duplicate test case `{name}`")
+        else:
+            cases[name] = kind
+
+        if kind == "pass":
+            try:
+                exit_code = int(expectation)
+            except ValueError:
+                errors.append(
+                    f"test/manifest.txt:{lineno}: pass expectation must be an exit code"
+                )
+            else:
+                if not 0 <= exit_code <= 255:
+                    errors.append(
+                        f"test/manifest.txt:{lineno}: exit code must be between 0 and 255"
+                    )
+        elif not expectation:
+            errors.append(
+                f"test/manifest.txt:{lineno}: fail expectation must not be empty"
+            )
+
+    if not cases:
+        errors.append("test/manifest.txt: no test cases found")
+
+    return cases, errors
+
+
+def check_test_inventory(cases: dict[str, str]) -> list[str]:
+    """Require every fixture and positive golden to be represented exactly once."""
+
+    errors: list[str] = []
+    manifest_names = set(cases)
+    source_names = {path.stem for path in TEST_DIR.glob("*.wir")}
+    golden_names = {
+        path.name.removesuffix(".expected.ll")
+        for path in TEST_DIR.glob("*.expected.ll")
+    }
+    positive_names = {name for name, kind in cases.items() if kind == "pass"}
+
+    for name in sorted(manifest_names - source_names):
+        errors.append(f"test/manifest.txt: listed fixture is missing: test/{name}.wir")
+    for name in sorted(source_names - manifest_names):
+        errors.append(f"test/{name}.wir: fixture is not listed in test/manifest.txt")
+    for name in sorted(positive_names - golden_names):
+        errors.append(f"test/manifest.txt: positive golden is missing: test/{name}.expected.ll")
+    for name in sorted(golden_names - positive_names):
+        errors.append(
+            f"test/{name}.expected.ll: golden does not belong to a positive manifest case"
+        )
+
+    return errors
 
 
 def parse_signature(lines: list[str], index: int) -> tuple[str, list[str], str]:
@@ -86,6 +233,16 @@ def check_file(path: Path) -> list[str]:
 
     text = raw.decode("utf-8")
     lines = text.splitlines()
+    versions = [
+        match.group(1)
+        for line in lines
+        if (match := CORE_VERSION_RE.match(line)) is not None
+    ]
+    if versions != ["2"]:
+        rendered = ", ".join(versions) if versions else "none"
+        errors.append(
+            f"{rel}: expected exactly one `(core-version 2)`, found {rendered}"
+        )
 
     for lineno, line in enumerate(lines, start=1):
         if line.rstrip() != line:
@@ -118,10 +275,8 @@ def check_file(path: Path) -> list[str]:
 
         if block[0].strip() != ";":
             errors.append(f"{rel}:{block_start + 1}: documentation block must start with `;`")
-
         if len(block) < 2 or block[1].strip() != f"; {name}":
             errors.append(f"{rel}:{fn_line}: documentation block must name {name}")
-
         if block[-1].strip() != ";":
             errors.append(f"{rel}:{fn_line}: documentation block must end with `;`")
 
@@ -161,7 +316,13 @@ def check_file(path: Path) -> list[str]:
 
 
 def main() -> int:
-    errors: list[str] = []
+    modules, errors = parse_build_modules()
+    errors.extend(check_source_inventory(modules))
+
+    cases, manifest_errors = parse_test_manifest()
+    errors.extend(manifest_errors)
+    errors.extend(check_test_inventory(cases))
+
     for path in sorted(SRC_DIR.glob("*.wir")):
         errors.extend(check_file(path))
 
@@ -170,7 +331,7 @@ def main() -> int:
             print(error)
         return 1
 
-    print("WIR source style checks passed.")
+    print("WIR source and test inventory checks passed.")
     return 0
 
 

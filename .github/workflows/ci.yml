@@ -2,8 +2,8 @@
 #
 # Continuous integration for weavec1.
 #
-# Linux consumes the published weavec0 bootstrap SDK. macOS retains the source
-# fallback until a native SDK is published for that platform.
+# Linux consumes the published weavec0 SDK. macOS retains the source fallback
+# until a native Stage 0 SDK is published for that platform.
 
 name: ci
 
@@ -12,6 +12,9 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -67,17 +70,29 @@ jobs:
           llvm-as --version
           git --version
 
+      - name: Audit frozen WIR implementation
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            python3 scripts/check_wir_source_style.py
+            python3 scripts/audit_wir_reachability.py
+          } 2>&1 | tee audit.log
+
       - name: Build compiler chain and run full ladder
         shell: bash
         run: |
           set -o pipefail
           ./build.sh 2>&1 | tee build.log
 
-      - name: Upload failed build log
+      - name: Upload failed diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-${{ matrix.name }}
-          path: build.log
-          if-no-files-found: error
+          name: diagnostics-${{ matrix.name }}-${{ github.run_id }}
+          path: |
+            audit.log
+            build.log
+            build/audit/*.json
+          if-no-files-found: warn
           retention-days: 7
