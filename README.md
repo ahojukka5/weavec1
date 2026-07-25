@@ -22,14 +22,13 @@ build/weavec1
     ↓
 compile the same sources again
     ↓
-second Stage 1 generation
+build/weavec1-selfhost
     ↓
 byte-identical output on the full ladder
 ```
 
-The second generation is named **`weavec1-selfhost`** and is written to
-`build/weavec1-selfhost`. It is the same WIR compiler rebuilt by itself; it is
-not the user-facing [`weavec`](https://github.com/ahojukka5/weavec) compiler.
+`build/weavec1-selfhost` is the Stage 1 backend rebuilt by itself. It is not the
+user-facing [`weavec`](https://github.com/ahojukka5/weavec) compiler.
 
 ## Compiler chain
 
@@ -48,9 +47,9 @@ weavec-bootstrap
 | Component | Repository | Role |
 |---|---|---|
 | `weavec0` | [`ahojukka5/weavec0`](https://github.com/ahojukka5/weavec0) | Hand-written Stage 0 seed and SDK. |
-| `weavec1` | **this repository** | WIR compiler and Stage 1 SDK. |
-| `weavec-bootstrap` | [`ahojukka5/weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Surface-to-WIR bootstrap frontend, formerly `weavefront`. |
-| `weavec` | [`ahojukka5/weavec`](https://github.com/ahojukka5/weavec) | User-facing self-hosted compiler, formerly `weavec1-selfhost`. |
+| `weavec1` | **this repository** | Complete stable WIR v2 backend and Stage 1 SDK. |
+| `weavec-bootstrap` | [`ahojukka5/weavec-bootstrap`](https://github.com/ahojukka5/weavec-bootstrap) | Surface-to-WIR-v2 bootstrap frontend, formerly `weavefront`. |
+| `weavec` | [`ahojukka5/weavec`](https://github.com/ahojukka5/weavec) | User-facing self-hosted compiler, formerly `weavec2`. |
 
 Normal users should use `weavec`. This repository is a reproducible bootstrap
 stage and should change conservatively.
@@ -60,7 +59,7 @@ stage and should change conservatively.
 ### Debian or Ubuntu
 
 ```sh
-sudo apt-get install -y clang curl llvm
+sudo apt-get install -y clang curl llvm python3
 ```
 
 For the musl variant:
@@ -84,6 +83,9 @@ source fallback because no native macOS Stage 0 SDK is published.
 ```sh
 git clone https://github.com/ahojukka5/weavec1.git
 cd weavec1
+python3 scripts/check_docs.py
+python3 scripts/check_wir_source_style.py
+python3 scripts/audit_wir_reachability.py
 ./build.sh
 ```
 
@@ -128,16 +130,19 @@ Environment overrides:
 The normal Linux build:
 
 1. downloads or reuses a checksum-verified Stage 0 SDK;
-2. compiles every `src/*.wir` module with `bin/weavec0`;
-3. derives deterministic cross-module declarations from the generated modules;
+2. compiles every production WIR module with `bin/weavec0`;
+3. derives deterministic cross-module declarations from generated definitions;
 4. links `build/weavec1` from the generated Stage 1 modules and runtime;
 5. runs positive and negative compiler tests;
-6. builds the second Stage 1 generation from the same sources;
+6. builds `build/weavec1-selfhost` from the same sources;
 7. runs the same test ladder through it;
 8. compares every positive LLVM output byte for byte.
 
 A failed download, checksum mismatch, missing required SDK component, conflicting
 module declaration, test failure, or bootstrap divergence aborts the build.
+
+The complete module graph and boundary design are documented in
+[`docs/architecture.md`](docs/architecture.md).
 
 ## Published Stage 1 SDK
 
@@ -161,7 +166,7 @@ weavec1-vX.Y.Z-linux-x86_64-<libc>/
 The SDK contains exactly what `weavec-bootstrap` needs: a fully static
 WIR-to-LLVM compiler, the matching runtime library, and ABI metadata.
 
-See [`docs/RELEASING.md`](docs/RELEASING.md).
+See [`docs/releasing.md`](docs/releasing.md).
 
 ## Repository layout
 
@@ -171,8 +176,8 @@ weavec1/
 ├── VERSION
 ├── src/                         WIR compiler modules
 ├── test/                        WIR fixtures and LLVM goldens
-├── scripts/                     source checks and SDK packaging
-├── docs/                        WIR, stabilization, and release contracts
+├── scripts/                     source, documentation, and SDK audits
+├── docs/                        architecture and stable backend contracts
 └── build/                       generated compilers and test outputs
 ```
 
@@ -192,38 +197,56 @@ Useful examples:
 - [`test/55_integration_nested_control_flow.wir`](test/55_integration_nested_control_flow.wir)
 - [`test/59_new_operators.wir`](test/59_new_operators.wir)
 
-## Repository audit
+Fixture policy is documented in
+[`docs/llvm-fixtures.md`](docs/llvm-fixtures.md).
 
-Run both repository audits before committing:
+## Repository audits
+
+Run all repository audits before committing:
 
 ```sh
+python3 scripts/check_docs.py
 python3 scripts/check_wir_source_style.py
 python3 scripts/audit_wir_reachability.py
 ```
 
-CI and release workflows require both audits. They enforce:
+CI and release workflows require the audits. They enforce:
 
+- lowercase, navigable documentation and valid local links;
 - a one-to-one mapping between `build.sh` and `src/*.wir`;
 - exactly one WIR core version 2 declaration in every production module;
 - the documented WIR source-style contract;
 - a one-to-one mapping between test fixtures, manifest cases, and positive LLVM
   goldens;
 - resolution of every direct WIR call target;
-- reachability of every source function from the executable `main` entry point;
+- reachability of every source function from executable `main`;
 - use of every source-level extern declaration.
 
 The current audited implementation has 377 source functions, all reachable from
 `main`, and 11 source extern declarations, all used. The reachability audit
-writes the machine-readable report
-`build/audit/weavec1-reachability.json`.
+writes `build/audit/weavec1-reachability.json`.
+
+## Stabilization policy
+
+WIR core version 2 is the stable boundary between Stage 0 and Stage 1. Published
+SDKs currently cover Linux x86-64 only. Without a new WIR version, changes are
+limited to compatible correctness, diagnostics, deterministic implementation,
+test, documentation, and packaging improvements.
+
+See [`docs/stabilization.md`](docs/stabilization.md).
 
 ## Known limitations
 
-- WIR core version 2 is the stable boundary between Stage 0 and Stage 1.
 - Published SDKs currently cover Linux x86-64 only.
 - Source comments are not preserved in generated LLVM IR.
 - The admitted extern set is intentionally small and versioned upstream.
 - Diagnostics remain compact and mostly lack precise source ranges.
+
+## Documentation
+
+Start with [`docs/index.md`](docs/index.md). Files under `docs/` use lowercase
+kebab-case names. Conventional root metadata keeps its standard uppercase
+spelling.
 
 ## License
 
@@ -233,6 +256,7 @@ Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE) and
 ## Contributing
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md),
-[`docs/STABILIZATION.md`](docs/STABILIZATION.md), and
-[`docs/RELEASING.md`](docs/RELEASING.md) before changing WIR, bootstrap
-behavior, or the published SDK.
+[`docs/architecture.md`](docs/architecture.md),
+[`docs/stabilization.md`](docs/stabilization.md), and
+[`docs/releasing.md`](docs/releasing.md) before changing WIR, bootstrap behavior,
+documentation, or the published SDK.
