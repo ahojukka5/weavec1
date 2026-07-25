@@ -194,17 +194,28 @@ Useful examples:
 
 ## Repository audit
 
-Run the repository audit before committing:
+Run both repository audits before committing:
 
 ```sh
 python3 scripts/check_wir_source_style.py
+python3 scripts/audit_wir_reachability.py
 ```
 
-CI and release workflows require this audit. It enforces a one-to-one mapping
-between `build.sh` and `src/*.wir`, requires every production module to declare
-WIR core version 2, applies the documented source-style rules, and verifies that
-every test fixture and positive LLVM golden belongs to exactly one manifest
-case.
+CI and release workflows require both audits. They enforce:
+
+- a one-to-one mapping between `build.sh` and `src/*.wir`;
+- exactly one WIR core version 2 declaration in every production module;
+- the documented WIR source-style contract;
+- a one-to-one mapping between test fixtures, manifest cases, and positive LLVM
+  goldens;
+- resolution of every direct WIR call target;
+- reachability of every source function from the executable `main` entry point;
+- use of every source-level extern declaration.
+
+The current audited implementation has 377 source functions, all reachable from
+`main`, and 11 source extern declarations, all used. The reachability audit
+writes the machine-readable report
+`build/audit/weavec1-reachability.json`.
 
 ## Known limitations
 
