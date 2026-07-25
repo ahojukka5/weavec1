@@ -34,6 +34,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Audit frozen WIR source boundary
+        run: python3 scripts/check_wir_source_style.py
+
       - name: Install LLVM and libc toolchains
         run: |
           sudo apt-get update
