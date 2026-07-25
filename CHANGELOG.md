@@ -7,6 +7,8 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-07-25
+
 ### Added
 
 - A required source and test inventory audit covering production modules,
@@ -23,6 +25,9 @@ published SDK are maintained as explicit bootstrap contracts.
 - Parser and driver diagnostic helpers now meet the documented source contract.
 - The compiler driver has one real file-compilation entry point rather than a
   forwarding compatibility layer.
+- Cross-module LLVM declarations are derived from generated module definitions
+  and extern declarations instead of a duplicated shell-level ABI list.
+- Declaration generation rejects conflicting signatures before linking.
 
 ### Removed
 

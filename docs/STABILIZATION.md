@@ -25,7 +25,7 @@ WIR and provide the user-facing compiler.
 - Every test fixture and positive golden belongs to exactly one manifest case.
 - Every direct WIR call resolves, every source function is reachable from
   `main`, and every source extern declaration is used.
-- Linux builds consume `weavec0 v0.4.0`; `weavec1 v0.3.0` publishes the matching
+- Linux builds consume `weavec0 v0.4.0`; `weavec1 v0.3.1` publishes the matching
   Stage 1 SDK.
 
 The current audited implementation contains 377 source functions and 11 source

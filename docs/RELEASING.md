@@ -40,10 +40,10 @@ Install LLVM, binutils, musl tools, curl, and the usual C toolchain. Then run:
 
 ```bash
 WEAVEC0_LIBC=glibc ./build.sh
-scripts/package-linux-sdk.sh glibc v0.3.0 dist
+scripts/package-linux-sdk.sh glibc v0.3.1 dist
 
 WEAVEC0_LIBC=musl ./build.sh
-scripts/package-linux-sdk.sh musl v0.3.0 dist
+scripts/package-linux-sdk.sh musl v0.3.1 dist
 ```
 
 The packaging script verifies static linkage and compiles, links, and runs a
