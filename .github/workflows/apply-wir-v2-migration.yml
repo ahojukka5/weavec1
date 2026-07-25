@@ -43,6 +43,39 @@ jobs:
       - name: Apply migration
         run: python3 scripts/apply-wir-v2-migration.py
 
+      - name: Honor explicit Stage 0 source override
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('build.sh')
+          text = path.read_text()
+          old = '''  if [[ -n "${WEAVEC0_SDK:-}" ]]; then
+              log "using WEAVEC0_SDK: $WEAVEC0_SDK"
+              validate_sdk "$WEAVEC0_SDK"
+            elif host_has_published_sdk; then
+              download_weavec0_sdk
+            else
+              log "no published SDK for $(uname -s)/$(uname -m); using source fallback"
+              ensure_weavec0_source
+            fi
+          '''
+          new = '''  if [[ -n "${WEAVEC0_SDK:-}" ]]; then
+              log "using WEAVEC0_SDK: $WEAVEC0_SDK"
+              validate_sdk "$WEAVEC0_SDK"
+            elif [[ -n "${WEAVEC0:-}" ]]; then
+              ensure_weavec0_source
+            elif host_has_published_sdk; then
+              download_weavec0_sdk
+            else
+              log "no published SDK for $(uname -s)/$(uname -m); using source fallback"
+              ensure_weavec0_source
+            fi
+          '''
+          if text.count(old) != 1:
+              raise SystemExit('unexpected ensure_weavec0 layout')
+          path.write_text(text.replace(old, new, 1))
+          PY
+
       - name: Validate complete bootstrap chain
         id: validate
         shell: bash
