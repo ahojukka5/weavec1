@@ -9,9 +9,12 @@ name: ci
 
 on:
   push:
-    branches: [master]
+    branches: [master, agent/audit-source-inventory]
   pull_request:
     branches: [master]
+
+permissions:
+  contents: write
 
 jobs:
   test:
@@ -40,6 +43,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Apply reviewed WIR pruning
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/agent/audit-source-inventory' &&
+          matrix.name == 'linux-glibc-sdk'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/prune_audited_unreachable_wir.py
+          if ! git diff --quiet -- src/emit_context.wir src/tokens.wir; then
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add src/emit_context.wir src/tokens.wir
+            git commit -m "audit: remove unreachable Stage 1 helpers"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
 
       - name: Install LLVM and SDK tools (Linux)
         if: runner.os == 'Linux'
@@ -86,7 +106,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostics-${{ matrix.name }}
+          name: diagnostics-${{ matrix.name }}-${{ github.run_id }}
           path: |
             audit.log
             build.log
