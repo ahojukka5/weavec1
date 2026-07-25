@@ -15,6 +15,7 @@ from typing import TypeAlias
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = REPO_ROOT / "src"
 DEFAULT_REPORT = REPO_ROOT / "build" / "audit" / "weavec1-reachability.json"
+CALL_FORMS = {"call_bool", "call_i32", "call_i64", "call_ptr", "call_void"}
 
 
 @dataclass(frozen=True)
@@ -161,7 +162,7 @@ def direct_calls(function: list[SExpr]) -> set[str]:
         if not isinstance(node, list) or len(node) < 2:
             continue
         head, target = node[0], node[1]
-        if isinstance(head, str) and head.startswith("call_") and isinstance(target, str):
+        if head in CALL_FORMS and isinstance(target, str):
             calls.add(target)
     return calls
 
