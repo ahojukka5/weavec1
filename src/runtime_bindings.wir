@@ -1,13 +1,13 @@
 ; SPDX-License-Identifier: Apache-2.0
 ; runtime_bindings.wir
 ;
-; Runtime function declarations used by generated LLVM.
+; Runtime and libc declarations used by the Stage 1 compiler binary.
 ;
 ; Responsibilities:
-;   - declare file IO and fatal error hooks
-;   - provide tiny pointer predicates used by WIR source
+;   - declare the allocation, text, output, and file IO hooks used by the compiler
+;   - expose the two versioned file IO bindings through typed WIR wrappers
 ;
-; Implementations are supplied by the runtime linked with emitted LLVM.
+; Implementations are supplied by libc and the runtime linked with emitted LLVM.
 
 (core-module
   (core-version 2)
@@ -40,12 +40,6 @@
       (params
         (text ptr))
       (returns i64))
-    (extern
-      strcmp
-      (params
-        (a ptr)
-        (b ptr))
-      (returns i32))
     (extern
       strncmp
       (params
@@ -81,11 +75,6 @@
         (data ptr)
         (length i64))
       (returns i32))
-    (extern
-      weave_rt_fatal
-      (params
-        (message ptr))
-      (returns void))
 
 ; =============================================================================
 ; Runtime bindings
@@ -128,7 +117,8 @@
 ;   length - byte length.
 ;
 ; Returns:
-;   pointer to loaded bytes, or null on read failure.
+;   0 on success.
+;   nonzero on write failure.
 ;
 (fn write_file
       (params
@@ -143,72 +133,4 @@
             (param_get path)
             (param_get data)
             (param_get length)))))
-
-;
-; fatal
-;
-; Declares the runtime binding for `fatal`.
-; The implementation is supplied by the runtime linked with generated LLVM.
-;
-; Parameters:
-;   message - message text pointer.
-;
-; Returns:
-;   0 on success.
-;   nonzero on write failure.
-;
-(fn fatal
-      (params
-        (message ptr))
-      (returns i32)
-      (do
-        (call_void
-          weave_rt_fatal
-          (param_get message))
-        (return
-          (const_i32 1))))
-
-;
-; is_null
-;
-; Returns whether the tested value satisfies `null`.
-; The predicate is kept small so parser, lexer, and runtime checks stay readable.
-;
-; Parameters:
-;   p - pointer value.
-;
-; Returns:
-;   no value; the runtime aborts execution.
-;
-(fn is_null
-      (params
-        (p ptr))
-      (returns bool)
-      (do
-        (return
-          (eq_ptr
-            (param_get p)
-            (const_null)))))
-
-;
-; not_null
-;
-; Returns whether the tested value satisfies `not null`.
-; The predicate is kept small so parser, lexer, and runtime checks stay readable.
-;
-; Parameters:
-;   p - pointer value.
-;
-; Returns:
-;   1 when true.
-;   0 when false.
-;
-(fn not_null
-      (params
-        (p ptr))
-      (returns bool)
-      (do
-        (return
-          (ne_ptr
-            (param_get p)
-            (const_null)))))))
+))
