@@ -38,7 +38,7 @@ weavec0 v0.4.0 SDK
         ↓
       weavec1
         ↓
-weavec1 v0.3.0 SDK
+weavec1 v0.3.1 SDK
         ↓
 weavec-bootstrap
         ↓
@@ -129,19 +129,19 @@ The normal Linux build:
 
 1. downloads or reuses a checksum-verified Stage 0 SDK;
 2. compiles every `src/*.wir` module with `bin/weavec0`;
-3. generates deterministic cross-module declarations;
+3. derives deterministic cross-module declarations from the generated modules;
 4. links `build/weavec1` from the generated Stage 1 modules and runtime;
 5. runs positive and negative compiler tests;
 6. builds the second Stage 1 generation from the same sources;
 7. runs the same test ladder through it;
 8. compares every positive LLVM output byte for byte.
 
-A failed download, checksum mismatch, missing required SDK component, test
-failure, or bootstrap divergence aborts the build.
+A failed download, checksum mismatch, missing required SDK component, conflicting
+module declaration, test failure, or bootstrap divergence aborts the build.
 
 ## Published Stage 1 SDK
 
-Release `v0.3.0` publishes static Linux x86-64 SDKs for glibc and musl:
+Release `v0.3.1` publishes static Linux x86-64 SDKs for glibc and musl:
 
 ```text
 weavec1-vX.Y.Z-linux-x86_64-<libc>/
