@@ -159,34 +159,6 @@
                 (param_get index)))))))
 
 ;
-; ast_d_at
-;
-; Reads the `d` field from a node in AST storage.
-; This hides the fixed node byte layout from parser and emitter code.
-;
-; Parameters:
-;   ast - AST container pointer.
-;   index - zero-based node, token, or byte index.
-;
-; Returns:
-;   node `d` field value.
-;
-(fn ast_d_at
-      (params
-        (ast ptr)
-        (index i64))
-      (returns i64)
-      (do
-        (return
-          (load_i64
-            (call_ptr
-              node_d_field
-              (call_ptr
-                ast_node_at
-                (param_get ast)
-                (param_get index)))))))
-
-;
 ; ast_text_start_at
 ;
 ; Reads the `text_start` field from a node in AST storage.
