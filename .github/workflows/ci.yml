@@ -2,8 +2,8 @@
 #
 # Continuous integration for weavec1.
 #
-# Linux consumes the published weavec0 bootstrap SDK. macOS retains the source
-# fallback until a native SDK is published for that platform.
+# Linux consumes the published weavec0 SDK. macOS retains the source fallback
+# until a native Stage 0 SDK is published for that platform.
 
 name: ci
 
@@ -14,41 +14,11 @@ on:
     branches: [master]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  prune-audited-source:
-    name: apply audited source pruning
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.head_ref == 'agent/audit-source-inventory'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Remove reviewed unreachable helpers
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/prune_audited_unreachable_wir.py
-          if ! git diff --quiet -- src/emit_context.wir src/tokens.wir; then
-            git config user.name github-actions[bot]
-            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            git add src/emit_context.wir src/tokens.wir
-            git commit -m "audit: remove unreachable Stage 1 helpers"
-            git push origin HEAD:${GITHUB_HEAD_REF}
-          fi
-
   test:
     name: build & test (${{ matrix.name }})
-    needs: prune-audited-source
-    if: >-
-      always() &&
-      (needs.prune-audited-source.result == 'success' ||
-       needs.prune-audited-source.result == 'skipped')
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -100,7 +70,7 @@ jobs:
           llvm-as --version
           git --version
 
-      - name: Audit frozen WIR source boundary
+      - name: Audit frozen WIR implementation
         shell: bash
         run: |
           set -o pipefail
@@ -124,6 +94,5 @@ jobs:
             audit.log
             build.log
             build/audit/*.json
-            src/*.wir
           if-no-files-found: warn
           retention-days: 7
