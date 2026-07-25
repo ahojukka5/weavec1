@@ -59,15 +59,10 @@ jobs:
               raise SystemExit('unexpected ensure_weavec0 layout')
           path.write_text(text.replace(old, new, 1))
           PY
+          git checkout -- .github/workflows/ci.yml .github/workflows/release.yml
           git diff --check
 
-      - name: Remove temporary machinery
-        run: |
-          git rm scripts/apply-wir-v2-migration.py
-          git rm .github/workflows/apply-wir-v2-migration.yml
-          git rm .github/workflows/publish-wir-v2-migration.yml
-
-      - name: Commit and push
+      - name: Commit and push compiler tree
         run: |
           git add -A
           git commit -m 'release: migrate Stage 1 to WIR v2'
