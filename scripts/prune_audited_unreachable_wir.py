@@ -71,7 +71,7 @@ def comment_block_start(lines: list[str], fn_index: int) -> int:
 
 def remove_functions(path: Path, names: set[str]) -> None:
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
-    ranges: list[tuple[int, int, str]] = []
+    ranges: list[tuple[int, int, str, str]] = []
 
     for index, line in enumerate(lines):
         match = FN_RE.match(line.rstrip("\n"))
@@ -79,28 +79,37 @@ def remove_functions(path: Path, names: set[str]) -> None:
             continue
         name = match.group(1)
         depth = 0
-        end = index
+        replacement = ""
         for end in range(index, len(lines)):
             depth += paren_delta(lines[end])
-            if depth == 0:
+            if depth <= 0:
+                replacement = ")" * (-depth) + "\n" if depth < 0 else ""
                 end += 1
                 break
         else:
             raise RuntimeError(f"{path}: unterminated function {name}")
-        ranges.append((comment_block_start(lines, index), end, name))
+        ranges.append(
+            (comment_block_start(lines, index), end, name, replacement)
+        )
 
-    found = {name for _, _, name in ranges}
+    found = {name for _, _, name, _ in ranges}
     missing = names - found
     if missing:
         remaining_text = "".join(lines)
         still_defined = {
-            name for name in missing if re.search(rf"^\s*\(fn\s+{re.escape(name)}(?:\s|$)", remaining_text, re.M)
+            name
+            for name in missing
+            if re.search(
+                rf"^\s*\(fn\s+{re.escape(name)}(?:\s|$)",
+                remaining_text,
+                re.M,
+            )
         }
         if still_defined:
             raise RuntimeError(f"{path}: failed to locate {sorted(still_defined)}")
 
-    for start, end, _ in sorted(ranges, reverse=True):
-        del lines[start:end]
+    for start, end, _, replacement in sorted(ranges, reverse=True):
+        lines[start:end] = [replacement] if replacement else []
 
     while any(
         lines[index].strip() == "" and lines[index - 1].strip() == ""
