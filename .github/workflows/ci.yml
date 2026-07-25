@@ -91,5 +91,6 @@ jobs:
             audit.log
             build.log
             build/audit/*.json
+            src/*.wir
           if-no-files-found: warn
           retention-days: 7
