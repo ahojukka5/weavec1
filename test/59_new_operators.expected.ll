@@ -76,3 +76,4 @@ entry:
   %t29 = trunc i64 %t28 to i32
   ret i32 %t29
 }
+
