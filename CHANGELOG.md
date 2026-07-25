@@ -7,6 +7,30 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+### Added
+
+- A required source and test inventory audit covering production modules,
+  WIR core versions, manifest cases, and LLVM goldens.
+- A machine-readable WIR call-graph report that requires every source function
+  to be reachable from `main` and every source extern declaration to be used.
+- Active division, remainder, bitwise, and shift coverage from the previously
+  dormant `59_new_operators` fixture.
+
+### Changed
+
+- CI and release builds run the frozen-source audits before constructing the
+  compiler and preserve audit and build diagnostics on failure.
+- Parser and driver diagnostic helpers now meet the documented source contract.
+- The compiler driver has one real file-compilation entry point rather than a
+  forwarding compatibility layer.
+
+### Removed
+
+- The unbuilt `stage0_bridge.wir` compatibility residue.
+- Unreachable token helpers, AST and emitter accessors, runtime wrappers, and
+  the unused string-compilation entry point.
+- Unused `strcmp` and `weave_rt_fatal` source declarations.
+
 ## [0.3.0] — 2026-07-25
 
 ### Added
@@ -36,8 +60,7 @@ published SDK are maintained as explicit bootstrap contracts.
 - Updated downstream terminology after `weavefront` was renamed to
   `weavec-bootstrap` and the surface compiler repository `weavec2` was renamed
   to `weavec`.
-- Defined the second Stage 1 generation conceptually as `weavec1-selfhost` while
-  documenting that the current compatibility path remains `build/weavec2`.
+- Defined the second Stage 1 generation as `weavec1-selfhost`.
 - Clarified the compile-time boundary between the Stage 0 compiler and the
   generated Stage 1 implementation.
 
