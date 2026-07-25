@@ -235,22 +235,9 @@ prepare_link_modules() {
   local link_ll_dir="$2"
   local compiler_name="$3"
 
+  local raw_decls="$BUILD_DIR/$compiler_name.decls.raw.ll"
   local all_decls="$BUILD_DIR/$compiler_name.decls.ll"
   {
-    printf 'declare i32 @puts(ptr)\n'
-    printf 'declare ptr @malloc(i64)\n'
-    printf 'declare void @free(ptr)\n'
-    printf 'declare ptr @realloc(ptr, i64)\n'
-    printf 'declare ptr @memcpy(ptr, ptr, i64)\n'
-    printf 'declare i64 @strlen(ptr)\n'
-    printf 'declare i32 @strcmp(ptr, ptr)\n'
-    printf 'declare i32 @strncmp(ptr, ptr, i64)\n'
-    printf 'declare i32 @atoi(ptr)\n'
-    printf 'declare i32 @putchar(i32)\n'
-    printf 'declare ptr @weave_rt_read_file(ptr, ptr)\n'
-    printf 'declare i32 @weave_rt_write_file(ptr, ptr, i64)\n'
-    printf 'declare void @weave_rt_fatal(ptr)\n'
-
     local module
     for module in "${MODULES[@]}"; do
       awk '
@@ -259,10 +246,35 @@ prepare_link_modules() {
           gsub(/\{[[:space:]]*$/, "", signature)
           sub(/^define /, "declare ", signature)
           print signature
+          next
+        }
+        /^declare / {
+          print
         }
       ' "$src_ll_dir/${module}.ll"
     done
-  } > "$all_decls"
+  } > "$raw_decls"
+
+  awk '
+    {
+      if (!match($0, /@[A-Za-z0-9_.$-]+/)) {
+        print
+        next
+      }
+      name = substr($0, RSTART, RLENGTH)
+      if (name in signature) {
+        if (signature[name] != $0) {
+          printf "conflicting declaration for %s:\n  %s\n  %s\n", \
+            name, signature[name], $0 > "/dev/stderr"
+          exit 1
+        }
+        next
+      }
+      signature[name] = $0
+      print
+    }
+  ' "$raw_decls" > "$all_decls"
+  rm -f "$raw_decls"
 
   local module
   for module in "${MODULES[@]}"; do
