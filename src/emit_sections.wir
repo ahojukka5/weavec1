@@ -12,7 +12,7 @@
 ; without adding a separate analysis phase.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================
@@ -79,7 +79,7 @@
         (call_i32
           emit_cstr
           (param_get ctx)
-          (const_string_ptr "; core-version: 1"))
+          (const_string_ptr "; core-version: 2"))
         (call_i32
           emit_newline
           (param_get ctx))

@@ -2,7 +2,7 @@
 ; driver_diag.wir — parse failure diagnostics for the weavec1 driver
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
   (fn driver_print_cstr_no_nl

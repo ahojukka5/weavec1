@@ -13,7 +13,7 @@
 ; immediately when a nested statement fails.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

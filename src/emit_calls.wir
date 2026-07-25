@@ -11,7 +11,7 @@
 ; The helpers assume semantic validity from the parser and AST layout.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

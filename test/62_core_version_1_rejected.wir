@@ -1,0 +1,12 @@
+; 62_core_version_1_rejected.wir
+; purpose: rejects the superseded WIR core version 1 contract.
+
+(core-module
+  (core-version 1)
+  (decls
+    (fn main
+      (params)
+      (returns i32)
+      (do
+        (return
+          (const_i32 0)))))))

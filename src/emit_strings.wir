@@ -12,7 +12,7 @@
 ; Escape handling is explicit to keep bootstrap behavior visible.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

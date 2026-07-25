@@ -12,7 +12,7 @@
 ; The emitter favors direct, readable LLVM text over compact abstraction.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

@@ -7,8 +7,20 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-07-25
+
+### Added
+
+- A regression proving the superseded core version 1 contract is rejected.
+- Documentation of the distinction between the minimal Stage 0 bootstrap
+  profile and the complete Stage 1 WIR v2 backend.
+
 ### Changed
 
+- Migrated all Stage 1 source modules and fixtures to WIR core version 2.
+- The compiler now requires core version 2 and emits `; core-version: 2`.
+- The default Stage 0 dependency is `weavec0 v0.4.0`.
+- Bumped the Stage 1 SDK version to 0.3.0.
 - Renamed the second Stage 1 bootstrap generation from the ambiguous
   `build/weavec2` path to `build/weavec1-selfhost`.
 - Renamed the corresponding build variables, directories, diagnostics, and

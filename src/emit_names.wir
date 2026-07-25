@@ -11,7 +11,7 @@
 ; Deterministic names keep golden LLVM comparisons stable.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

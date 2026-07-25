@@ -12,7 +12,7 @@
 ; The lexer works byte-by-byte by design so bootstrap behavior is predictable.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

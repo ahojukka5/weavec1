@@ -12,7 +12,7 @@
 ; rather than hidden behind a compact dispatch table.
 
 (core-module
-  (core-version 1)
+  (core-version 2)
   (decls
 
 ; =============================================================================

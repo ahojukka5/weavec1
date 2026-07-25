@@ -16,7 +16,7 @@ set -euo pipefail
 #   WEAVEC0_SDK=/path/to/extracted/sdk
 #       Use an already extracted SDK directory.
 #
-#   WEAVEC0_VERSION=v0.2.1
+#   WEAVEC0_VERSION=v0.4.0
 #       Select the published weavec0 SDK release.
 #
 #   WEAVEC0_LIBC=glibc|musl
@@ -26,7 +26,7 @@ set -euo pipefail
 #       Backwards-compatible source-tree override. Used directly after running
 #       that tree's build.sh when necessary.
 #
-#   WEAVEC0_TAG=v0.2.1
+#   WEAVEC0_TAG=v0.4.0
 #       Source fallback tag for platforms without a published SDK.
 # =============================================================================
 
@@ -58,7 +58,7 @@ TEST_EXE_DIR="$BUILD_DIR/test-bin"
 SELFHOST_TEST_EXE_DIR="$BUILD_DIR/test2-bin"
 MANIFEST="$TEST_DIR/manifest.txt"
 
-WEAVEC0_VERSION="${WEAVEC0_VERSION:-v0.2.1}"
+WEAVEC0_VERSION="${WEAVEC0_VERSION:-v0.4.0}"
 WEAVEC0_TAG="${WEAVEC0_TAG:-$WEAVEC0_VERSION}"
 WEAVEC0_LIBC="${WEAVEC0_LIBC:-glibc}"
 WEAVEC0_RELEASE_BASE="${WEAVEC0_RELEASE_BASE:-https://github.com/ahojukka5/weavec0/releases/download}"
@@ -207,6 +207,8 @@ ensure_weavec0() {
   if [[ -n "${WEAVEC0_SDK:-}" ]]; then
     log "using WEAVEC0_SDK: $WEAVEC0_SDK"
     validate_sdk "$WEAVEC0_SDK"
+  elif [[ -n "${WEAVEC0:-}" ]]; then
+    ensure_weavec0_source
   elif host_has_published_sdk; then
     download_weavec0_sdk
   else
