@@ -7,6 +7,20 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+### Added
+
+- A documentation index, a complete Stage 1 architecture document, and an
+  automated audit for lowercase documentation names and valid local links.
+
+### Changed
+
+- Standardized maintained files under `docs/` on lowercase kebab-case names.
+- Clarified the module layers, Stage 0 build-time boundary, derived declaration
+  graph, and two-generation rebuild model.
+- Corrected current naming so `weavec1-selfhost` means only the second Stage 1
+  generation, while the final `weavec` repository is identified by its former
+  name `weavec2`.
+
 ## [0.3.1] — 2026-07-25
 
 ### Added
