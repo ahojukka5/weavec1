@@ -67,9 +67,6 @@ jobs:
           llvm-as --version
           git --version
 
-      - name: Omit Stage 0 implementation from final link
-        run: python3 scripts/experiment_drop_stage0_object.py
-
       - name: Build compiler chain and run full ladder
         shell: bash
         run: |
