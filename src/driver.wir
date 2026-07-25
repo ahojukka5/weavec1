@@ -7,7 +7,7 @@
 ;   - load source text when compiling files
 ;   - create parser and output buffers
 ;   - run parse and LLVM emission phases in order
-;   - expose file, buffer, and string compilation entry points
+;   - expose the file and internal buffer compilation entry points
 ;
 ; This module owns phase sequencing, not parsing or emission details.
 
@@ -279,7 +279,7 @@
 ;
 ; compile_file
 ;
-; Runs the compiler pipeline for `file`.
+; Compiles one WIR source file to an LLVM IR output file.
 ; The driver owns phase order while parser and emitter modules own details.
 ;
 ; Parameters:
@@ -291,32 +291,6 @@
 ;   nonzero on compile or IO failure.
 ;
 (fn compile_file
-      (params
-        (input_path ptr)
-        (output_path ptr))
-      (returns i32)
-      (do
-        (return
-          (call_i32
-            compile_file_self_hosted
-            (param_get input_path)
-            (param_get output_path)))))
-
-;
-; compile_file_self_hosted
-;
-; Runs the compiler pipeline for `file self hosted`.
-; The driver owns phase order while parser and emitter modules own details.
-;
-; Parameters:
-;   input_path - input file path pointer.
-;   output_path - output file path pointer.
-;
-; Returns:
-;   0 on success.
-;   nonzero on compile or IO failure.
-;
-(fn compile_file_self_hosted
       (params
         (input_path ptr)
         (output_path ptr))
@@ -474,79 +448,4 @@
           (local_get source_data))
         (return
           (const_i32 0))))
-
-;
-; compile_string
-;
-; Runs the compiler pipeline for `string`.
-; The driver owns phase order while parser and emitter modules own details.
-;
-; Parameters:
-;   source_text - null-terminated source text pointer.
-;
-; Returns:
-;   0 on success.
-;   nonzero on compile or IO failure.
-;
-(fn compile_string
-      (params
-        (source_text ptr))
-      (returns ptr)
-      (do
-        (if
-          (condition
-            (eq_ptr
-              (param_get source_text)
-              (const_null)))
-          (then
-            (do
-              (return
-                (const_null))))
-          (else
-            (do)))
-        (let
-          output
-          ptr
-          (call_ptr buffer_new))
-        (if
-          (condition
-            (eq_ptr
-              (local_get output)
-              (const_null)))
-          (then
-            (do
-              (return
-                (const_null))))
-          (else
-            (do)))
-        (let
-          length
-          i64
-          (call_i64
-            strlen
-            (param_get source_text)))
-        (let
-          status
-          i32
-          (call_i32
-            compile_buffer_to_buffer
-            (param_get source_text)
-            (local_get length)
-            (const_null)
-            (local_get output)))
-        (if
-          (condition
-            (ne_i32
-              (local_get status)
-              (const_i32 0)))
-          (then
-            (do
-              (call_void
-                buffer_free
-                (local_get output))
-              (return
-                (const_null))))
-          (else
-            (do)))
-        (return
-          (local_get output))))))
+))
