@@ -9,7 +9,7 @@ name: ci
 
 on:
   push:
-    branches: [master, agent/audit-source-inventory]
+    branches: [master]
   pull_request:
     branches: [master]
 
@@ -17,8 +17,38 @@ permissions:
   contents: write
 
 jobs:
+  prune-audited-source:
+    name: apply audited source pruning
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.head_ref == 'agent/audit-source-inventory'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Remove reviewed unreachable helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/prune_audited_unreachable_wir.py
+          if ! git diff --quiet -- src/emit_context.wir src/tokens.wir; then
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add src/emit_context.wir src/tokens.wir
+            git commit -m "audit: remove unreachable Stage 1 helpers"
+            git push origin HEAD:${GITHUB_HEAD_REF}
+          fi
+
   test:
     name: build & test (${{ matrix.name }})
+    needs: prune-audited-source
+    if: >-
+      always() &&
+      (needs.prune-audited-source.result == 'success' ||
+       needs.prune-audited-source.result == 'skipped')
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -43,23 +73,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Apply reviewed WIR pruning
-        if: >-
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/agent/audit-source-inventory' &&
-          matrix.name == 'linux-glibc-sdk'
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/prune_audited_unreachable_wir.py
-          if ! git diff --quiet -- src/emit_context.wir src/tokens.wir; then
-            git config user.name github-actions[bot]
-            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            git add src/emit_context.wir src/tokens.wir
-            git commit -m "audit: remove unreachable Stage 1 helpers"
-            git push origin HEAD:${GITHUB_REF_NAME}
-          fi
 
       - name: Install LLVM and SDK tools (Linux)
         if: runner.os == 'Linux'
