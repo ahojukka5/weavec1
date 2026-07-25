@@ -1,4 +1,4 @@
-# LLVM IR Fixture Testing
+# LLVM IR fixture testing
 
 This document describes the deterministic LLVM fixture system used by
 `weavec1`.
@@ -42,15 +42,15 @@ build/weavec1
 ```
 
 The build then constructs a second Stage 1 generation and compares its output
-with the first. The current compatibility path for that compiler is:
+with the first:
 
 ```text
 build/weavec1-selfhost
 ```
 
-Conceptually this artifact is `weavec1-selfhost`. It is unrelated to the final
-[`weavec`](https://github.com/ahojukka5/weavec) compiler repository, which was
-formerly named `weavec1-selfhost`.
+This artifact is the Stage 1 backend rebuilt by itself. It is unrelated to the
+final [`weavec`](https://github.com/ahojukka5/weavec) compiler repository, which
+was formerly named `weavec2`.
 
 ## Normal workflow
 
@@ -119,13 +119,12 @@ build/weavec1-selfhost test/NN_name.wir /tmp/selfhost.ll
 diff -u /tmp/stage1.ll /tmp/selfhost.ll
 ```
 
-The second command uses the current historical binary path. A divergence
-between these files is always a compiler or nondeterminism bug, not a fixture
-update request.
+A divergence between these files is always a compiler or nondeterminism bug,
+not a fixture update request.
 
 Common causes include:
 
-- uninitialised state;
+- uninitialized state;
 - host-dependent behavior;
 - unstable iteration order;
 - inconsistent source paths;
@@ -138,8 +137,8 @@ Common causes include:
 A `fail` manifest row specifies the diagnostic substring expected from the
 compiler. The test verifies that:
 
-- the compiler exits non-zero;
-- no non-empty LLVM output is produced;
+- the compiler exits nonzero;
+- no nonempty LLVM output is produced;
 - the diagnostic contains the expected text.
 
 Negative cases do not have `.expected.ll` files.
@@ -168,6 +167,8 @@ Do not:
 weavec0 → weavec1 → weavec-bootstrap → weavec
 ```
 
-The fixtures in this repository stabilize the WIR-to-LLVM backend shared by
-the bootstrap chain. Surface-language fixtures and final self-host behavior are
+The fixtures in this repository stabilize the WIR-to-LLVM backend shared by the
+bootstrap chain. Surface-language fixtures and final self-host behavior are
 validated in `weavec-bootstrap` and `weavec`, respectively.
+
+See [architecture](architecture.md) and [stabilization](stabilization.md).

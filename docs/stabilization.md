@@ -1,4 +1,4 @@
-# WIR Core Stabilization
+# WIR core stabilization
 
 This document records the stabilized WIR core version 2 and Stage 0/Stage 1
 bootstrap boundary.
@@ -43,9 +43,10 @@ pinned `weavec1` source modules. Stage 1 implements the complete stable v2
 backend. Expanding Stage 0 merely to match Stage 1 is not a goal.
 
 Without a new WIR version, changes are limited to bug fixes, deterministic
-internal improvements, clearer diagnostics, tests, and compatible SDK packaging.
-Changing semantics, removing admitted Stage 1 forms, breaking valid v2 programs,
-or changing the runtime ABI incompatibly requires coordinated versioning.
+internal improvements, clearer diagnostics, tests, documentation, and compatible
+SDK packaging. Changing semantics, removing admitted Stage 1 forms, breaking
+valid v2 programs, or changing the runtime ABI incompatibly requires coordinated
+versioning.
 
 ## Dependency release order
 
@@ -61,6 +62,7 @@ Downstream pins never move before upstream assets and `SHA256SUMS` exist.
 Run the static repository audits directly:
 
 ```sh
+python3 scripts/check_docs.py
 python3 scripts/check_wir_source_style.py
 python3 scripts/audit_wir_reachability.py
 ```
@@ -68,3 +70,6 @@ python3 scripts/audit_wir_reachability.py
 `./build.sh` then verifies Stage 0 acquisition, first-generation construction,
 the complete ladder, second-generation construction, and byte-identical output.
 CI and release workflows require both the static audits and the complete build.
+
+See [architecture](architecture.md), [LLVM fixtures](llvm-fixtures.md), and
+[releasing](releasing.md).

@@ -3,17 +3,17 @@
 This document defines the source style used by `weavec1` WIR files.
 
 The project intentionally prioritizes explicitness, auditability, and
-readability over compactness. The source should be easy for humans and LLMs to
-navigate, review, and explain without relying on hidden conventions.
+readability over compactness. The source should be easy for humans and coding
+agents to navigate, review, and explain without relying on hidden conventions.
 
 ## Module headers
 
 Every source module starts with a short architecture header:
 
-- the file name
-- the module responsibility
-- a concise `Responsibilities:` list
-- any important boundary or design note
+- the file name;
+- the module responsibility;
+- a concise `Responsibilities:` list;
+- any important boundary or design note.
 
 Headers should explain where the module fits in the compiler, not repeat every
 function name in the file.
@@ -64,10 +64,10 @@ state the failure sentinel.
 
 Document hidden AST layout assumptions near the functions that depend on them:
 
-- required AST node kind
-- field layout such as `a=condition`, `b=body`
-- ownership and lifetime assumptions
-- whether child nodes are emitted elsewhere
+- required AST node kind;
+- field layout such as `a=condition`, `b=body`;
+- ownership and lifetime assumptions;
+- whether child nodes are emitted elsewhere.
 
 Use `Notes:` for intentional design tradeoffs. Linear dispatch chains, manual
 storage layouts, explicit text emission, and repetitive low-level code are often
@@ -99,7 +99,7 @@ Files must not contain trailing whitespace and must end with a newline.
 
 ## Checker
 
-Run the source style checker before committing documentation changes:
+Run the source-style checker before committing source changes:
 
 ```sh
 python3 scripts/check_wir_source_style.py
@@ -109,3 +109,5 @@ The checker is intentionally heuristic. It verifies the repository convention
 that every function has a nearby documentation block, parameter documentation,
 return documentation, consistent spacing, no trailing whitespace, and a final
 newline.
+
+See [architecture](architecture.md) for the module boundaries.
