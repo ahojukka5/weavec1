@@ -33,7 +33,7 @@ depend on nothing but `/usr/lib/libSystem.B.dylib`, verified with `otool -L`.
 ## Build and package
 
 ```sh
-brew install llvm
+brew install llvm gh
 export PATH="$(brew --prefix llvm)/bin:$PATH"
 ./build.sh
 scripts/package-macos-sdk.sh vX.Y.Z
@@ -48,13 +48,25 @@ The packaging script:
 - compiles and runs a Stage 1 smoke program;
 - writes an architecture-specific tar archive under `dist/`.
 
-## Publish
+## Publish without GitHub Actions
 
-Publication is automatic, same as the Linux SDKs: see
-[Automatic release](releasing.md#automatic-release). The `build-macos` release
-job builds and packages both `macos-arm64` and `macos-x86_64` on hosted GitHub
-Actions runners; `publish-release` folds their archives into the same
-`SHA256SUMS` used for the Linux assets.
+The project does not depend on GitHub Actions being available. From a clean
+checkout containing a locally qualified `build/weavec1`, run:
+
+```sh
+scripts/publish-macos-sdk.sh
+```
+
+The publisher derives `v<VERSION>`, builds the native archive, creates or updates
+the matching GitHub Release, merges the archive checksum into `SHA256SUMS`, and
+verifies that both assets are visible. It never rebuilds Linux packages.
+
+Version `v0.3.2` adds native macOS packages only. The unchanged Linux Stage 1
+SDK remains `v0.3.1`; downstream build scripts therefore select the dependency
+version by host platform rather than assuming one release contains every host.
+
+The release workflow may publish the same assets when Actions are available,
+but it is optional and is not part of the manual development workflow.
 
 ## Compatibility
 

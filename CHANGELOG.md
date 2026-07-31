@@ -14,6 +14,8 @@ published SDK are maintained as explicit bootstrap contracts.
 - Native `macos-arm64` and `macos-x86_64` SDK packaging, verified with a
   `libSystem`-only self-containment check and published automatically by the
   release workflow alongside the Linux SDKs.
+- A manual macOS SDK publisher that creates or updates the host release, retains
+  existing asset checksums, and does not require GitHub Actions.
 
 ### Changed
 
@@ -24,6 +26,8 @@ published SDK are maintained as explicit bootstrap contracts.
   generation, while the final `weavec` repository is identified by its former
   name `weavec2`.
 - Bumped the Stage 1 SDK version to 0.3.2 for native macOS package publication.
+- Defined platform-addition releases so unchanged Linux builds can remain pinned
+  to `v0.3.1` while macOS consumes `v0.3.2`.
 
 ## [0.3.1] — 2026-07-25
 
