@@ -107,12 +107,89 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  build-macos:
+    name: macOS (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            arch: arm64
+          - os: macos-15-intel
+            arch: x86_64
+
+    env:
+      WEAVEC0_VERSION: v0.4.0
+      WEAVEC0_TAG: v0.4.0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install LLVM toolchain
+        run: |
+          brew install llvm git
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+
+      - name: Show toolchain versions
+        run: |
+          clang --version
+          llvm-as --version
+          llvm-link --version
+
+      - name: Run the deterministic packaging regression
+        run: bash test/package-macos-sdk/test.sh
+
+      - name: Build compiler chain and run the full ladder
+        shell: bash
+        run: |
+          set -o pipefail
+          ./build.sh 2>&1 | tee build.log
+
+      - name: Select archive version
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            version="$GITHUB_REF_NAME"
+          elif [[ "$GITHUB_REF" == refs/heads/master ]]; then
+            version="v$(tr -d '[:space:]' < VERSION)"
+          else
+            version="git-${GITHUB_SHA::12}"
+          fi
+          printf 'value=%s\n' "$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build native macOS SDK archive
+        run: |
+          scripts/package-macos-sdk.sh \
+            "${{ steps.version.outputs.value }}" \
+            dist
+
+      - name: Upload SDK archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: weavec1-macos-${{ matrix.arch }}
+          path: dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload failed diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-diagnostics-macos-${{ matrix.arch }}
+          path: build.log
+          if-no-files-found: warn
+          retention-days: 7
+
   publish-release:
     name: Publish GitHub Release
     if: >-
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'push' && github.ref == 'refs/heads/master')
-    needs: build-linux
+    needs: [build-linux, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -154,7 +231,7 @@ jobs:
           steps.release.outputs.replace == 'true'
         uses: actions/download-artifact@v4
         with:
-          pattern: weavec1-linux-x86_64-*
+          pattern: weavec1-*
           path: dist
           merge-multiple: true
 

@@ -67,7 +67,8 @@ conservatively.
 
 CI validates documentation and frozen-source audits, Linux x86-64 with glibc and
 musl Stage 0 SDKs, and macOS with the source fallback. The release workflow
-additionally builds and smoke-tests both Stage 1 SDK variants.
+additionally builds and smoke-tests both Linux Stage 1 SDK variants and the
+native macOS arm64 and x86_64 Stage 1 SDKs.
 
 ## SDK-affecting changes
 
