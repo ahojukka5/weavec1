@@ -13,6 +13,8 @@ fixture contract, source conventions, and published Stage 1 SDK.
 - [LLVM fixtures](llvm-fixtures.md) — deterministic golden and negative-fixture
   policy.
 - [Source style](source-style.md) — WIR module and function documentation rules.
+- [macOS Stage 1 SDK](macos-sdk.md) — native package layout, validation, and
+  manual release publication from the target Mac.
 - [Releasing](releasing.md) — Stage 1 SDK packaging and publication.
 - [Contributing](../CONTRIBUTING.md) — change policy and required checks.
 - [Changelog](../CHANGELOG.md) — released and pending changes.

@@ -11,6 +11,9 @@ published SDK are maintained as explicit bootstrap contracts.
 
 - A documentation index, a complete Stage 1 architecture document, and an
   automated audit for lowercase documentation names and valid local links.
+- Native `macos-arm64` and `macos-x86_64` SDK packaging, verified with a
+  `libSystem`-only self-containment check and published automatically by the
+  release workflow alongside the Linux SDKs.
 
 ### Changed
 
@@ -20,6 +23,7 @@ published SDK are maintained as explicit bootstrap contracts.
 - Corrected current naming so `weavec1-selfhost` means only the second Stage 1
   generation, while the final `weavec` repository is identified by its former
   name `weavec2`.
+- Bumped the Stage 1 SDK version to 0.3.2 for native macOS package publication.
 
 ## [0.3.1] — 2026-07-25
 
