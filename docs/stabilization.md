@@ -69,7 +69,8 @@ python3 scripts/audit_wir_reachability.py
 
 `./build.sh` then verifies Stage 0 acquisition, first-generation construction,
 the complete ladder, second-generation construction, and byte-identical output.
-CI and release workflows require both the static audits and the complete build.
+CI requires both the static audits and the complete build. The release
+workflow repeats that ladder only when it is packaging a published SDK.
 
 See [architecture](architecture.md), [LLVM fixtures](llvm-fixtures.md), and
 [releasing](releasing.md).

@@ -32,9 +32,11 @@ self-containment contract macOS uses in place of full static linking.
 
 ## Automatic release
 
-The version is stored in `VERSION`. A push to `master` builds the Linux and
-macOS SDKs and creates `v<VERSION>` when that release does not already exist.
-Existing VERSION releases are left unchanged.
+The version is stored in `VERSION`. Ordinary pull requests and master pushes
+run only `ci.yml`. The release workflow packages Linux and macOS SDKs when
+the run will publish: an explicit `v*` tag, `workflow_dispatch`, or a push
+to `master` whose `v<VERSION>` release does not already exist. A master
+push then creates that release. Existing VERSION releases are left unchanged.
 
 An explicit `v*` tag rebuilds and replaces the assets for that tag. This is
 reserved for correcting a broken release workflow or damaged assets.

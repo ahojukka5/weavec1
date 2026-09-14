@@ -65,10 +65,12 @@ conservatively.
    documentation when a public contract changes.
 8. Open a focused pull request.
 
-CI validates documentation and frozen-source audits, Linux x86-64 with glibc and
-musl Stage 0 SDKs, and macOS with the source fallback. The release workflow
-additionally builds and smoke-tests both Linux Stage 1 SDK variants and the
-native macOS arm64 and x86_64 Stage 1 SDKs.
+CI validates documentation and frozen-source audits, Linux x86-64 with glibc
+and musl Stage 0 SDKs, and macOS with the source fallback. The release workflow
+does not run on pull requests. It packages both Linux Stage 1 SDK variants and
+the native macOS arm64 and x86_64 Stage 1 SDKs on tags, on
+`workflow_dispatch`, and on a master push only when `v<VERSION>` does not
+already exist.
 
 ## SDK-affecting changes
 
