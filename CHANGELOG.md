@@ -17,6 +17,8 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ### Changed
 
+- The release workflow no longer runs on pull requests, and a master push
+  packages SDKs only when `v<VERSION>` does not already exist.
 - Standardized maintained files under `docs/` on lowercase kebab-case names.
 - Clarified the module layers, Stage 0 build-time boundary, derived declaration
   graph, and two-generation rebuild model.

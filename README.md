@@ -210,7 +210,8 @@ python3 scripts/check_wir_source_style.py
 python3 scripts/audit_wir_reachability.py
 ```
 
-CI and release workflows require the audits. They enforce:
+CI requires the audits; the release workflow repeats them when it packages
+an SDK. They enforce:
 
 - lowercase, navigable documentation and valid local links;
 - a one-to-one mapping between `build.sh` and `src/*.wir`;

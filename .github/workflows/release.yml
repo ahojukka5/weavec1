@@ -5,8 +5,6 @@ on:
   push:
     branches: [master]
     tags: ["v*"]
-  pull_request:
-    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -17,8 +15,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Ordinary compiler correctness is covered by ci.yml on every pull request
+  # and master push. Packaging here repeats the same Linux glibc/musl ladder
+  # and throws the archives away unless this run actually publishes. Skip that
+  # work when the VERSION release already exists.
+  decide:
+    name: Decide whether to package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      package: ${{ steps.decide.outputs.package }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide whether this run publishes an SDK
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]] || \
+             [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            printf 'package=true\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          tag="v$(tr -d '[:space:]' < VERSION)"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            printf 'package=false\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'package=true\n' >> "$GITHUB_OUTPUT"
+          fi
+
   build-linux:
     name: Linux x86-64 (${{ matrix.libc }})
+    needs: decide
+    if: needs.decide.outputs.package == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -109,6 +141,8 @@ jobs:
 
   build-macos:
     name: macOS (${{ matrix.arch }})
+    needs: decide
+    if: needs.decide.outputs.package == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     strategy:
