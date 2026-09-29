@@ -1,0 +1,46 @@
+(core-module
+  (core-version 2)
+  (decls
+    (fn first
+      (params)
+      (returns i32)
+      (do
+        (let result i32
+          (const_i32 1)
+        ) ;; let
+        (return
+          (local_get result)
+        ) ;; return
+      ) ;; do
+    ) ;; fn
+    (fn second
+      (params)
+      (returns i64)
+      (do
+        (let result i64
+          (const_i64 2)
+        ) ;; let
+        (set result
+          (add_i64
+            (local_get result)
+            (const_i64 40)
+          ) ;; add_i64
+        ) ;; set
+        (return
+          (local_get result)
+        ) ;; return
+      ) ;; do
+    ) ;; fn
+    (fn main
+      (params)
+      (returns i32)
+      (do
+        (return
+          (cast_i64_to_i32
+            (call_i64 second)
+          ) ;; cast_i64_to_i32
+        ) ;; return
+      ) ;; do
+    ) ;; fn
+  ) ;; decls
+) ;; core-module

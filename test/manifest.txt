@@ -100,3 +100,6 @@ pass 59_new_operators                         40
 
 # ===== Surface-style empty parameter list (60) =====
 pass 60_empty_params_paren_list               42
+
+# ===== Function-local names (63) =====
+pass 63_reused_local_name                     42

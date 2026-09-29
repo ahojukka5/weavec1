@@ -484,6 +484,18 @@
             (local_get ast)
             (param_get node)))
         (call_void
+          ctx_set_fn_first
+          (param_get ctx)
+          (local_get param_first))
+        (call_void
+          ctx_set_fn_last
+          (param_get ctx)
+          (param_get node))
+        (call_void
+          ctx_set_local_count
+          (param_get ctx)
+          (const_i64 0))
+        (call_void
           ctx_set_return_type
           (param_get ctx)
           (local_get return_type))
