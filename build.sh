@@ -6,10 +6,10 @@ set -euo pipefail
 # weavec1 — Stage 1 compiler build and bootstrap-determinism ladder
 # =============================================================================
 #
-# Linux x86-64 builds consume the published weavec0 SDK by default. Stage 0 is
-# used only as the WIR compiler executable; the final Stage 1 binaries contain
-# the Stage 1-generated modules and the matching runtime implementation, not
-# the Stage 0 compiler implementation.
+# Linux x86-64 and macOS arm64/x86_64 builds consume the published weavec0 SDK
+# by default. Stage 0 is used only as the WIR compiler executable; the final
+# Stage 1 binaries contain the Stage 1-generated modules and the matching
+# runtime implementation, not the Stage 0 compiler implementation.
 #
 # Environment overrides:
 #
@@ -27,7 +27,7 @@ set -euo pipefail
 #       that tree's build.sh when necessary.
 #
 #   WEAVEC0_TAG=v0.4.0
-#       Source fallback tag for platforms without a published SDK.
+#       Source fallback tag for hosts without a published SDK.
 # =============================================================================
 
 REGEN_GOLDENS=0
@@ -117,7 +117,26 @@ require_tool() {
 }
 
 host_has_published_sdk() {
-  [[ "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ]]
+  case "$(uname -s)/$(uname -m)" in
+    Linux/x86_64|Darwin/arm64|Darwin/x86_64) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+verify_sha256() {
+  local expected="$1"
+  local path="$2"
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$expected" "$path" | sha256sum --check -
+    return
+  fi
+  if command -v shasum >/dev/null 2>&1; then
+    local actual
+    actual="$(shasum -a 256 "$path" | awk '{ print $1 }')"
+    [[ "$actual" == "$expected" ]] || fail "checksum mismatch for $path"
+    return
+  fi
+  fail "required tool not found: sha256sum"
 }
 
 validate_sdk() {
@@ -134,15 +153,18 @@ validate_sdk() {
 
 download_weavec0_sdk() {
   require_tool curl
-  require_tool sha256sum
   require_tool tar
 
-  case "$WEAVEC0_LIBC" in
-    glibc|musl) ;;
-    *) fail "WEAVEC0_LIBC must be glibc or musl" ;;
-  esac
-
-  local package="weavec0-${WEAVEC0_VERSION}-linux-x86_64-${WEAVEC0_LIBC}"
+  local package
+  if [[ "$(uname -s)" == Darwin ]]; then
+    package="weavec0-${WEAVEC0_VERSION}-macos-$(uname -m)"
+  else
+    case "$WEAVEC0_LIBC" in
+      glibc|musl) ;;
+      *) fail "WEAVEC0_LIBC must be glibc or musl" ;;
+    esac
+    package="weavec0-${WEAVEC0_VERSION}-linux-x86_64-${WEAVEC0_LIBC}"
+  fi
   local archive="$package.tar.gz"
   local vendor_root="$BUILD_DIR/vendor/weavec0-sdk"
   local sdk="$vendor_root/$package"
@@ -158,7 +180,7 @@ download_weavec0_sdk() {
   fi
 
   mkdir -p "$cache" "$vendor_root"
-  log "downloading weavec0 SDK $WEAVEC0_VERSION ($WEAVEC0_LIBC)"
+  log "downloading weavec0 SDK $package"
   curl --fail --location --retry 3 --output "$archive_path" \
     "$release_url/$archive"
   curl --fail --location --retry 3 --output "$sums_path" \
@@ -167,7 +189,7 @@ download_weavec0_sdk() {
   local expected
   expected="$(awk -v name="$archive" '$2 == name { print $1; exit }' "$sums_path")"
   [[ -n "$expected" ]] || fail "checksum not found for $archive"
-  printf '%s  %s\n' "$expected" "$archive_path" | sha256sum --check -
+  verify_sha256 "$expected" "$archive_path"
 
   rm -rf "$sdk"
   tar -C "$vendor_root" -xzf "$archive_path"
