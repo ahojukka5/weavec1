@@ -34,7 +34,7 @@
       (returns i64)
       (do
         (return
-          (const_i64 88))))
+          (const_i64 104))))
 
 ;
 ; emit_binding_size
@@ -344,6 +344,56 @@
           (ptr_add
             (param_get ctx)
             (const_i64 80)))))
+
+;
+; ctx_fn_first_field
+;
+; Returns the address of the emission context `fn_first` field.
+; Context field helpers centralize offsets in the manual record layout.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
+;
+; Parameters:
+;   ctx - emission context pointer.
+;
+; Returns:
+;   pointer to the `fn_first` field.
+;
+(fn ctx_fn_first_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 88)))))
+
+;
+; ctx_fn_last_field
+;
+; Returns the address of the emission context `fn_last` field.
+; Context field helpers centralize offsets in the manual record layout.
+;
+; Notes:
+;   This manual storage helper is intentionally direct so offsets stay auditable.
+;
+; Parameters:
+;   ctx - emission context pointer.
+;
+; Returns:
+;   pointer to the `fn_last` field.
+;
+(fn ctx_fn_last_field
+      (params
+        (ctx ptr))
+      (returns ptr)
+      (do
+        (return
+          (ptr_add
+            (param_get ctx)
+            (const_i64 96)))))
 
 ; =============================================================================
 ; Context value accessors
@@ -848,6 +898,104 @@
             (param_get v)))
         (return_void)))
 
+;
+; ctx_fn_first
+;
+; Reads the emission context `fn first` field.
+; Accessors keep the manual context layout hidden from emitters.
+;
+; Parameters:
+;   ctx - emission context pointer.
+;
+; Returns:
+;   first AST node index owned by the function being emitted.
+;
+(fn ctx_fn_first
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_fn_first_field
+              (param_get ctx))))))
+
+;
+; ctx_fn_last
+;
+; Reads the emission context `fn last` field.
+; Accessors keep the manual context layout hidden from emitters.
+;
+; Parameters:
+;   ctx - emission context pointer.
+;
+; Returns:
+;   last AST node index owned by the function being emitted.
+;
+(fn ctx_fn_last
+      (params
+        (ctx ptr))
+      (returns i64)
+      (do
+        (return
+          (load_i64
+            (call_ptr
+              ctx_fn_last_field
+              (param_get ctx))))))
+
+;
+; ctx_set_fn_first
+;
+; Writes the emission context `fn first` field.
+; Emitters use mutators instead of writing context offsets inline.
+;
+; Parameters:
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
+;
+; Returns:
+;   no value.
+;
+(fn ctx_set_fn_first
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_fn_first_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+
+;
+; ctx_set_fn_last
+;
+; Writes the emission context `fn last` field.
+; Emitters use mutators instead of writing context offsets inline.
+;
+; Parameters:
+;   ctx - emission context pointer.
+;   v - value to store into the record field.
+;
+; Returns:
+;   no value.
+;
+(fn ctx_set_fn_last
+      (params
+        (ctx ptr)
+        (v i64))
+      (returns void)
+      (do
+        (store_i64
+          (call_ptr
+            ctx_fn_last_field
+            (param_get ctx))
+          (param_get v))
+        (return_void)))
+
 ; =============================================================================
 ; Context allocation
 ; =============================================================================
@@ -984,6 +1132,14 @@
           ctx_set_return_type
           (local_get ctx)
           (call_i32 type_i32))
+        (call_void
+          ctx_set_fn_first
+          (local_get ctx)
+          (const_i64 0))
+        (call_void
+          ctx_set_fn_last
+          (local_get ctx)
+          (const_i64 -1))
         (return
           (local_get ctx))))
 

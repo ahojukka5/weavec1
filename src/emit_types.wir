@@ -23,7 +23,8 @@
 ; emit_lookup_local_type
 ;
 ; Looks up the declared type of a local binding by name.
-; The scan is linear because local binding tables are intentionally simple fixed arrays.
+; The scan is linear and stays inside the AST node range of the function
+; currently being emitted, so an earlier function cannot reuse the name.
 ;
 ; Parameters:
 ;   ctx - emission context pointer.
@@ -76,13 +77,17 @@
         (let
           i
           i64
-          (const_i64 0))
+          (call_i64
+            ctx_fn_first
+            (param_get ctx)))
         (let
           node_count
           i64
-          (call_i64
-            ast_count
-            (local_get ast)))
+          (add_i64
+            (call_i64
+              ctx_fn_last
+              (param_get ctx))
+            (const_i64 1)))
         (while
           (condition
             (lt_i64
@@ -141,7 +146,8 @@
 ; emit_lookup_param_type
 ;
 ; Looks up the declared type of a parameter binding by name.
-; Parameter lookup mirrors local lookup so name resolution stays explicit.
+; The binding table is function-local. The AST fallback uses the same
+; function node range as local lookup.
 ;
 ; Parameters:
 ;   ctx - emission context pointer.
@@ -247,13 +253,17 @@
         (let
           i
           i64
-          (const_i64 0))
+          (call_i64
+            ctx_fn_first
+            (param_get ctx)))
         (let
           node_count
           i64
-          (call_i64
-            ast_count
-            (local_get ast)))
+          (add_i64
+            (call_i64
+              ctx_fn_last
+              (param_get ctx))
+            (const_i64 1)))
         (while
           (condition
             (lt_i64

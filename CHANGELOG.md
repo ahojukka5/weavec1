@@ -7,6 +7,11 @@ published SDK are maintained as explicit bootstrap contracts.
 
 ## [Unreleased]
 
+### Fixed
+
+- Local and parameter type lookup stays inside the function being emitted,
+  so a reused name no longer inherits an earlier function's type.
+
 ### Added
 
 - A documentation index, a complete Stage 1 architecture document, and an
