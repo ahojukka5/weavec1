@@ -37,7 +37,7 @@ weavec0 v0.4.0 SDK
         ↓
       weavec1
         ↓
-weavec1 v0.3.1 SDK
+weavec1 v0.3.2 SDK
         ↓
 weavec-bootstrap
         ↓
@@ -75,8 +75,8 @@ brew install llvm git
 export PATH="$(brew --prefix llvm)/bin:$PATH"
 ```
 
-Linux x86-64 consumes the published Stage 0 SDK by default. macOS uses a pinned
-source fallback because no native macOS Stage 0 SDK is published.
+Linux x86-64 and macOS arm64/x86_64 consume the published Stage 0 SDK by
+default. Other hosts use the pinned source fallback.
 
 ## Quick start
 
@@ -146,7 +146,8 @@ The complete module graph and boundary design are documented in
 
 ## Published Stage 1 SDK
 
-Release `v0.3.1` publishes static Linux x86-64 SDKs for glibc and musl:
+Release `v0.3.2` publishes static Linux x86-64 SDKs for glibc and musl, and
+native macOS SDKs for arm64 and x86_64. The archive layout is:
 
 ```text
 weavec1-vX.Y.Z-linux-x86_64-<libc>/
@@ -163,8 +164,10 @@ weavec1-vX.Y.Z-linux-x86_64-<libc>/
 └── NOTICE
 ```
 
-The SDK contains exactly what `weavec-bootstrap` needs: a fully static
-WIR-to-LLVM compiler, the matching runtime library, and ABI metadata.
+macOS archives use `weavec1-vX.Y.Z-macos-<arch>/` with the same contents.
+The SDK contains exactly what `weavec-bootstrap` needs: the WIR-to-LLVM
+compiler, the matching runtime library, and ABI metadata. Linux archives are
+fully static. macOS archives link `libSystem`.
 
 See [`docs/releasing.md`](docs/releasing.md).
 
@@ -230,7 +233,8 @@ writes `build/audit/weavec1-reachability.json`.
 ## Stabilization policy
 
 WIR core version 2 is the stable boundary between Stage 0 and Stage 1. Published
-SDKs currently cover Linux x86-64 only. Without a new WIR version, changes are
+SDKs cover Linux x86-64 and macOS arm64/x86_64. Without a new WIR version,
+changes are
 limited to compatible correctness, diagnostics, deterministic implementation,
 test, documentation, and packaging improvements.
 
@@ -238,7 +242,8 @@ See [`docs/stabilization.md`](docs/stabilization.md).
 
 ## Known limitations
 
-- Published SDKs currently cover Linux x86-64 only.
+- Hosts other than Linux x86-64 and macOS arm64/x86_64 use the Stage 0 source
+  fallback.
 - Source comments are not preserved in generated LLVM IR.
 - The admitted extern set is intentionally small and versioned upstream.
 - Diagnostics remain compact and mostly lack precise source ranges.
