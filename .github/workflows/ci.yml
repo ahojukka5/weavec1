@@ -2,8 +2,8 @@
 #
 # Continuous integration for weavec1.
 #
-# Linux consumes the published weavec0 SDK. macOS retains the source fallback
-# until a native Stage 0 SDK is published for that platform.
+# Linux x86-64 and macOS consume the published weavec0 SDK. Other hosts use
+# the pinned source fallback.
 
 name: ci
 
@@ -31,7 +31,7 @@ jobs:
           - name: linux-musl-sdk
             os: ubuntu-latest
             libc: musl
-          - name: macos-source-fallback
+          - name: macos-sdk
             os: macos-latest
             libc: glibc
 

@@ -88,8 +88,8 @@ lib/libweavec0-runtime.a
 1 binaries contain the generated Stage 1 modules and the matching runtime
 implementation; they do not embed the Stage 0 compiler.
 
-macOS uses the pinned Stage 0 source fallback because no native macOS Stage 0 SDK
-is currently published.
+macOS arm64 and x86_64 consume the published native Stage 0 SDK. Other hosts
+use the pinned source fallback.
 
 ## Cross-module linking
 
@@ -141,7 +141,7 @@ The repository enforces:
 - positive LLVM goldens and executable exit codes;
 - negative diagnostic and no-output behavior;
 - first-to-second-generation byte identity;
-- glibc, musl, and macOS source-fallback builds;
+- glibc, musl, and macOS SDK builds;
 - static SDK layout and installed-compiler smoke tests.
 
 The machine-readable reachability report is written to
