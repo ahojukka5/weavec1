@@ -12,6 +12,13 @@ published SDK are maintained as explicit bootstrap contracts.
 - Local and parameter type lookup stays inside the function being emitted,
   so a reused name no longer inherits an earlier function's type.
 
+### Changed
+
+- Linux x86-64 and macOS arm64/x86_64 builds consume the published Stage 0
+  SDK. Other hosts keep the pinned source fallback.
+
+## [0.3.2] — 2026-07-31
+
 ### Added
 
 - A documentation index, a complete Stage 1 architecture document, and an
