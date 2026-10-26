@@ -20,7 +20,8 @@ set -euo pipefail
 #       Select the published weavec0 SDK release.
 #
 #   WEAVEC0_LIBC=glibc|musl
-#       Select the Linux SDK and linker. Default: glibc.
+#       Select the Linux SDK and static linker. Default: glibc.
+#       macOS ignores this value and links the SDK archive with libSystem.
 #
 #   WEAVEC0=/path/to/weavec0/source
 #       Backwards-compatible source-tree override. Used directly after running
@@ -350,6 +351,15 @@ link_compiler_from_sdk() {
     objects+=("$object")
   done
 
+  # Apple rejects a fully static executable. The SDK archive stays static;
+  # libSystem is the only dynamic dependency, matching package-macos-sdk.sh.
+  if [[ "$(uname -s)" == Darwin ]]; then
+    log "link $compiler_name with weavec0 runtime (macos)"
+    clang "${objects[@]}" \
+      "$BOOTSTRAP_RUNTIME_LIBRARY" -o "$output"
+    return
+  fi
+
   log "link $compiler_name with weavec0 runtime ($WEAVEC0_LIBC)"
   case "$WEAVEC0_LIBC" in
     glibc)
@@ -360,6 +370,9 @@ link_compiler_from_sdk() {
       require_tool musl-gcc
       musl-gcc -static "${objects[@]}" \
         "$BOOTSTRAP_RUNTIME_LIBRARY" -o "$output"
+      ;;
+    *)
+      fail "WEAVEC0_LIBC must be glibc or musl on Linux"
       ;;
   esac
 }
