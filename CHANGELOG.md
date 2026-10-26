@@ -11,6 +11,8 @@ published SDK are maintained as explicit bootstrap contracts.
 
 - Local and parameter type lookup stays inside the function being emitted,
   so a reused name no longer inherits an earlier function's type.
+- macOS Stage 0 SDK builds link the runtime archive with libSystem.
+  Linux glibc and musl stay fully static.
 
 ### Changed
 
